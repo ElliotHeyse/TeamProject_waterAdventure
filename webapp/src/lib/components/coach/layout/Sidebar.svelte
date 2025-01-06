@@ -16,12 +16,12 @@
 	let isSidebarOpen = $state(true);
 
 	const navItems = [
-		{ href: '/', label: 'Overview', icon: ChartBar },
-		{ href: '/lessons', label: 'Lessons', icon: AcademicCap },
-		{ href: '/pupils', label: 'Pupils', icon: UserGroup },
-		{ href: '/submissions', label: 'Submissions', icon: ClipboardDocumentCheck },
-		{ href: '/chat', label: 'Chat', icon: ChatBubbleLeftRight },
-		{ href: '/settings', label: 'Settings', icon: Cog6Tooth }
+		{ href: '/coach', label: 'Overview', icon: ChartBar },
+		{ href: '/coach/lessons', label: 'Lessons', icon: AcademicCap },
+		{ href: '/coach/pupils', label: 'Pupils', icon: UserGroup },
+		{ href: '/coach/submissions', label: 'Submissions', icon: ClipboardDocumentCheck },
+		{ href: '/coach/chat', label: 'Chat', icon: ChatBubbleLeftRight },
+		{ href: '/coach/settings', label: 'Settings', icon: Cog6Tooth }
 	];
 </script>
 

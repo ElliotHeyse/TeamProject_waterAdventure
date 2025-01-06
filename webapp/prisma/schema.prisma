@@ -1,0 +1,165 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String
+  password  String
+  role      UserRole @default(PARENT)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  coach  Coach?
+  parent Parent?
+}
+
+enum UserRole {
+  COACH
+  PARENT
+}
+
+model Coach {
+  id          String   @id @default(cuid())
+  userId      String   @unique
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  bio         String?
+  specialties String[]
+
+  // Relations
+  pupils    Pupil[]
+  lessons   Lesson[]
+  reviews   Review[]
+  messages  Message[] @relation("CoachMessages")
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}
+
+model Parent {
+  id     String  @id @default(cuid())
+  userId String  @unique
+  user   User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  phone  String?
+
+  // Relations
+  pupils    Pupil[]
+  messages  Message[] @relation("ParentMessages")
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}
+
+model Pupil {
+  id          String   @id @default(cuid())
+  name        String
+  dateOfBirth DateTime
+  level       Level    @default(BEGINNER)
+  parentId    String
+  coachId     String
+  notes       String?
+
+  // Relations
+  parent       Parent        @relation(fields: [parentId], references: [id])
+  coach        Coach         @relation(fields: [coachId], references: [id])
+  submissions  Submission[]
+  lessonPupils LessonPupil[]
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+}
+
+enum Level {
+  BEGINNER
+  INTERMEDIATE
+  ADVANCED
+}
+
+model Lesson {
+  id          String   @id @default(cuid())
+  title       String
+  description String
+  coachId     String
+  duration    Int // in minutes
+  level       Level
+  date        DateTime
+
+  // Relations
+  coach       Coach        @relation(fields: [coachId], references: [id])
+  submissions Submission[]
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+}
+
+model LessonPupil {
+  id       String  @id @default(cuid())
+  lessonId String
+  pupilId  String
+  attended Boolean @default(false)
+
+  // Relations
+  pupil     Pupil    @relation(fields: [pupilId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([lessonId, pupilId])
+}
+
+model Submission {
+  id       String           @id @default(cuid())
+  lessonId String
+  pupilId  String
+  videoUrl String
+  status   SubmissionStatus @default(PENDING)
+  feedback String?
+
+  // Relations
+  lesson    Lesson   @relation(fields: [lessonId], references: [id])
+  pupil     Pupil    @relation(fields: [pupilId], references: [id])
+  review    Review?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+enum SubmissionStatus {
+  PENDING
+  REVIEWED
+}
+
+model Review {
+  id           String @id @default(cuid())
+  submissionId String @unique
+  coachId      String
+  rating       Int    @default(0)
+  comment      String
+
+  // Relations
+  submission Submission @relation(fields: [submissionId], references: [id])
+  coach      Coach      @relation(fields: [coachId], references: [id])
+  createdAt  DateTime   @default(now())
+  updatedAt  DateTime   @updatedAt
+}
+
+model Message {
+  id       String  @id @default(cuid())
+  content  String
+  coachId  String
+  parentId String
+  read     Boolean @default(false)
+
+  // Relations
+  coach     Coach    @relation("CoachMessages", fields: [coachId], references: [id])
+  parent    Parent   @relation("ParentMessages", fields: [parentId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}

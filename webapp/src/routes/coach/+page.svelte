@@ -9,19 +9,21 @@
 		Envelope,
 		Calendar
 	} from 'svelte-hero-icons';
+	import type { PageData } from './$types';
+	import type { ActivityItem } from './types';
 
-	let stats = $state({
-		totalPupils: 24,
-		activeLessons: 8,
-		pendingSubmissions: 12,
-		unreadMessages: 5
-	});
+	let { data } = $props<{ data: PageData }>();
 
-	let recentActivity = $state([
-		{ type: 'submission', text: 'New video submission from Alice', time: '2 hours ago' },
-		{ type: 'message', text: "Message from Bob's parent", time: '3 hours ago' },
-		{ type: 'lesson', text: 'New lesson scheduled: Advanced Freestyle', time: '5 hours ago' }
-	]);
+	function getActivityIcon(type: ActivityItem['type']) {
+		switch (type) {
+			case 'submission':
+				return VideoCamera;
+			case 'message':
+				return Envelope;
+			case 'lesson':
+				return Calendar;
+		}
+	}
 </script>
 
 <div class="space-y-6">
@@ -31,7 +33,7 @@
 			<div class="flex items-center justify-between">
 				<div>
 					<p class="text-sm font-medium text-gray-600">Total Pupils</p>
-					<p class="text-2xl font-semibold text-gray-900">{stats.totalPupils}</p>
+					<p class="text-2xl font-semibold text-gray-900">{data.stats.totalPupils}</p>
 				</div>
 				<Icon src={UserGroup} class="h-8 w-8 text-gray-400" />
 			</div>
@@ -41,7 +43,7 @@
 			<div class="flex items-center justify-between">
 				<div>
 					<p class="text-sm font-medium text-gray-600">Active Lessons</p>
-					<p class="text-2xl font-semibold text-gray-900">{stats.activeLessons}</p>
+					<p class="text-2xl font-semibold text-gray-900">{data.stats.activeLessons}</p>
 				</div>
 				<Icon src={BookOpen} class="h-8 w-8 text-gray-400" />
 			</div>
@@ -51,7 +53,7 @@
 			<div class="flex items-center justify-between">
 				<div>
 					<p class="text-sm font-medium text-gray-600">Pending Submissions</p>
-					<p class="text-2xl font-semibold text-gray-900">{stats.pendingSubmissions}</p>
+					<p class="text-2xl font-semibold text-gray-900">{data.stats.pendingSubmissions}</p>
 				</div>
 				<Icon src={ClipboardDocumentCheck} class="h-8 w-8 text-gray-400" />
 			</div>
@@ -61,7 +63,7 @@
 			<div class="flex items-center justify-between">
 				<div>
 					<p class="text-sm font-medium text-gray-600">Unread Messages</p>
-					<p class="text-2xl font-semibold text-gray-900">{stats.unreadMessages}</p>
+					<p class="text-2xl font-semibold text-gray-900">{data.stats.unreadMessages}</p>
 				</div>
 				<Icon src={ChatBubbleLeftRight} class="h-8 w-8 text-gray-400" />
 			</div>
@@ -73,16 +75,9 @@
 		<div class="p-6">
 			<h3 class="text-lg font-semibold text-gray-900">Recent Activity</h3>
 			<div class="mt-4 space-y-4">
-				{#each recentActivity as activity}
+				{#each data.recentActivity as activity}
 					<div class="flex items-start space-x-4 rounded-lg p-4 transition-colors hover:bg-gray-50">
-						<Icon
-							src={activity.type === 'submission'
-								? VideoCamera
-								: activity.type === 'message'
-									? Envelope
-									: Calendar}
-							class="h-5 w-5 text-gray-600"
-						/>
+						<Icon src={getActivityIcon(activity.type)} class="h-5 w-5 text-gray-600" />
 						<div class="flex-1">
 							<p class="text-gray-900">{activity.text}</p>
 							<p class="text-sm text-gray-500">{activity.time}</p>

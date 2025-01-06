@@ -1,7 +1,7 @@
 <script lang="ts">
 	import '$lib/styles/app.css';
-	import Sidebar from '$lib/components/layout/Sidebar.svelte';
-	import Header from '$lib/components/layout/Header.svelte';
+	import Sidebar from '$lib/components/coach/layout/Sidebar.svelte';
+	import Header from '$lib/components/coach/layout/Header.svelte';
 
 	let { children } = $props();
 </script>
