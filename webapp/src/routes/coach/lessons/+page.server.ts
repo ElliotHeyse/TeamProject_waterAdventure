@@ -1,0 +1,52 @@
+import { prisma } from '$lib/server/db';
+import type { PageServerLoad, Actions } from './$types';
+import type { LessonsPageData } from '$lib/types/lessons';
+import { fail } from '@sveltejs/kit';
+
+export const load = (async () => {
+	const lessons = await prisma.lesson.findMany({
+		orderBy: [{ date: 'asc' }, { title: 'asc' }]
+	});
+
+	return { lessons };
+}) satisfies PageServerLoad;
+
+export const actions = {
+	createLesson: async ({ request }) => {
+		const formData = await request.formData();
+		const title = formData.get('title') as string;
+		const description = formData.get('description') as string;
+		const level = formData.get('level') as 'BEGINNER' | 'INTERMEDIATE' | 'ADVANCED';
+		const duration = parseInt(formData.get('duration') as string);
+		const date = formData.get('date') as string;
+		const maxPupils = parseInt(formData.get('maxPupils') as string);
+
+		if (!title || !description || !level || !duration || !date || !maxPupils) {
+			return fail(400, { message: 'Missing required fields' });
+		}
+
+		// Get the coach ID (you'll need to implement proper auth later)
+		const coach = await prisma.coach.findFirst();
+		if (!coach) {
+			return fail(500, { message: 'No coach found' });
+		}
+
+		try {
+			await prisma.lesson.create({
+				data: {
+					title,
+					description,
+					level,
+					duration,
+					date: new Date(date),
+					coachId: coach.id
+				}
+			});
+		} catch (error) {
+			console.error('Failed to create lesson:', error);
+			return fail(500, { message: 'Failed to create lesson' });
+		}
+
+		return { success: true };
+	}
+} satisfies Actions;
