@@ -39,9 +39,10 @@
 	},
 	"dependencies": {
 		"@prisma/client": "^6.1.0",
+		"@sveltejs/adapter-node": "^5.2.11",
 		"@tanstack/table-core": "^8.20.5",
 		"bcrypt": "^5.1.1",
-		"shadcn-svelte": "next",
+		"shadcn-svelte": "^0.14.0",
 		"svelte-headless-table": "^0.18.3",
 		"svelte-hero-icons": "^5.2.0",
 		"svelte-radix": "^2.0.1",
