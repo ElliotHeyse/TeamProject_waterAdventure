@@ -4,10 +4,12 @@
 	import { Icon, UserCircle } from 'svelte-hero-icons';
 	import { Button } from '$lib/components/coach/ui/button';
 	import { cn } from '$lib/components/coach/utils';
+	import type { ActionData } from './$types';
 
-	let email = '';
-	let password = '';
-	let error = '';
+	let { form } = $props<{ form: ActionData }>();
+
+	let email = $state('');
+	let password = $state('');
 
 	const inputStyles = "flex h-9 w-full rounded-md border border-input bg-white px-3 py-1 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50";
 </script>
@@ -15,8 +17,8 @@
 <div class="relative flex min-h-screen flex-col items-center justify-center">
 	<!-- Background split -->
 	<div class="absolute inset-0">
-		<div class="h-1/2 bg-[#FF5555]" />
-		<div class="h-1/2 bg-gray-900" />
+		<div class="h-1/2 bg-[#FF5555]"></div>
+		<div class="h-1/2 bg-gray-900"></div>
 	</div>
 
 	<!-- Content -->
@@ -35,10 +37,10 @@
 			</div>
 
 			<form method="POST" use:enhance class="space-y-6">
-				{#if error}
+				{#if form?.error}
 					<div class="rounded-md bg-red-50 p-4 text-sm text-red-700">
 						<p class="font-medium">Authentication failed</p>
-						<p>{error}</p>
+						<p>{form.error}</p>
 					</div>
 				{/if}
 
@@ -51,7 +53,8 @@
 							name="email"
 							class={inputStyles}
 							required
-							bind:value={email}
+							value={email}
+							oninput={(e) => email = e.currentTarget.value}
 							placeholder="you@example.com"
 						/>
 					</div>
@@ -64,7 +67,8 @@
 							name="password"
 							class={inputStyles}
 							required
-							bind:value={password}
+							value={password}
+							oninput={(e) => password = e.currentTarget.value}
 							placeholder="Enter your password"
 						/>
 					</div>
