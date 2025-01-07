@@ -24,67 +24,85 @@
 				return Calendar;
 		}
 	}
+
+	const stats = [
+		{
+			title: 'Total Pupils',
+			value: data.stats.totalPupils,
+			icon: UserGroup,
+			description: 'Active students in your classes',
+			href: '/coach/pupils'
+		},
+		{
+			title: 'Active Lessons',
+			value: data.stats.activeLessons,
+			icon: BookOpen,
+			description: 'Ongoing lessons this week',
+			href: '/coach/lessons'
+		},
+		{
+			title: 'Pending Submissions',
+			value: data.stats.pendingSubmissions,
+			icon: ClipboardDocumentCheck,
+			description: 'Submissions awaiting review',
+			href: '/coach/submissions'
+		},
+		{
+			title: 'Unread Messages',
+			value: data.stats.unreadMessages,
+			icon: ChatBubbleLeftRight,
+			description: 'Messages requiring attention',
+			href: '/coach/chat'
+		}
+	];
 </script>
 
-<div class="space-y-6">
+<div class="space-y-8 p-6">
 	<div class="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
-		<!-- Stats Cards -->
-		<div class="bg-card text-card-foreground rounded-lg border shadow-sm">
-			<div class="flex items-center justify-between p-6">
-				<div>
-					<p class="text-muted-foreground text-sm font-medium">Total Pupils</p>
-					<p class="text-2xl font-semibold">{data.stats.totalPupils}</p>
+		{#each stats as stat}
+			<a
+				href={stat.href}
+				class="group relative block overflow-hidden rounded-sm border bg-card p-6 transition-all duration-200 hover:shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+			>
+				<div
+					class="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 transition-opacity duration-200 group-hover:opacity-100"
+				></div>
+				<div class="relative flex items-center justify-between">
+					<div class="space-y-2">
+						<p class="text-sm font-medium text-muted-foreground">{stat.title}</p>
+						<p class="text-3xl font-bold tracking-tight">{stat.value}</p>
+						<p class="text-xs text-muted-foreground">{stat.description}</p>
+					</div>
+					<div
+						class="rounded-full bg-primary/10 p-3 transition-transform duration-200 group-hover:scale-110"
+					>
+						<Icon src={stat.icon} class="h-6 w-6 text-primary" />
+					</div>
 				</div>
-				<Icon src={UserGroup} class="text-muted-foreground h-8 w-8" />
-			</div>
-		</div>
-
-		<div class="bg-card text-card-foreground rounded-lg border shadow-sm">
-			<div class="flex items-center justify-between p-6">
-				<div>
-					<p class="text-muted-foreground text-sm font-medium">Active Lessons</p>
-					<p class="text-2xl font-semibold">{data.stats.activeLessons}</p>
-				</div>
-				<Icon src={BookOpen} class="text-muted-foreground h-8 w-8" />
-			</div>
-		</div>
-
-		<div class="bg-card text-card-foreground rounded-lg border shadow-sm">
-			<div class="flex items-center justify-between p-6">
-				<div>
-					<p class="text-muted-foreground text-sm font-medium">Pending Submissions</p>
-					<p class="text-2xl font-semibold">{data.stats.pendingSubmissions}</p>
-				</div>
-				<Icon src={ClipboardDocumentCheck} class="text-muted-foreground h-8 w-8" />
-			</div>
-		</div>
-
-		<div class="bg-card text-card-foreground rounded-lg border shadow-sm">
-			<div class="flex items-center justify-between p-6">
-				<div>
-					<p class="text-muted-foreground text-sm font-medium">Unread Messages</p>
-					<p class="text-2xl font-semibold">{data.stats.unreadMessages}</p>
-				</div>
-				<Icon src={ChatBubbleLeftRight} class="text-muted-foreground h-8 w-8" />
-			</div>
-		</div>
+			</a>
+		{/each}
 	</div>
 
-	<!-- Recent Activity -->
-	<div class="bg-card text-card-foreground rounded-lg border shadow-sm">
-		<div class="p-6">
-			<h3 class="text-lg font-semibold">Recent Activity</h3>
-			<div class="mt-4 space-y-4">
-				{#each data.recentActivity as activity}
-					<div class="hover:bg-muted flex items-start space-x-4 rounded-lg p-4 transition-colors">
-						<Icon src={getActivityIcon(activity.type)} class="text-muted-foreground h-5 w-5" />
-						<div class="flex-1">
-							<p class="text-foreground">{activity.text}</p>
-							<p class="text-muted-foreground text-sm">{activity.time}</p>
-						</div>
+	<div class="rounded-sm border bg-card shadow-sm">
+		<div class="border-b p-6">
+			<h3 class="text-xl font-semibold tracking-tight">Recent Activity</h3>
+			<p class="text-sm text-muted-foreground">Your latest updates and notifications</p>
+		</div>
+		<div class="divide-y">
+			{#each data.recentActivity as activity}
+				<div class="group flex items-start space-x-4 p-6 transition-colors hover:bg-muted/50">
+					<div class="rounded-full bg-primary/10 p-2">
+						<Icon
+							src={getActivityIcon(activity.type)}
+							class="h-5 w-5 text-primary transition-transform duration-200 group-hover:scale-110"
+						/>
 					</div>
-				{/each}
-			</div>
+					<div class="flex-1 space-y-1">
+						<p class="font-medium leading-none">{activity.text}</p>
+						<p class="text-sm text-muted-foreground">{activity.time}</p>
+					</div>
+				</div>
+			{/each}
 		</div>
 	</div>
 </div>

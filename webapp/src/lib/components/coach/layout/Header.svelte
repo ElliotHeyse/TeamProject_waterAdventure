@@ -2,6 +2,7 @@
 	import { page } from '$app/state';
 	import { BellAlert, UserCircle, Bars3, ChevronRight, Icon, Sun, Moon } from 'svelte-hero-icons';
 	import { onMount } from 'svelte';
+	import * as Breadcrumb from '$lib/components/coach/ui/breadcrumb/index';
 
 	interface User {
 		name: string;
@@ -57,20 +58,20 @@
 			</button>
 
 			<nav class="flex" aria-label="Breadcrumb">
-				<ol class="flex items-center space-x-2">
-					{#each breadcrumbs as { label, href }, i}
-						<li>
-							<div class="flex items-center">
-								{#if i !== 0}
-									<Icon src={ChevronRight} class="text-muted-foreground mx-2 h-4 w-4" />
+				<Breadcrumb.Root>
+					<Breadcrumb.List>
+						{#each breadcrumbs as { label, href }, i}
+							<Breadcrumb.Item>
+								{#if i === breadcrumbs.length - 1}
+									<Breadcrumb.Page>{label}</Breadcrumb.Page>
+								{:else}
+									<Breadcrumb.Link {href}>{label}</Breadcrumb.Link>
+									<Breadcrumb.Separator />
 								{/if}
-								<a {href} class="text-muted-foreground hover:text-foreground text-sm font-medium">
-									{label}
-								</a>
-							</div>
-						</li>
-					{/each}
-				</ol>
+							</Breadcrumb.Item>
+						{/each}
+					</Breadcrumb.List>
+				</Breadcrumb.Root>
 			</nav>
 
 			<div class="ml-auto flex items-center space-x-4">
