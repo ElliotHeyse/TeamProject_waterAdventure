@@ -42,7 +42,6 @@
 		"bcrypt": "^5.1.1",
 		"lucide-svelte": "^0.469.0",
 		"shadcn-svelte": "next",
-		"svelte-headless-table": "^0.18.3",
 		"svelte-hero-icons": "^5.2.0",
 		"svelte-radix": "^2.0.1",
 		"tailwind-merge": "^2.6.0"
