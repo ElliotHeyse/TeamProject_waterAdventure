@@ -62,7 +62,7 @@
 		{#each stats as stat}
 			<a
 				href={stat.href}
-				class="group relative block overflow-hidden rounded-sm border bg-card p-6 transition-all duration-200 hover:shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+				class="group relative block overflow-hidden rounded-md border bg-card p-6 transition-all duration-200 hover:shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
 			>
 				<div
 					class="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 transition-opacity duration-200 group-hover:opacity-100"
@@ -83,7 +83,7 @@
 		{/each}
 	</div>
 
-	<div class="rounded-sm border bg-card shadow-sm">
+	<div class="rounded-md border bg-card shadow-sm">
 		<div class="border-b p-6">
 			<h3 class="text-xl font-semibold tracking-tight">Recent Activity</h3>
 			<p class="text-sm text-muted-foreground">Your latest updates and notifications</p>

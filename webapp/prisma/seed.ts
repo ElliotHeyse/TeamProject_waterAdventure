@@ -8,7 +8,6 @@ async function main() {
 	await prisma.message.deleteMany();
 	await prisma.review.deleteMany();
 	await prisma.submission.deleteMany();
-	await prisma.lessonPupil.deleteMany();
 	await prisma.lesson.deleteMany();
 	await prisma.pupil.deleteMany();
 	await prisma.coach.deleteMany();
@@ -172,21 +171,6 @@ async function main() {
 				}
 			});
 		})
-	);
-
-	// Assign pupils to lessons
-	await Promise.all(
-		pupils.flatMap((pupil) =>
-			lessons.slice(0, 3).map((lesson) => {
-				return prisma.lessonPupil.create({
-					data: {
-						lessonId: lesson.id,
-						pupilId: pupil.id,
-						attended: Math.random() > 0.5
-					}
-				});
-			})
-		)
 	);
 
 	// Create submissions

@@ -11,7 +11,8 @@
 	let email = $state('');
 	let password = $state('');
 
-	const inputStyles = "flex h-9 w-full rounded-md border border-input bg-white px-3 py-1 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50";
+	const inputStyles =
+		'flex h-9 w-full rounded-md border dark:black border-input bg-white px-3 py-1 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50';
 </script>
 
 <div class="relative flex min-h-screen flex-col items-center justify-center">
@@ -23,7 +24,9 @@
 
 	<!-- Content -->
 	<div class="relative w-full max-w-md px-4">
-		<div class="overflow-hidden rounded-lg border border-gray-200 bg-white/95 p-8 shadow-xl backdrop-blur supports-[backdrop-filter]:bg-white/80">
+		<div
+			class="overflow-hidden rounded-lg border border-gray-200 bg-white/95 p-8 shadow-xl backdrop-blur supports-[backdrop-filter]:bg-white/80"
+		>
 			<div class="mb-8 flex flex-col items-center space-y-2">
 				<div class="h-12 w-12 rounded-full bg-[#FF5555]/10 p-2 text-[#FF5555]">
 					<Icon src={UserCircle} class="h-full w-full" />
@@ -31,9 +34,7 @@
 				<h2 class="text-center text-2xl font-bold tracking-tight text-gray-900">
 					Sign in to your account
 				</h2>
-				<p class="text-center text-sm text-gray-600">
-					Welcome back to WaterAdventure
-				</p>
+				<p class="text-center text-sm text-gray-600">Welcome back to WaterAdventure</p>
 			</div>
 
 			<form method="POST" use:enhance class="space-y-6">
@@ -54,7 +55,7 @@
 							class={inputStyles}
 							required
 							value={email}
-							oninput={(e) => email = e.currentTarget.value}
+							oninput={(e) => (email = e.currentTarget.value)}
 							placeholder="you@example.com"
 						/>
 					</div>
@@ -68,17 +69,17 @@
 							class={inputStyles}
 							required
 							value={password}
-							oninput={(e) => password = e.currentTarget.value}
+							oninput={(e) => (password = e.currentTarget.value)}
 							placeholder="Enter your password"
 						/>
 					</div>
 				</div>
 
-				<Button 
-					type="submit" 
+				<Button
+					type="submit"
 					class={cn(
-						"w-full bg-[#FF5555] text-white hover:bg-[#FF5555]/90",
-						"focus-visible:ring-[#FF5555]"
+						'w-full bg-[#FF5555] text-white hover:bg-[#FF5555]/90',
+						'focus-visible:ring-[#FF5555]'
 					)}
 				>
 					Sign in
@@ -86,4 +87,4 @@
 			</form>
 		</div>
 	</div>
-</div> 
+</div>
