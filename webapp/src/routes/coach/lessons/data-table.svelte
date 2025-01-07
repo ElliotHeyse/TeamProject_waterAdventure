@@ -1,5 +1,7 @@
 <script lang="ts">
 	import ChevronDown from 'lucide-svelte/icons/chevron-down';
+	import ChevronUp from 'lucide-svelte/icons/chevron-up';
+	import ArrowUpDown from 'lucide-svelte/icons/arrow-up-down';
 	import {
 		type ColumnDef,
 		type ColumnFiltersState,
@@ -51,14 +53,14 @@
 			header: ({ table }) =>
 				renderComponent(DataTableCheckbox, {
 					checked: table.getIsAllPageRowsSelected(),
-					indeterminate: table.getIsSomePageRowsSelected() && !table.getIsAllPageRowsSelected(),
-					onCheckedChange: (value: boolean) => table.toggleAllPageRowsSelected(!!value),
+					onCheckedChange: (value) => table.toggleAllPageRowsSelected(value),
+					indeterminate: table.getIsSomePageRowsSelected(),
 					'aria-label': 'Select all'
 				}),
 			cell: ({ row }) =>
 				renderComponent(DataTableCheckbox, {
 					checked: row.getIsSelected(),
-					onCheckedChange: (value: boolean) => row.toggleSelected(!!value),
+					onCheckedChange: (value) => row.toggleSelected(value),
 					'aria-label': 'Select row'
 				}),
 			enableSorting: false,
@@ -67,6 +69,7 @@
 		{
 			accessorKey: 'title',
 			header: 'Title',
+			enableSorting: true,
 			cell: ({ row }) => {
 				const title = row.getValue<string>('title');
 				const titleSnippet = createRawSnippet<[string]>((getTitle) => {
@@ -85,6 +88,7 @@
 		{
 			accessorKey: 'level',
 			header: 'Level',
+			enableSorting: true,
 			cell: ({ row }) => {
 				const level = row.getValue<Level>('level');
 				return renderComponent(LevelBadge, {
@@ -95,6 +99,7 @@
 		{
 			accessorKey: 'duration',
 			header: 'Duration',
+			enableSorting: true,
 			cell: ({ row }) => {
 				const duration = row.getValue<number>('duration');
 				const durationSnippet = createRawSnippet<[number]>((getDuration) => {
@@ -109,6 +114,7 @@
 		{
 			accessorKey: 'date',
 			header: 'Date',
+			enableSorting: true,
 			cell: ({ row }) => {
 				const date = row.getValue<Date>('date');
 				const dateSnippet = createRawSnippet<[Date]>((getDate) => {
@@ -198,7 +204,17 @@
 
 <div class="w-full">
 	<div class="flex items-center py-4">
-		<Input placeholder="Filter titles..." bind:value={filterValue} class="max-w-sm" />
+		<Input
+			placeholder="Filter lessons..."
+			value={(table.getColumn('title')?.getFilterValue() as string) ?? ''}
+			onchange={(e) => {
+				table.getColumn('title')?.setFilterValue(e.currentTarget.value);
+			}}
+			oninput={(e) => {
+				table.getColumn('title')?.setFilterValue(e.currentTarget.value);
+			}}
+			class="max-w-sm"
+		/>
 		<DropdownMenu.Root>
 			<DropdownMenu.Trigger>
 				{#snippet child({ props })}
@@ -227,10 +243,28 @@
 						{#each headerGroup.headers as header (header.id)}
 							<Table.Head class="[&:has([role=checkbox])]:pl-3">
 								{#if !header.isPlaceholder}
-									<FlexRender
-										content={header.column.columnDef.header}
-										context={header.getContext()}
-									/>
+									<div class="flex items-center space-x-2">
+										<button
+											class="flex items-center space-x-2"
+											onclick={() => header.column.toggleSorting()}
+										>
+											<FlexRender
+												content={header.column.columnDef.header}
+												context={header.getContext()}
+											/>
+											{#if header.column.getCanSort()}
+												<span class="ml-2">
+													{#if header.column.getIsSorted() === 'asc'}
+														<ChevronUp class="size-4" />
+													{:else if header.column.getIsSorted() === 'desc'}
+														<ChevronDown class="size-4" />
+													{:else}
+														<ArrowUpDown class="size-4" />
+													{/if}
+												</span>
+											{/if}
+										</button>
+									</div>
 								{/if}
 							</Table.Head>
 						{/each}
