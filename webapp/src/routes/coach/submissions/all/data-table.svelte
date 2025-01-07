@@ -27,103 +27,55 @@
 		renderComponent,
 		renderSnippet
 	} from '$lib/components/coach/ui/data-table/index';
-	import type { $Enums, Level } from '@prisma/client';
-	import LevelBadge from '$lib/components/coach/ui/badge/level-badge.svelte';
-	import DataTableCheckbox from './data-table-checkbox.svelte';
+	import { Badge } from '$lib/components/coach/ui/badge';
+	import { cn } from '$lib/utils';
+	import { CheckCircle, Clock } from 'svelte-hero-icons';
+	import StatusBadge from '$lib/components/coach/ui/badge/status-badge.svelte';
 
-	interface Lesson {
+	interface Submission {
 		id: string;
-		title: string;
-		description: string;
-		level: $Enums.Level;
-		duration: number;
-		date: Date;
-		coachId: string;
-		createdAt: Date;
-		updatedAt: Date;
+		pupilName: string;
+		lessonTitle: string;
+		date: string;
+		status: 'pending' | 'reviewed';
+		videoUrl: string;
+		feedback: string;
 	}
 
-	let { lessons }: { lessons: Lesson[] } = $props();
-	let filterValue = $state('');
-	let table: TableType<Lesson> | undefined = $state();
+	let { submissions }: { submissions: Submission[] } = $props();
+	let table: TableType<Submission> | undefined = $state();
 
-	const columns: ColumnDef<Lesson>[] = [
+	const columns: ColumnDef<Submission>[] = [
 		{
-			id: 'select',
-			header: ({ table }) =>
-				renderComponent(DataTableCheckbox, {
-					checked: table.getIsAllPageRowsSelected(),
-					onCheckedChange: (value) => table.toggleAllPageRowsSelected(value),
-					indeterminate: table.getIsSomePageRowsSelected(),
-					'aria-label': 'Select all'
-				}),
-			cell: ({ row }) =>
-				renderComponent(DataTableCheckbox, {
-					checked: row.getIsSelected(),
-					onCheckedChange: (value) => row.toggleSelected(value),
-					'aria-label': 'Select row'
-				}),
-			enableSorting: false,
-			enableHiding: false
-		},
-		{
-			accessorKey: 'title',
-			header: 'Title',
-			enableSorting: true,
+			accessorKey: 'pupilName',
+			header: 'Pupil',
 			cell: ({ row }) => {
-				const title = row.getValue<string>('title');
-				const titleSnippet = createRawSnippet<[string]>((getTitle) => {
-					const title = getTitle();
+				const name = row.getValue<string>('pupilName');
+				const nameSnippet = createRawSnippet<[string]>((getName) => {
+					const name = getName();
 					return {
-						render: () => `<div class="font-medium">${title}</div>`
+						render: () => `<div class="font-medium">${name}</div>`
 					};
 				});
-				return renderSnippet(titleSnippet, title);
-			},
-			filterFn: (row, id, value) => {
-				const title = row.getValue<string>(id);
-				return title.toLowerCase().includes((value as string).toLowerCase());
+				return renderSnippet(nameSnippet, name);
 			}
 		},
 		{
-			accessorKey: 'level',
-			header: 'Level',
-			enableSorting: true,
-			cell: ({ row }) => {
-				const level = row.getValue<Level>('level');
-				return renderComponent(LevelBadge, {
-					level
-				});
-			}
-		},
-		{
-			accessorKey: 'duration',
-			header: 'Duration',
-			enableSorting: true,
-			cell: ({ row }) => {
-				const duration = row.getValue<number>('duration');
-				const durationSnippet = createRawSnippet<[number]>((getDuration) => {
-					const duration = getDuration();
-					return {
-						render: () => `<div>${duration} min</div>`
-					};
-				});
-				return renderSnippet(durationSnippet, duration);
-			}
+			accessorKey: 'lessonTitle',
+			header: 'Lesson'
 		},
 		{
 			accessorKey: 'date',
-			header: 'Date',
-			enableSorting: true,
+			header: 'Submitted'
+		},
+		{
+			accessorKey: 'status',
+			header: 'Status',
 			cell: ({ row }) => {
-				const date = row.getValue<Date>('date');
-				const dateSnippet = createRawSnippet<[Date]>((getDate) => {
-					const date = getDate();
-					return {
-						render: () => `<div>${new Date(date).toLocaleDateString()}</div>`
-					};
+				const status = row.getValue<'pending' | 'reviewed'>('status').toUpperCase();
+				return renderComponent(StatusBadge, {
+					status
 				});
-				return renderSnippet(dateSnippet, date);
 			}
 		},
 		{
@@ -140,7 +92,7 @@
 
 	table = createSvelteTable({
 		get data() {
-			return lessons;
+			return submissions;
 		},
 		columns,
 		state: {
@@ -205,13 +157,13 @@
 <div class="w-full">
 	<div class="flex items-center py-4">
 		<Input
-			placeholder="Filter lessons..."
-			value={(table.getColumn('title')?.getFilterValue() as string) ?? ''}
+			placeholder="Filter submissions..."
+			value={(table?.getColumn('pupilName')?.getFilterValue() as string) ?? ''}
 			onchange={(e) => {
-				table.getColumn('title')?.setFilterValue(e.currentTarget.value);
+				table?.getColumn('pupilName')?.setFilterValue(e.currentTarget.value);
 			}}
 			oninput={(e) => {
-				table.getColumn('title')?.setFilterValue(e.currentTarget.value);
+				table?.getColumn('pupilName')?.setFilterValue(e.currentTarget.value);
 			}}
 			class="max-w-sm"
 		/>
@@ -224,7 +176,7 @@
 				{/snippet}
 			</DropdownMenu.Trigger>
 			<DropdownMenu.Content align="end">
-				{#each table.getAllColumns().filter((col) => col.getCanHide()) as column}
+				{#each table?.getAllColumns().filter((col) => col.getCanHide()) ?? [] as column}
 					<DropdownMenu.CheckboxItem
 						class="capitalize"
 						bind:checked={() => column.getIsVisible(), (v) => column.toggleVisibility(!!v)}
@@ -238,10 +190,10 @@
 	<div class="rounded-md border">
 		<Table.Root>
 			<Table.Header>
-				{#each table.getHeaderGroups() as headerGroup (headerGroup.id)}
+				{#each table?.getHeaderGroups() ?? [] as headerGroup (headerGroup.id)}
 					<Table.Row>
 						{#each headerGroup.headers as header (header.id)}
-							<Table.Head class="[&:has([role=checkbox])]:pl-3">
+							<Table.Head>
 								{#if !header.isPlaceholder}
 									<div class="flex items-center space-x-2">
 										<button
@@ -272,17 +224,19 @@
 				{/each}
 			</Table.Header>
 			<Table.Body>
-				{#each table.getRowModel().rows as row (row.id)}
-					<Table.Row data-state={row.getIsSelected() && 'selected'}>
+				{#each table?.getRowModel().rows ?? [] as row (row.id)}
+					<Table.Row>
 						{#each row.getVisibleCells() as cell (cell.id)}
-							<Table.Cell class="[&:has([role=checkbox])]:pl-3">
+							<Table.Cell>
 								<FlexRender content={cell.column.columnDef.cell} context={cell.getContext()} />
 							</Table.Cell>
 						{/each}
 					</Table.Row>
 				{:else}
 					<Table.Row>
-						<Table.Cell colspan={columns.length} class="h-24 text-center">No results.</Table.Cell>
+						<Table.Cell colspan={columns.length} class="h-24 text-center">
+							No submissions found.
+						</Table.Cell>
 					</Table.Row>
 				{/each}
 			</Table.Body>
@@ -290,23 +244,22 @@
 	</div>
 	<div class="flex items-center justify-end space-x-2 pt-4">
 		<div class="text-muted-foreground flex-1 text-sm">
-			{table.getFilteredSelectedRowModel().rows.length} of
-			{table.getFilteredRowModel().rows.length} row(s) selected.
+			{table?.getFilteredRowModel().rows.length ?? 0} submission(s) total.
 		</div>
 		<div class="space-x-2">
 			<Button
 				variant="outline"
 				size="sm"
-				onclick={() => table.previousPage()}
-				disabled={!table.getCanPreviousPage()}
+				onclick={() => table?.previousPage()}
+				disabled={!table?.getCanPreviousPage()}
 			>
 				Previous
 			</Button>
 			<Button
 				variant="outline"
 				size="sm"
-				onclick={() => table.nextPage()}
-				disabled={!table.getCanNextPage()}
+				onclick={() => table?.nextPage()}
+				disabled={!table?.getCanNextPage()}
 			>
 				Next
 			</Button>

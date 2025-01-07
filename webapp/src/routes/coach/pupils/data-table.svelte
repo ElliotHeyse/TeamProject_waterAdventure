@@ -27,27 +27,40 @@
 		renderComponent,
 		renderSnippet
 	} from '$lib/components/coach/ui/data-table/index';
-	import type { $Enums, Level } from '@prisma/client';
+	import type { Level } from '@prisma/client';
 	import LevelBadge from '$lib/components/coach/ui/badge/level-badge.svelte';
 	import DataTableCheckbox from './data-table-checkbox.svelte';
 
-	interface Lesson {
+	interface Pupil {
 		id: string;
-		title: string;
-		description: string;
-		level: $Enums.Level;
-		duration: number;
-		date: Date;
-		coachId: string;
-		createdAt: Date;
-		updatedAt: Date;
+		name: string;
+		dateOfBirth: Date;
+		level: Level;
+		parent: {
+			id: string;
+			user: {
+				name: string;
+				email: string;
+			};
+		};
 	}
 
-	let { lessons }: { lessons: Lesson[] } = $props();
+	let { pupils }: { pupils: Pupil[] } = $props();
 	let filterValue = $state('');
-	let table: TableType<Lesson> | undefined = $state();
+	let table: TableType<Pupil> | undefined = $state();
 
-	const columns: ColumnDef<Lesson>[] = [
+	function calculateAge(dateOfBirth: Date): number {
+		const today = new Date();
+		const birthDate = new Date(dateOfBirth);
+		let age = today.getFullYear() - birthDate.getFullYear();
+		const m = today.getMonth() - birthDate.getMonth();
+		if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
+			age--;
+		}
+		return age;
+	}
+
+	const columns: ColumnDef<Pupil>[] = [
 		{
 			id: 'select',
 			header: ({ table }) =>
@@ -67,22 +80,37 @@
 			enableHiding: false
 		},
 		{
-			accessorKey: 'title',
-			header: 'Title',
+			accessorKey: 'name',
+			header: 'Name',
 			enableSorting: true,
 			cell: ({ row }) => {
-				const title = row.getValue<string>('title');
-				const titleSnippet = createRawSnippet<[string]>((getTitle) => {
-					const title = getTitle();
+				const name = row.getValue<string>('name');
+				const nameSnippet = createRawSnippet<[string]>((getName) => {
+					const name = getName();
 					return {
-						render: () => `<div class="font-medium">${title}</div>`
+						render: () => `<div class="font-medium">${name}</div>`
 					};
 				});
-				return renderSnippet(titleSnippet, title);
+				return renderSnippet(nameSnippet, name);
 			},
 			filterFn: (row, id, value) => {
-				const title = row.getValue<string>(id);
-				return title.toLowerCase().includes((value as string).toLowerCase());
+				const name = row.getValue<string>(id);
+				return name.toLowerCase().includes((value as string).toLowerCase());
+			}
+		},
+		{
+			accessorKey: 'dateOfBirth',
+			header: 'Age',
+			enableSorting: true,
+			cell: ({ row }) => {
+				const dateOfBirth = row.getValue<Date>('dateOfBirth');
+				const ageSnippet = createRawSnippet<[Date]>((getDateOfBirth) => {
+					const dateOfBirth = getDateOfBirth();
+					return {
+						render: () => `<div>${calculateAge(dateOfBirth)}</div>`
+					};
+				});
+				return renderSnippet(ageSnippet, dateOfBirth);
 			}
 		},
 		{
@@ -97,34 +125,14 @@
 			}
 		},
 		{
-			accessorKey: 'duration',
-			header: 'Duration',
-			enableSorting: true,
-			cell: ({ row }) => {
-				const duration = row.getValue<number>('duration');
-				const durationSnippet = createRawSnippet<[number]>((getDuration) => {
-					const duration = getDuration();
-					return {
-						render: () => `<div>${duration} min</div>`
-					};
-				});
-				return renderSnippet(durationSnippet, duration);
-			}
+			accessorKey: 'parent.user.name',
+			header: 'Parent/Guardian',
+			enableSorting: true
 		},
 		{
-			accessorKey: 'date',
-			header: 'Date',
-			enableSorting: true,
-			cell: ({ row }) => {
-				const date = row.getValue<Date>('date');
-				const dateSnippet = createRawSnippet<[Date]>((getDate) => {
-					const date = getDate();
-					return {
-						render: () => `<div>${new Date(date).toLocaleDateString()}</div>`
-					};
-				});
-				return renderSnippet(dateSnippet, date);
-			}
+			accessorKey: 'parent.user.email',
+			header: 'Contact',
+			enableSorting: true
 		},
 		{
 			id: 'actions',
@@ -140,7 +148,7 @@
 
 	table = createSvelteTable({
 		get data() {
-			return lessons;
+			return pupils;
 		},
 		columns,
 		state: {
@@ -205,13 +213,13 @@
 <div class="w-full">
 	<div class="flex items-center py-4">
 		<Input
-			placeholder="Filter lessons..."
-			value={(table.getColumn('title')?.getFilterValue() as string) ?? ''}
+			placeholder="Filter pupils..."
+			value={(table.getColumn('name')?.getFilterValue() as string) ?? ''}
 			onchange={(e) => {
-				table.getColumn('title')?.setFilterValue(e.currentTarget.value);
+				table.getColumn('name')?.setFilterValue(e.currentTarget.value);
 			}}
 			oninput={(e) => {
-				table.getColumn('title')?.setFilterValue(e.currentTarget.value);
+				table.getColumn('name')?.setFilterValue(e.currentTarget.value);
 			}}
 			class="max-w-sm"
 		/>

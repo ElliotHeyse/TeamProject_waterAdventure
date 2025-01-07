@@ -26,11 +26,11 @@
 </script>
 
 <aside
-	class="flex h-screen flex-col border-r border-gray-200/50 bg-white/50 shadow-sm backdrop-blur transition-all duration-300 supports-[backdrop-filter]:bg-white/80"
+	class="border-border bg-background/50 supports-[backdrop-filter]:bg-background/80 flex h-screen flex-col border-r shadow-sm backdrop-blur transition-all duration-300"
 	class:w-64={isSidebarOpen}
 	class:w-16={!isSidebarOpen}
 >
-	<div class="flex h-16 items-center justify-between border-b border-gray-200/50 px-4">
+	<div class="border-border flex h-16 items-center justify-between border-b px-4">
 		{#if isSidebarOpen}
 			<img src={logo} alt="SwimCoach" class="h-8" />
 		{:else}
@@ -44,25 +44,18 @@
 		<ul class="space-y-1">
 			{#each navItems as { href, label, icon }}
 				{@const isActive = page.url.pathname === href}
-				{@const isParentActive = !isActive && page.url.pathname.startsWith(href)}
 				<li>
 					<a
 						{href}
-						class="group flex items-center gap-x-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-150"
-						class:bg-blue-50={isActive}
-						class:text-blue-600={isActive}
-						class:bg-gray-50={isParentActive}
-						class:text-gray-900={isParentActive}
-						class:text-gray-700={!isActive && !isParentActive}
-						class:hover:bg-gray-50={!isActive}
-						class:hover:text-gray-900={!isActive}
+						class={{
+							'text-muted-foreground group flex items-center gap-x-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-150': true,
+							'bg-primary/10 text-primary': isActive
+						}}
 					>
 						<div
-							class="shrink-0 transition-colors"
-							class:text-blue-600={isActive}
-							class:text-gray-400={!isActive && !isParentActive}
-							class:text-gray-500={isParentActive}
-							class:group-hover:text-gray-600={!isActive}
+							class="muted-foreground shrink-0 transition-colors"
+							class:text-primary={isActive}
+							class:group-hover:text-foreground={!isActive}
 						>
 							<Icon src={icon} class="h-5 w-5" />
 						</div>
@@ -75,20 +68,20 @@
 		</ul>
 	</nav>
 
-	<div class="mt-auto border-t border-gray-200/50 px-3 py-3">
+	<div class="border-border mt-auto border-t px-3 py-3">
 		{#if isSidebarOpen}
-			<div class="flex items-center gap-3 rounded-lg bg-gray-50/80 px-3 py-2.5">
-				<div class="h-8 w-8 rounded-full bg-blue-100 text-blue-600">
+			<div class="bg-muted/80 flex items-center gap-3 rounded-lg px-3 py-2.5">
+				<div class="bg-primary/10 text-primary h-8 w-8 rounded-full">
 					<Icon src={UserCircle} class="h-8 w-8" />
 				</div>
 				<div class="min-w-0 flex-1">
-					<div class="truncate text-sm font-medium text-gray-900">John Doe</div>
-					<div class="truncate text-xs text-gray-500">Swimming Coach</div>
+					<div class="text-foreground truncate text-sm font-medium">John Doe</div>
+					<div class="text-muted-foreground truncate text-xs">Swimming Coach</div>
 				</div>
 			</div>
 		{:else}
 			<div class="flex justify-center">
-				<div class="h-8 w-8 rounded-full bg-blue-100 text-blue-600">
+				<div class="bg-primary/10 text-primary h-8 w-8 rounded-full">
 					<Icon src={UserCircle} class="h-8 w-8" />
 				</div>
 			</div>
