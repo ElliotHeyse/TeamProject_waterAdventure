@@ -17,11 +17,6 @@
 	let { isSidebarOpen = $bindable<boolean>() } = $props<{ isSidebarOpen: boolean }>();
 	let isDarkMode = $state(false);
 
-	let user = $state<User>({
-		name: 'John Doe',
-		avatar: ''
-	});
-
 	let notifications = $state<Notification[]>([]);
 
 	// Generate breadcrumb items based on current path
@@ -96,11 +91,6 @@
 						</span>
 					{/if}
 				</button>
-
-				<div class="flex items-center space-x-3">
-					<Icon src={UserCircle} class="text-muted-foreground h-5 w-5" />
-					<span class="text-foreground font-medium">{user.name}</span>
-				</div>
 			</div>
 		</div>
 	</div>
