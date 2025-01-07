@@ -2,6 +2,7 @@
 	import '$lib/styles/app.css';
 	import Sidebar from '$lib/components/coach/layout/Sidebar.svelte';
 	import Header from '$lib/components/coach/layout/Header.svelte';
+	import { page } from '$app/state';
 
 	let { children } = $props();
 	let isSidebarOpen = $state(true);
@@ -12,7 +13,7 @@
 
 	<main class="flex flex-1 flex-col">
 		<Header bind:isSidebarOpen />
-		<div class="flex-1 p-6">
+		<div class={{ 'flex-1 p-6': page.url.pathname !== '/coach/chat' }}>
 			{@render children()}
 		</div>
 	</main>
