@@ -33,6 +33,6 @@
 			</DropdownMenu.Item>
 		</DropdownMenu.Group>
 		<DropdownMenu.Separator />
-		<DropdownMenu.Item>View Lesson</DropdownMenu.Item>
+		<DropdownMenu.Item>View Submissions</DropdownMenu.Item>
 	</DropdownMenu.Content>
 </DropdownMenu.Root>

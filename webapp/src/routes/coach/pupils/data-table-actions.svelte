@@ -16,9 +16,8 @@
 		{/snippet}
 	</DropdownMenu.Trigger>
 	<DropdownMenu.Content align="end">
-		<DropdownMenu.Item onclick={() => (window.location.href = `/coach/pupils/${id}/progress`)}>
-			View Progress
+		<DropdownMenu.Item>
+			<a href={`/coach/pupils/${id}`}>View Profile</a>
 		</DropdownMenu.Item>
-		<DropdownMenu.Item>Edit</DropdownMenu.Item>
 	</DropdownMenu.Content>
 </DropdownMenu.Root>
