@@ -1,0 +1,54 @@
+import { redirect, type Handle } from '@sveltejs/kit';
+import { prisma } from '$lib/server/db';
+
+export const handle: Handle = async ({ event, resolve }) => {
+	// Get the session token from cookie
+	const sessionToken = event.cookies.get('session');
+	const path = event.url.pathname;
+
+	// Check if trying to access protected routes
+	const isProtectedRoute = path.startsWith('/coach') || path.startsWith('/app');
+	const isLoginPage = path === '/login';
+
+	if (!sessionToken && isProtectedRoute) {
+		// Redirect to login if no session and trying to access protected routes
+		throw redirect(302, '/login');
+	}
+
+	if (sessionToken) {
+		// Get the session and related user
+		const session = await prisma.session.findUnique({
+			where: { 
+				token: sessionToken,
+				expiresAt: { gt: new Date() }
+			},
+			include: { user: true }
+		});
+
+		if (session?.user) {
+			// Add the user to the event.locals
+			event.locals.user = session.user;
+
+			// Handle role-based access
+			if (session.user.role !== 'COACH' && path.startsWith('/coach')) {
+				throw redirect(302, '/app');
+			}
+			if (session.user.role === 'COACH' && path.startsWith('/app')) {
+				throw redirect(302, '/coach');
+			}
+
+			// Redirect logged-in users from login page
+			if (isLoginPage) {
+				throw redirect(302, session.user.role === 'COACH' ? '/coach' : '/app');
+			}
+		} else {
+			// Invalid or expired session, clear it
+			event.cookies.delete('session', { path: '/' });
+			if (isProtectedRoute) {
+				throw redirect(302, '/login');
+			}
+		}
+	}
+
+	return resolve(event);
+}; 
