@@ -72,12 +72,11 @@ model Pupil {
   notes       String?
 
   // Relations
-  parent       Parent        @relation(fields: [parentId], references: [id])
-  coach        Coach         @relation(fields: [coachId], references: [id])
-  submissions  Submission[]
-  lessonPupils LessonPupil[]
-  createdAt    DateTime      @default(now())
-  updatedAt    DateTime      @updatedAt
+  parent      Parent       @relation(fields: [parentId], references: [id])
+  coach       Coach        @relation(fields: [coachId], references: [id])
+  submissions Submission[]
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
 }
 
 enum Level {
@@ -100,20 +99,6 @@ model Lesson {
   submissions Submission[]
   createdAt   DateTime     @default(now())
   updatedAt   DateTime     @updatedAt
-}
-
-model LessonPupil {
-  id       String  @id @default(cuid())
-  lessonId String
-  pupilId  String
-  attended Boolean @default(false)
-
-  // Relations
-  pupil     Pupil    @relation(fields: [pupilId], references: [id])
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@unique([lessonId, pupilId])
 }
 
 model Submission {

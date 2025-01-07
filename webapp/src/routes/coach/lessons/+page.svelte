@@ -3,6 +3,7 @@
 	import type { PageData } from './$types';
 	import type { NewLessonData } from '$lib/types/lessons';
 	import DataTable from './data-table.svelte';
+	import Button from '$lib/components/coach/ui/button/button.svelte';
 
 	let { data }: { data: PageData } = $props<{ data: PageData }>();
 	let showNewLessonForm = $state(false);
@@ -18,13 +19,8 @@
 
 <div class="space-y-6">
 	<div class="flex items-center justify-between">
-		<h2 class="text-2xl font-bold text-gray-900">Lessons</h2>
-		<button
-			class="rounded-lg bg-blue-600 px-4 py-2 text-white transition-colors hover:bg-blue-700"
-			onclick={() => (showNewLessonForm = true)}
-		>
-			Create Lesson
-		</button>
+		<h2 class="text-2xl font-bold text-gray-900 dark:text-white">Lessons</h2>
+		<Button variant="outline" onclick={() => (showNewLessonForm = true)}>Create Lesson</Button>
 	</div>
 
 	{#if showNewLessonForm}

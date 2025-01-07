@@ -7,7 +7,7 @@
 	let isSidebarOpen = $state(true);
 </script>
 
-<div class="flex min-h-screen bg-gray-50">
+<div class="bg-background flex min-h-screen">
 	<Sidebar {isSidebarOpen} />
 
 	<main class="flex flex-1 flex-col">
