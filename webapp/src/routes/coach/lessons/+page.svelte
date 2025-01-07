@@ -2,22 +2,18 @@
 	import { Level } from '@prisma/client';
 	import type { PageData } from './$types';
 	import type { NewLessonData } from '$lib/types/lessons';
-	import Button from '$lib/components/coach/ui/Button.svelte';
+	import DataTable from './data-table.svelte';
 
 	let { data }: { data: PageData } = $props<{ data: PageData }>();
 	let showNewLessonForm = $state(false);
-	let newLesson = $state<NewLessonData>({
+	let newLesson: NewLessonData = {
 		title: '',
 		description: '',
 		level: Level.BEGINNER,
 		duration: 45,
 		date: '',
 		maxPupils: 10
-	});
-
-	function formatDate(date: Date): string {
-		return new Date(date).toLocaleDateString();
-	}
+	};
 </script>
 
 <div class="space-y-6">
@@ -122,56 +118,5 @@
 		</div>
 	{/if}
 
-	<div class="overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm">
-		<table class="min-w-full divide-y divide-gray-200">
-			<thead class="bg-gray-50">
-				<tr>
-					<th
-						class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500"
-					>
-						Title
-					</th>
-					<th
-						class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500"
-					>
-						Level
-					</th>
-					<th
-						class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500"
-					>
-						Duration
-					</th>
-					<th
-						class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500"
-					>
-						Date
-					</th>
-					<th
-						class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500"
-					>
-						Actions
-					</th>
-				</tr>
-			</thead>
-			<tbody class="divide-y divide-gray-200 bg-white">
-				{#each data.lessons as lesson}
-					<tr>
-						<td class="whitespace-nowrap px-6 py-4">{lesson.title}</td>
-						<td class="whitespace-nowrap px-6 py-4">{lesson.level}</td>
-						<td class="whitespace-nowrap px-6 py-4">{lesson.duration} min</td>
-						<td class="whitespace-nowrap px-6 py-4">{formatDate(lesson.date)}</td>
-						<td class="whitespace-nowrap px-6 py-4">
-							<div class="flex items-center gap-2">
-								<Button variant="outline" size="sm" href={`/coach/lessons/${lesson.id}/progress`}>
-									View Progress
-								</Button>
-								<Button variant="outline" size="sm">Edit</Button>
-								<Button variant="destructive" size="sm">Delete</Button>
-							</div>
-						</td>
-					</tr>
-				{/each}
-			</tbody>
-		</table>
-	</div>
+	<DataTable lessons={data.lessons} />
 </div>

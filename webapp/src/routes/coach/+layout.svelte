@@ -4,13 +4,14 @@
 	import Header from '$lib/components/coach/layout/Header.svelte';
 
 	let { children } = $props();
+	let isSidebarOpen = $state(true);
 </script>
 
 <div class="flex min-h-screen bg-gray-50">
-	<Sidebar />
+	<Sidebar {isSidebarOpen} />
 
 	<main class="flex flex-1 flex-col">
-		<Header />
+		<Header bind:isSidebarOpen />
 		<div class="flex-1 p-6">
 			{@render children()}
 		</div>
