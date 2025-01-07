@@ -44,22 +44,17 @@
 		<ul class="space-y-1">
 			{#each navItems as { href, label, icon }}
 				{@const isActive = page.url.pathname === href}
-				{@const isParentActive = !isActive && page.url.pathname.startsWith(href)}
 				<li>
 					<a
 						{href}
 						class={{
-							'group flex items-center gap-x-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-150': true,
-							'bg-primary/10 text-primary': isActive,
-							'bg-muted text-foreground': isParentActive,
-							'text-muted-foreground': !isActive && !isParentActive
+							'text-muted-foreground group flex items-center gap-x-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-150': true,
+							'bg-primary/10 text-primary': isActive
 						}}
 					>
 						<div
-							class="shrink-0 transition-colors"
+							class="muted-foreground shrink-0 transition-colors"
 							class:text-primary={isActive}
-							class:text-muted-foreground={!isActive && !isParentActive}
-							class:text-foreground={isParentActive}
 							class:group-hover:text-foreground={!isActive}
 						>
 							<Icon src={icon} class="h-5 w-5" />
