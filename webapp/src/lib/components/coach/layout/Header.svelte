@@ -50,12 +50,12 @@
 </script>
 
 <header
-	class="sticky top-0 z-10 border-b border-gray-200 bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/60 dark:border-gray-800 dark:bg-gray-900/95"
+	class="border-border bg-background/95 supports-[backdrop-filter]:bg-background/60 sticky top-0 z-10 border-b backdrop-blur"
 >
 	<div class="h-16">
 		<div class="flex h-full items-center gap-4 px-4">
 			<button
-				class="rounded-lg p-2 text-gray-500 hover:bg-gray-100 hover:text-gray-600 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-gray-300"
+				class="text-muted-foreground hover:bg-muted hover:text-foreground rounded-lg p-2"
 				onclick={() => (isSidebarOpen = !isSidebarOpen)}
 			>
 				<Icon src={isSidebarOpen ? Bars3 : ChevronRight} class="h-5 w-5" />
@@ -67,12 +67,9 @@
 						<li>
 							<div class="flex items-center">
 								{#if i !== 0}
-									<Icon src={ChevronRight} class="mx-2 h-4 w-4 text-gray-400 dark:text-gray-500" />
+									<Icon src={ChevronRight} class="text-muted-foreground mx-2 h-4 w-4" />
 								{/if}
-								<a
-									{href}
-									class="text-sm font-medium text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-gray-100"
-								>
+								<a {href} class="text-muted-foreground hover:text-foreground text-sm font-medium">
 									{label}
 								</a>
 							</div>
@@ -83,17 +80,17 @@
 
 			<div class="ml-auto flex items-center space-x-4">
 				<button
-					class="rounded-lg p-2 text-gray-500 hover:bg-gray-100 hover:text-gray-600 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-gray-300"
+					class="text-muted-foreground hover:bg-muted hover:text-foreground rounded-lg p-2"
 					onclick={toggleDarkMode}
 				>
 					<Icon src={isDarkMode ? Sun : Moon} class="h-5 w-5" />
 				</button>
 
-				<button class="relative rounded-full p-2 hover:bg-gray-100 dark:hover:bg-gray-800">
-					<Icon src={BellAlert} class="h-5 w-5 text-gray-600 dark:text-gray-400" />
+				<button class="hover:bg-muted relative rounded-full p-2">
+					<Icon src={BellAlert} class="text-muted-foreground h-5 w-5" />
 					{#if notifications.length > 0}
 						<span
-							class="absolute right-0 top-0 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-xs text-white"
+							class="bg-destructive text-destructive-foreground absolute right-0 top-0 flex h-4 w-4 items-center justify-center rounded-full text-xs"
 						>
 							{notifications.length}
 						</span>
@@ -101,8 +98,8 @@
 				</button>
 
 				<div class="flex items-center space-x-3">
-					<Icon src={UserCircle} class="h-5 w-5 text-gray-600 dark:text-gray-400" />
-					<span class="font-medium text-gray-700 dark:text-gray-200">{user.name}</span>
+					<Icon src={UserCircle} class="text-muted-foreground h-5 w-5" />
+					<span class="text-foreground font-medium">{user.name}</span>
 				</div>
 			</div>
 		</div>

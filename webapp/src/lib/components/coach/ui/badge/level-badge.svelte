@@ -10,9 +10,12 @@
 		base: 'transition-colors',
 		variants: {
 			level: {
-				BEGINNER: 'bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border-emerald-200/50',
-				INTERMEDIATE: 'bg-sky-50 hover:bg-sky-100 text-sky-700 border-sky-200/50',
-				ADVANCED: 'bg-violet-50 hover:bg-violet-100 text-violet-700 border-violet-200/50'
+				BEGINNER:
+					'bg-emerald-100 dark:bg-emerald-500/20 hover:bg-emerald-200 dark:hover:bg-emerald-500/30 text-emerald-700 dark:text-emerald-400 border-emerald-200/50 dark:border-emerald-500/30',
+				INTERMEDIATE:
+					'bg-sky-100 dark:bg-sky-500/20 hover:bg-sky-200 dark:hover:bg-sky-500/30 text-sky-700 dark:text-sky-400 border-sky-200/50 dark:border-sky-500/30',
+				ADVANCED:
+					'bg-violet-100 dark:bg-violet-500/20 hover:bg-violet-200 dark:hover:bg-violet-500/30 text-violet-700 dark:text-violet-400 border-violet-200/50 dark:border-violet-500/30'
 			}
 		},
 		defaultVariants: {
@@ -23,9 +26,9 @@
 	const iconVariants = tv({
 		variants: {
 			level: {
-				BEGINNER: 'text-emerald-500',
-				INTERMEDIATE: 'text-sky-500',
-				ADVANCED: 'text-violet-500'
+				BEGINNER: 'text-emerald-600 dark:text-emerald-400',
+				INTERMEDIATE: 'text-sky-600 dark:text-sky-400',
+				ADVANCED: 'text-violet-600 dark:text-violet-400'
 			}
 		},
 		defaultVariants: {
