@@ -3,6 +3,7 @@
 	import Sidebar from '$lib/components/coach/layout/Sidebar.svelte';
 	import Header from '$lib/components/coach/layout/Header.svelte';
 	import { page } from '$app/state';
+	import { Toaster } from 'svelte-sonner';
 
 	let { children } = $props();
 	let isSidebarOpen = $state(true);
@@ -18,3 +19,5 @@
 		</div>
 	</main>
 </div>
+
+<Toaster />
