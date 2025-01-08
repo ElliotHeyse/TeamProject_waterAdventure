@@ -30,6 +30,7 @@
 	import type { $Enums, Level } from '@prisma/client';
 	import LevelBadge from '$lib/components/coach/ui/badge/level-badge.svelte';
 	import DataTableCheckbox from './data-table-checkbox.svelte';
+	import * as m from '$lib/paraglide/messages.js';
 
 	interface Lesson {
 		id: string;
@@ -55,20 +56,20 @@
 					checked: table.getIsAllPageRowsSelected(),
 					onCheckedChange: (value) => table.toggleAllPageRowsSelected(value),
 					indeterminate: table.getIsSomePageRowsSelected(),
-					'aria-label': 'Select all'
+					'aria-label': m.select_all()
 				}),
 			cell: ({ row }) =>
 				renderComponent(DataTableCheckbox, {
 					checked: row.getIsSelected(),
 					onCheckedChange: (value) => row.toggleSelected(value),
-					'aria-label': 'Select row'
+					'aria-label': m.select_row()
 				}),
 			enableSorting: false,
 			enableHiding: false
 		},
 		{
 			accessorKey: 'title',
-			header: 'Title',
+			header: m.title(),
 			enableSorting: true,
 			cell: ({ row }) => {
 				const title = row.getValue<string>('title');
@@ -87,7 +88,7 @@
 		},
 		{
 			accessorKey: 'level',
-			header: 'Level',
+			header: m.level(),
 			enableSorting: true,
 			cell: ({ row }) => {
 				const level = row.getValue<Level>('level');
@@ -98,14 +99,14 @@
 		},
 		{
 			accessorKey: 'duration',
-			header: 'Duration',
+			header: m.duration(),
 			enableSorting: true,
 			cell: ({ row }) => {
 				const duration = row.getValue<number>('duration');
 				const durationSnippet = createRawSnippet<[number]>((getDuration) => {
 					const duration = getDuration();
 					return {
-						render: () => `<div>${duration} min</div>`
+						render: () => `<div>${m.duration_minutes({ duration })}</div>`
 					};
 				});
 				return renderSnippet(durationSnippet, duration);
@@ -113,7 +114,7 @@
 		},
 		{
 			accessorKey: 'date',
-			header: 'Date',
+			header: m.date(),
 			enableSorting: true,
 			cell: ({ row }) => {
 				const date = row.getValue<Date>('date');
@@ -128,6 +129,7 @@
 		},
 		{
 			id: 'actions',
+			header: m.actions(),
 			cell: ({ row }) => renderComponent(DataTableActions, { id: row.original.id })
 		}
 	];
@@ -205,7 +207,7 @@
 <div class="w-full">
 	<div class="flex items-center py-4">
 		<Input
-			placeholder="Filter lessons..."
+			placeholder={m.filter_lessons()}
 			value={(table.getColumn('title')?.getFilterValue() as string) ?? ''}
 			onchange={(e) => {
 				table.getColumn('title')?.setFilterValue(e.currentTarget.value);
@@ -219,7 +221,8 @@
 			<DropdownMenu.Trigger>
 				{#snippet child({ props })}
 					<Button {...props} variant="outline" class="ml-auto">
-						Columns <ChevronDown class="ml-2 size-4" />
+						{m.columns()}
+						<ChevronDown class="ml-2 size-4" />
 					</Button>
 				{/snippet}
 			</DropdownMenu.Trigger>
@@ -282,7 +285,9 @@
 					</Table.Row>
 				{:else}
 					<Table.Row>
-						<Table.Cell colspan={columns.length} class="h-24 text-center">No results.</Table.Cell>
+						<Table.Cell colspan={columns.length} class="h-24 text-center"
+							>{m.no_results()}</Table.Cell
+						>
 					</Table.Row>
 				{/each}
 			</Table.Body>
@@ -290,8 +295,10 @@
 	</div>
 	<div class="flex items-center justify-end space-x-2 pt-4">
 		<div class="text-muted-foreground flex-1 text-sm">
-			{table.getFilteredSelectedRowModel().rows.length} of
-			{table.getFilteredRowModel().rows.length} row(s) selected.
+			{m.rows_selected({
+				selected: table.getFilteredSelectedRowModel().rows.length,
+				total: table.getFilteredRowModel().rows.length
+			})}
 		</div>
 		<div class="space-x-2">
 			<Button
@@ -300,7 +307,7 @@
 				onclick={() => table.previousPage()}
 				disabled={!table.getCanPreviousPage()}
 			>
-				Previous
+				{m.previous()}
 			</Button>
 			<Button
 				variant="outline"
@@ -308,7 +315,7 @@
 				onclick={() => table.nextPage()}
 				disabled={!table.getCanNextPage()}
 			>
-				Next
+				{m.next()}
 			</Button>
 		</div>
 	</div>

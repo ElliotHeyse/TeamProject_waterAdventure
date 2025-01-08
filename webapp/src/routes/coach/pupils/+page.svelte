@@ -4,6 +4,7 @@
 	import type { NewPupilData } from './types';
 	import DataTable from './data-table.svelte';
 	import Button from '$lib/components/coach/ui/button/button.svelte';
+	import * as m from '$lib/paraglide/messages.js';
 
 	let { data } = $props<{ data: PageData }>();
 	let showNewPupilForm = $state(false);
@@ -18,8 +19,8 @@
 
 <div class="space-y-6">
 	<div class="flex items-center justify-between">
-		<h2 class="text-2xl font-bold text-gray-900 dark:text-white">Pupils</h2>
-		<Button variant="outline" onclick={() => (showNewPupilForm = true)}>Add Pupil</Button>
+		<h2 class="text-2xl font-bold text-gray-900 dark:text-white">{m.pupils()}</h2>
+		<Button variant="outline" onclick={() => (showNewPupilForm = true)}>{m.add_pupil()}</Button>
 	</div>
 
 	{#if showNewPupilForm}

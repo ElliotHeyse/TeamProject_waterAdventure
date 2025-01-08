@@ -22,11 +22,15 @@
 
 	// Generate breadcrumb items based on current path
 	$effect(() => {
-		const path = page.url.pathname;
+		const path = page.url.pathname.replace(/^\/[a-z]{2}(?=\/|$)/, '');
 		const segments = path.split('/').filter(Boolean);
 		breadcrumbs = segments.map((segment, index) => ({
 			label: segment.charAt(0).toUpperCase() + segment.slice(1),
-			href: '/' + segments.slice(0, index + 1).join('/')
+			href: page.url.pathname.startsWith('/nl')
+				? '/nl' + '/' + segments.slice(0, index + 1).join('/')
+				: page.url.pathname.startsWith('/fr')
+					? '/fr' + '/' + segments.slice(0, index + 1).join('/')
+					: '/' + segments.slice(0, index + 1).join('/')
 		}));
 	});
 

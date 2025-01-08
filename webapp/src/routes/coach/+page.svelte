@@ -11,6 +11,7 @@
 	} from 'svelte-hero-icons';
 	import type { PageData } from './$types';
 	import type { ActivityItem } from './types';
+	import * as m from '$lib/paraglide/messages.js';
 
 	let { data } = $props<{ data: PageData }>();
 
@@ -27,31 +28,31 @@
 
 	const stats = [
 		{
-			title: 'Total Pupils',
+			title: m.total_pupils(),
 			value: data.stats.totalPupils,
 			icon: UserGroup,
-			description: 'Active students in your classes',
+			description: m.active_students(),
 			href: '/coach/pupils'
 		},
 		{
-			title: 'Active Lessons',
+			title: m.active_lessons(),
 			value: data.stats.activeLessons,
 			icon: BookOpen,
-			description: 'Ongoing lessons this week',
+			description: m.ongoing_lessons(),
 			href: '/coach/lessons'
 		},
 		{
-			title: 'Pending Submissions',
+			title: m.pending_submissions(),
 			value: data.stats.pendingSubmissions,
 			icon: ClipboardDocumentCheck,
-			description: 'Submissions awaiting review',
+			description: m.submissions_awaiting(),
 			href: '/coach/submissions'
 		},
 		{
-			title: 'Unread Messages',
+			title: m.unread_messages(),
 			value: data.stats.unreadMessages,
 			icon: ChatBubbleLeftRight,
-			description: 'Messages requiring attention',
+			description: m.messages_attention(),
 			href: '/coach/chat'
 		}
 	];
@@ -85,8 +86,8 @@
 
 	<div class="rounded-md border bg-card shadow-sm">
 		<div class="border-b p-6">
-			<h3 class="text-xl font-semibold tracking-tight">Recent Activity</h3>
-			<p class="text-sm text-muted-foreground">Your latest updates and notifications</p>
+			<h3 class="text-xl font-semibold tracking-tight">{m.recent_activity()}</h3>
+			<p class="text-sm text-muted-foreground">{m.latest_updates()}</p>
 		</div>
 		<div class="divide-y">
 			{#each data.recentActivity as activity}

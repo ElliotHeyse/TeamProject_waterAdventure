@@ -14,6 +14,7 @@
 	import logo from '$lib/img/logo-dark.svg';
 	import logoLight from '$lib/img/logo-light.svg';
 	import logoIcon from '$lib/img/logo-icon.svg';
+	import * as m from '$lib/paraglide/messages.js';
 
 	let { isSidebarOpen } = $props<{ isSidebarOpen: boolean }>();
 	let isDarkMode = $state(false);
@@ -41,12 +42,12 @@
 	});
 
 	const navItems = [
-		{ href: '/coach', label: 'Overview', icon: ChartBar },
-		{ href: '/coach/lessons', label: 'Lessons', icon: AcademicCap },
-		{ href: '/coach/pupils', label: 'Pupils', icon: UserGroup },
-		{ href: '/coach/submissions', label: 'Submissions', icon: ClipboardDocumentCheck },
-		{ href: '/coach/chat', label: 'Chat', icon: ChatBubbleLeftRight },
-		{ href: '/coach/settings', label: 'Settings', icon: Cog6Tooth }
+		{ href: '/coach', label: m.nav_overview(), icon: ChartBar },
+		{ href: '/coach/lessons', label: m.nav_lessons(), icon: AcademicCap },
+		{ href: '/coach/pupils', label: m.nav_pupils(), icon: UserGroup },
+		{ href: '/coach/submissions', label: m.nav_submissions(), icon: ClipboardDocumentCheck },
+		{ href: '/coach/chat', label: m.nav_chat(), icon: ChatBubbleLeftRight },
+		{ href: '/coach/settings', label: m.nav_settings(), icon: Cog6Tooth }
 	];
 </script>
 
@@ -68,9 +69,10 @@
 	<nav class="flex-1 overflow-y-auto px-2 py-3">
 		<ul class="space-y-1">
 			{#each navItems as { href, label, icon }}
+				{@const currentPath = page.url.pathname.replace(/^\/[a-z]{2}(?=\/|$)/, '')}
 				{@const isActive =
-					(page.url.pathname.startsWith(href) && href !== '/coach') ||
-					(href === '/coach' && page.url.pathname === '/coach')}
+					(currentPath.startsWith(href) && href !== '/coach') ||
+					(href === '/coach' && currentPath === '/coach')}
 				<li>
 					<a
 						{href}
@@ -103,7 +105,7 @@
 				</div>
 				<div class="min-w-0 flex-1">
 					<div class="text-foreground truncate text-sm font-medium">John Doe</div>
-					<div class="text-muted-foreground truncate text-xs">Swimming Coach</div>
+					<div class="text-muted-foreground truncate text-xs">{m.swimming_coach()}</div>
 				</div>
 			</div>
 		{:else}
