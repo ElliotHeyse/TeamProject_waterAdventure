@@ -42,8 +42,22 @@ export const handle: Handle = async ({ event, resolve }) => {
 				throw redirect(302, session.user.role === 'COACH' ? '/coach' : '/app');
 			}
 		} else {
-			// Invalid or expired session, clear it
+			// Invalid or expired session, clean it up
 			event.cookies.delete('session', { path: '/' });
+			
+			// Clean up expired sessions for this token
+			if (sessionToken) {
+				console.log('Cleaning up expired session:', sessionToken);
+				await prisma.session.deleteMany({
+					where: {
+						OR: [
+							{ token: sessionToken },
+							{ expiresAt: { lte: new Date() } }
+						]
+					}
+				});
+			}
+
 			if (isProtectedRoute) {
 				throw redirect(302, '/login');
 			}
