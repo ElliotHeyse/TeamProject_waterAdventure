@@ -19,39 +19,52 @@ export const load: PageServerLoad = async ({ locals }) => {
 
 export const actions = {
 	default: async ({ request, cookies }) => {
-		const data = await request.formData();
-		const email = data.get('email')?.toString();
-		const password = data.get('password')?.toString();
-
-		if (!email || !password) {
-			return fail(400, { 
-				error: 'Please enter both email and password',
-				email
-			});
-		}
-
-		const user = await prisma.user.findUnique({
-			where: { email }
-		});
-
-		if (!user) {
-			return fail(400, { 
-				error: 'Invalid email or password',
-				email 
-			});
-		}
-
-		const validPassword = await bcrypt.compare(password, user.password);
-
-		if (!validPassword) {
-			return fail(400, { 
-				error: 'Invalid email or password',
-				email
-			});
-		}
-
+		let formData;
 		try {
-			// Create a new session
+			formData = await request.formData();
+			const email = formData.get('email')?.toString();
+			const password = formData.get('password')?.toString();
+
+			if (!email || !password) {
+				return fail(400, {
+					error: 'Please enter both email and password',
+					email
+				});
+			}
+
+			const user = await prisma.user.findUnique({
+				where: { email }
+			});
+
+			if (!user) {
+				//console.log('Login failed: User not found:', email);
+				return fail(400, {
+					error: 'Invalid email or password',
+					email
+				});
+			}
+
+			const validPassword = await bcrypt.compare(password, user.password);
+
+			if (!validPassword) {
+				//console.log('Login failed: Invalid password for user:', email);
+				return fail(400, {
+					error: 'Invalid email or password',
+					email
+				});
+			}
+
+			// Clean up expired sessions for this user first
+			await prisma.session.deleteMany({
+				where: {
+					userId: user.id,
+					expiresAt: {
+						lte: new Date()
+					}
+				}
+			});
+
+			// Create new session
 			const token = randomBytes(32).toString('hex');
 			const twoDaysFromNow = new Date(Date.now() + 2 * 24 * 60 * 60 * 1000);
 
@@ -72,18 +85,21 @@ export const actions = {
 				maxAge: 60 * 60 * 24 * 2 // 2 days
 			});
 
-			// Redirect based on role
-			if (user.role === 'COACH') {
-				throw redirect(302, '/coach');
-			} else {
-				throw redirect(302, '/app');
-			}
+			//console.log('Login successful for user:', email);
+			//console.log('Redirecting to:', user.role === 'COACH' ? '/coach' : '/app');
+
+			// Use throw redirect to ensure proper handling
+			throw redirect(303, user.role === 'COACH' ? '/coach' : '/app');
 		} catch (error) {
-			console.error('Session creation failed:', error);
-			return fail(500, { 
-				error: 'An error occurred during login. Please try again.',
-				email
-			});
+			// Only handle non-redirect errors
+			if (error instanceof Error && !(error instanceof Response)) {
+				//console.error('Login error:', error);
+				return fail(500, {
+					error: 'An error occurred while processing your request. Please try again.',
+					email: formData?.get('email')?.toString()
+				});
+			}
+			throw error; // Re-throw redirect responses
 		}
 	}
-} satisfies Actions; 
+} satisfies Actions;

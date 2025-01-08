@@ -7,9 +7,19 @@
 	import type { ActionData } from './$types';
 
 	let { form } = $props<{ form: ActionData }>();
-
 	let email = $state('');
 	let password = $state('');
+	const handleSubmit = () => {
+		return async ({ result, update }: { result: { type: string; location: string }; update: () => Promise<void> }) => {
+			console.log('Form submission result:', result);
+
+			if (result.type === 'redirect') {
+				await goto(result.location);
+			} else {
+				await update();
+			}
+		};
+	};
 
 	const inputStyles = "flex h-9 w-full rounded-md border border-input bg-white px-3 py-1 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50";
 </script>
@@ -36,7 +46,7 @@
 				</p>
 			</div>
 
-			<form method="POST" use:enhance class="space-y-6">
+			<form method="POST" use:enhance={handleSubmit} class="space-y-6">
 				{#if form?.error}
 					<div class="rounded-md bg-red-50 p-4 text-sm text-red-700">
 						<p class="font-medium">Authentication failed</p>
@@ -74,8 +84,8 @@
 					</div>
 				</div>
 
-				<Button 
-					type="submit" 
+				<Button
+					type="submit"
 					class={cn(
 						"w-full bg-[#FF5555] text-white hover:bg-[#FF5555]/90",
 						"focus-visible:ring-[#FF5555]"
@@ -86,4 +96,4 @@
 			</form>
 		</div>
 	</div>
-</div> 
+</div>
