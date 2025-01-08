@@ -10,10 +10,35 @@
 		Icon,
 		UserCircle
 	} from 'svelte-hero-icons';
+	import { onMount } from 'svelte';
 	import logo from '$lib/img/logo-dark.svg';
+	import logoLight from '$lib/img/logo-light.svg';
 	import logoIcon from '$lib/img/logo-icon.svg';
 
 	let { isSidebarOpen } = $props<{ isSidebarOpen: boolean }>();
+	let isDarkMode = $state(false);
+
+	onMount(() => {
+		const savedDarkMode = localStorage.getItem('darkMode') === 'true';
+		isDarkMode = savedDarkMode;
+	});
+
+	$effect(() => {
+		const darkModeObserver = new MutationObserver((mutations) => {
+			mutations.forEach((mutation) => {
+				if (mutation.target instanceof HTMLElement) {
+					isDarkMode = mutation.target.classList.contains('dark');
+				}
+			});
+		});
+
+		darkModeObserver.observe(document.documentElement, {
+			attributes: true,
+			attributeFilter: ['class']
+		});
+
+		return () => darkModeObserver.disconnect();
+	});
 
 	const navItems = [
 		{ href: '/coach', label: 'Overview', icon: ChartBar },
@@ -26,13 +51,13 @@
 </script>
 
 <aside
-	class="border-border bg-background/50 supports-[backdrop-filter]:bg-background/80 flex h-screen flex-col border-r shadow-sm backdrop-blur transition-all duration-300"
+	class="border-border bg-background/50 supports-[backdrop-filter]:bg-background/80 sticky top-0 flex h-screen flex-col border-r shadow-sm backdrop-blur transition-all duration-300"
 	class:w-64={isSidebarOpen}
 	class:w-16={!isSidebarOpen}
 >
 	<div class="border-border flex h-16 items-center justify-between border-b px-4">
 		{#if isSidebarOpen}
-			<img src={logo} alt="SwimCoach" class="h-8" />
+			<img src={isDarkMode ? logoLight : logo} alt="SwimCoach" class="h-8" />
 		{:else}
 			<div class="mx-auto">
 				<img src={logoIcon} alt="SwimCoach" class="h-6" />
@@ -43,7 +68,9 @@
 	<nav class="flex-1 overflow-y-auto px-2 py-3">
 		<ul class="space-y-1">
 			{#each navItems as { href, label, icon }}
-				{@const isActive = page.url.pathname === href}
+				{@const isActive =
+					(page.url.pathname.startsWith(href) && href !== '/coach') ||
+					(href === '/coach' && page.url.pathname === '/coach')}
 				<li>
 					<a
 						{href}
