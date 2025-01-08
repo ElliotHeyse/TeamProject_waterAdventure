@@ -4,6 +4,7 @@
 	import type { NewLessonData } from '$lib/types/lessons';
 	import DataTable from './data-table.svelte';
 	import Button from '$lib/components/coach/ui/button/button.svelte';
+	import * as m from '$lib/paraglide/messages.js';
 
 	let { data }: { data: PageData } = $props<{ data: PageData }>();
 	let showNewLessonForm = $state(false);
@@ -19,16 +20,17 @@
 
 <div class="space-y-6">
 	<div class="flex items-center justify-between">
-		<h2 class="text-2xl font-bold text-gray-900 dark:text-white">Lessons</h2>
-		<Button variant="outline" onclick={() => (showNewLessonForm = true)}>Create Lesson</Button>
+		<h2 class="text-2xl font-bold text-gray-900 dark:text-white">{m.active_lessons()}</h2>
+		<Button variant="outline" onclick={() => (showNewLessonForm = true)}>{m.create_lesson()}</Button
+		>
 	</div>
 
 	{#if showNewLessonForm}
 		<div class="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
-			<h3 class="mb-4 text-lg font-semibold">New Lesson</h3>
+			<h3 class="mb-4 text-lg font-semibold">{m.new_lesson()}</h3>
 			<form class="space-y-4" method="POST" action="?/createLesson">
 				<div>
-					<label class="block text-sm font-medium text-gray-700" for="title">Title</label>
+					<label class="block text-sm font-medium text-gray-700" for="title">{m.title()}</label>
 					<input
 						type="text"
 						id="title"
@@ -41,7 +43,7 @@
 
 				<div>
 					<label class="block text-sm font-medium text-gray-700" for="description"
-						>Description</label
+						>{m.description()}</label
 					>
 					<textarea
 						id="description"
@@ -54,22 +56,22 @@
 				</div>
 
 				<div>
-					<label class="block text-sm font-medium text-gray-700" for="level">Level</label>
+					<label class="block text-sm font-medium text-gray-700" for="level">{m.level()}</label>
 					<select
 						id="level"
 						name="level"
 						bind:value={newLesson.level}
 						class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
 					>
-						<option value={Level.BEGINNER}>Beginner</option>
-						<option value={Level.INTERMEDIATE}>Intermediate</option>
-						<option value={Level.ADVANCED}>Advanced</option>
+						<option value={Level.BEGINNER}>{m.beginner()}</option>
+						<option value={Level.INTERMEDIATE}>{m.intermediate()}</option>
+						<option value={Level.ADVANCED}>{m.advanced()}</option>
 					</select>
 				</div>
 
 				<div>
 					<label class="block text-sm font-medium text-gray-700" for="duration"
-						>Duration (minutes)</label
+						>{m.duration()}</label
 					>
 					<input
 						type="number"
@@ -84,7 +86,7 @@
 				</div>
 
 				<div>
-					<label class="block text-sm font-medium text-gray-700" for="date">Date</label>
+					<label class="block text-sm font-medium text-gray-700" for="date">{m.date()}</label>
 					<input
 						type="date"
 						id="date"
@@ -101,13 +103,13 @@
 						class="rounded-md border border-gray-300 px-4 py-2 text-gray-700 hover:bg-gray-50"
 						onclick={() => (showNewLessonForm = false)}
 					>
-						Cancel
+						{m.cancel()}
 					</button>
 					<button
 						type="submit"
 						class="rounded-md bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
 					>
-						Create
+						{m.create()}
 					</button>
 				</div>
 			</form>

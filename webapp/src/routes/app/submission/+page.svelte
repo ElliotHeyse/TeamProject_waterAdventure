@@ -1,11 +1,13 @@
 <script lang="ts">
-	import { CheckCircle, Icon } from 'svelte-hero-icons';
+	import { enhance } from '$app/forms';
+	import { Icon, CheckCircle } from 'svelte-hero-icons';
 	import type { PageData } from './$types';
+	import * as m from '$lib/paraglide/messages.js';
 
 	let { data } = $props<{ data: PageData }>();
 	let videoUrl = $state('');
 	let selectedLessonId = $state('');
-	let message = $state('');
+	let message = $state<string | null>(null);
 	let success = $state(false);
 
 	async function handleSubmit(event: SubmitEvent) {
@@ -25,20 +27,20 @@
 
 		if (result.success) {
 			success = true;
-			message = 'Video submitted successfully!';
+			message = m.video_submitted();
 			videoUrl = '';
 			selectedLessonId = '';
 		} else {
-			message = result.message || 'Failed to submit video';
+			message = result.message || m.submission_failed();
 		}
 	}
 </script>
 
 <div class="mx-auto max-w-2xl space-y-8 p-4">
 	<div class="text-center">
-		<h1 class="text-2xl font-bold text-gray-900">Submit Your Swimming Video</h1>
+		<h1 class="text-2xl font-bold text-gray-900">{m.submit_swimming_video()}</h1>
 		<p class="mt-2 text-gray-600">
-			Hi {data.pupil.name}, upload a video of your swimming practice for review
+			{m.upload_greeting({ name: data.pupil.name })}
 		</p>
 	</div>
 
@@ -61,7 +63,9 @@
 
 	<form class="space-y-6" method="POST" action="?/createSubmission" onsubmit={handleSubmit}>
 		<div>
-			<label for="lessonId" class="block text-sm font-medium text-gray-700">Select Lesson</label>
+			<label for="lessonId" class="block text-sm font-medium text-gray-700"
+				>{m.select_lesson()}</label
+			>
 			<select
 				id="lessonId"
 				name="lessonId"
@@ -69,7 +73,7 @@
 				class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
 				required
 			>
-				<option value="">Choose a lesson</option>
+				<option value="">{m.choose_lesson()}</option>
 				{#each data.lessons as lesson}
 					<option value={lesson.id}
 						>{lesson.title} - {new Date(lesson.date).toLocaleDateString()}</option
@@ -79,18 +83,18 @@
 		</div>
 
 		<div>
-			<label for="videoUrl" class="block text-sm font-medium text-gray-700">Video URL</label>
+			<label for="videoUrl" class="block text-sm font-medium text-gray-700">{m.video_url()}</label>
 			<input
 				type="url"
 				id="videoUrl"
 				name="videoUrl"
 				bind:value={videoUrl}
 				class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-				placeholder="https://example.com/your-video"
+				placeholder={m.video_url_placeholder()}
 				required
 			/>
 			<p class="mt-1 text-sm text-gray-500">
-				Please upload your video to a video sharing platform and paste the URL here
+				{m.video_url_help()}
 			</p>
 		</div>
 
@@ -101,7 +105,7 @@
 				type="submit"
 				class="rounded-md bg-blue-600 px-4 py-2 text-white transition-colors hover:bg-blue-700"
 			>
-				Submit Video
+				{m.submit_video()}
 			</button>
 		</div>
 	</form>

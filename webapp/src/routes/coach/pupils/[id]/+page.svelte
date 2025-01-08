@@ -18,6 +18,7 @@
 	import { enhance } from '$app/forms';
 	import { invalidateAll } from '$app/navigation';
 	import { CircleAlert } from 'lucide-svelte';
+	import * as m from '$lib/paraglide/messages.js';
 
 	let { data } = $props<{ data: PageData }>();
 	let isEditing = $state(false);
@@ -54,20 +55,20 @@
 			>
 				<img
 					src={data.pupil.profilePicture || `${defaultProfilePicture}?seed=${data.pupil.id}`}
-					alt={`${data.pupil.name}'s profile picture`}
+					alt={`${data.pupil.name}'s ${m.profile_picture()}`}
 					class="h-full w-full object-cover"
 				/>
 			</div>
 			<div class="flex flex-col">
 				<div class="flex items-center gap-4">
-					<h2 class="text-3xl font-bold tracking-tight">{data.pupil.name}'s Profile</h2>
+					<h2 class="text-3xl font-bold tracking-tight">{data.pupil.name}'s {m.profile()}</h2>
 					<Dialog bind:open={isEditing}>
 						<DialogTrigger>
-							<Button variant="outline" size="sm">Edit Profile</Button>
+							<Button variant="outline" size="sm">{m.edit_profile()}</Button>
 						</DialogTrigger>
 						<DialogContent>
 							<DialogHeader>
-								<DialogTitle>Edit {data.pupil.name}'s Profile</DialogTitle>
+								<DialogTitle>{m.edit_profile_title({ name: data.pupil.name })}</DialogTitle>
 							</DialogHeader>
 							<form
 								method="POST"
@@ -89,17 +90,17 @@
 								{#if formError}
 									<Alert.Root variant="destructive">
 										<CircleAlert class="h-4 w-4" />
-										<Alert.Title>Error</Alert.Title>
+										<Alert.Title>{m.error()}</Alert.Title>
 										<Alert.Description>{formError}</Alert.Description>
 									</Alert.Root>
 								{/if}
 								<input type="hidden" name="id" value={data.pupil.id} />
 								<div class="space-y-2">
-									<Label for="name">Name</Label>
+									<Label for="name">{m.name()}</Label>
 									<Input id="name" name="name" value={data.pupil.name} required />
 								</div>
 								<div class="space-y-2">
-									<Label for="level">Level</Label>
+									<Label for="level">{m.level()}</Label>
 									<Select.Root
 										type="single"
 										value={selectedLevel}
@@ -118,54 +119,54 @@
 									</Select.Root>
 								</div>
 								<div class="space-y-2">
-									<Label for="notes">Notes</Label>
+									<Label for="notes">{m.notes()}</Label>
 									<Textarea
 										id="notes"
 										name="notes"
 										value={data.pupil.notes || ''}
-										placeholder="Add notes about the pupil..."
+										placeholder={m.notes_placeholder()}
 										rows={4}
 									/>
 								</div>
 								<div class="flex justify-end gap-2">
 									<Button type="button" variant="outline" onclick={() => (isEditing = false)}>
-										Cancel
+										{m.cancel()}
 									</Button>
-									<Button type="submit">Save Changes</Button>
+									<Button type="submit">{m.save_changes()}</Button>
 								</div>
 							</form>
 						</DialogContent>
 					</Dialog>
 				</div>
-				<p class="text-muted-foreground">Manage pupil progress and view their activity</p>
+				<p class="text-muted-foreground">{m.manage_pupil_progress()}</p>
 			</div>
 		</div>
 		<a
 			href="/coach/pupils"
 			class="inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground ring-offset-background transition-colors hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
 		>
-			Back to Pupils
+			{m.back_to_pupils()}
 		</a>
 	</div>
 
 	<!-- Pupil Overview Cards -->
 	<div class="grid gap-6 md:grid-cols-3">
 		<div class="rounded-lg border bg-card p-6 text-card-foreground shadow-sm">
-			<h3 class="font-semibold">Account Details</h3>
+			<h3 class="font-semibold">{m.account_details()}</h3>
 			<dl class="mt-4 space-y-2">
 				<div>
-					<dt class="text-sm text-muted-foreground">Member Since</dt>
+					<dt class="text-sm text-muted-foreground">{m.member_since()}</dt>
 					<dd class="text-sm font-medium">{formatDate(data.pupil.createdAt)}</dd>
 				</div>
 				<div>
-					<dt class="text-sm text-muted-foreground">Current Level</dt>
+					<dt class="text-sm text-muted-foreground">{m.current_level()}</dt>
 					<dd class="text-sm font-medium">
 						{data.pupil.level.charAt(0) + data.pupil.level.slice(1).toLowerCase()}
 					</dd>
 				</div>
 				{#if data.pupil.notes}
 					<div>
-						<dt class="text-sm text-muted-foreground">Notes</dt>
+						<dt class="text-sm text-muted-foreground">{m.notes()}</dt>
 						<dd class="text-sm whitespace-pre-wrap">{data.pupil.notes}</dd>
 					</div>
 				{/if}
@@ -173,34 +174,34 @@
 		</div>
 
 		<div class="bg-card text-card-foreground rounded-lg border p-6 shadow-sm">
-			<h3 class="font-semibold">Activity Overview</h3>
+			<h3 class="font-semibold">{m.activity_overview()}</h3>
 			<dl class="mt-4 space-y-2">
 				<div>
-					<dt class="text-muted-foreground text-sm">Total Lessons</dt>
+					<dt class="text-muted-foreground text-sm">{m.total_lessons()}</dt>
 					<dd class="text-sm font-medium">{data.lessons.length}</dd>
 				</div>
 				<div>
-					<dt class="text-muted-foreground text-sm">Total Submissions</dt>
+					<dt class="text-muted-foreground text-sm">{m.total_submissions()}</dt>
 					<dd class="text-sm font-medium">{data.pupil._count.submissions}</dd>
 				</div>
 				<div>
-					<dt class="text-muted-foreground text-sm">Last Activity</dt>
+					<dt class="text-muted-foreground text-sm">{m.last_activity()}</dt>
 					<dd class="text-sm font-medium">
 						{data.submissions[0]
 							? formatDistance(new Date(data.submissions[0].createdAt), new Date(), {
 									addSuffix: true
 								})
-							: 'No activity yet'}
+							: m.no_activity()}
 					</dd>
 				</div>
 			</dl>
 		</div>
 
 		<div class="bg-card text-card-foreground rounded-lg border p-6 shadow-sm">
-			<h3 class="font-semibold">Recent Progress</h3>
+			<h3 class="font-semibold">{m.recent_progress()}</h3>
 			<div class="mt-4">
 				{#if data.submissions.length === 0}
-					<p class="text-muted-foreground text-sm">No submissions yet</p>
+					<p class="text-muted-foreground text-sm">{m.no_submissions()}</p>
 				{:else}
 					<div class="space-y-2">
 						{#each data.submissions.slice(0, 3) as submission}
@@ -217,9 +218,9 @@
 
 	<!-- Submissions -->
 	<div class="bg-card text-card-foreground rounded-lg border p-6 shadow-sm">
-		<h3 class="mb-4 text-lg font-semibold">All Submissions</h3>
+		<h3 class="mb-4 text-lg font-semibold">{m.all_submissions()}</h3>
 		{#if data.submissions.length === 0}
-			<p class="text-muted-foreground">No submissions yet.</p>
+			<p class="text-muted-foreground">{m.no_submissions()}</p>
 		{:else}
 			<div class="space-y-4">
 				{#each data.submissions as submission}
@@ -230,16 +231,18 @@
 								<StatusBadge status={submission.status} />
 							</div>
 							<div class="text-muted-foreground text-sm">
-								Submitted {formatDistance(new Date(submission.createdAt), new Date(), {
+								{m.submitted()}
+								{formatDistance(new Date(submission.createdAt), new Date(), {
 									addSuffix: true
 								})}
 							</div>
 							{#if submission.review}
 								<div class="bg-background mt-2 rounded-md p-3">
-									<p class="text-sm font-medium">Review Comment:</p>
+									<p class="text-sm font-medium">{m.review_comment()}</p>
 									<p class="text-muted-foreground text-sm">{submission.review.comment}</p>
 									<p class="text-muted-foreground mt-1 text-xs">
-										Reviewed {formatDistance(new Date(submission.review.createdAt), new Date(), {
+										{m.reviewed()}
+										{formatDistance(new Date(submission.review.createdAt), new Date(), {
 											addSuffix: true
 										})}
 									</p>

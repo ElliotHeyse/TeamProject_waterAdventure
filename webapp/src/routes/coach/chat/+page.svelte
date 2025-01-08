@@ -1,5 +1,6 @@
 <script lang="ts">
 	import Button from '$lib/components/coach/ui/button/button.svelte';
+	import * as m from '$lib/paraglide/messages.js';
 
 	interface Conversation {
 		id: number;
@@ -106,7 +107,7 @@
 	<!-- Conversation List -->
 	<div class="border-border bg-background/50 flex w-80 flex-col border-r">
 		<div class="border-border flex h-14 items-center border-b px-4">
-			<h2 class="text-foreground text-lg font-semibold">Messages</h2>
+			<h2 class="text-foreground text-lg font-semibold">{m.messages()}</h2>
 		</div>
 		<div class="flex-1 overflow-y-auto">
 			{#each conversations as conversation}
@@ -175,20 +176,20 @@
 						type="text"
 						bind:value={newMessage}
 						class="border-input ring-offset-background focus:ring-ring flex-1 rounded-md border bg-transparent px-3 py-2 text-sm shadow-sm transition-colors placeholder:text-muted-foreground focus:outline-none focus:ring-1 disabled:cursor-not-allowed disabled:opacity-50"
-						placeholder="Type your message..."
+						placeholder={m.type_message()}
 					/>
 					<button
 						type="submit"
 						class="bg-primary text-primary-foreground hover:bg-primary/90 rounded-md px-4 py-2 text-sm font-medium transition-colors disabled:pointer-events-none disabled:opacity-50"
 						disabled={!newMessage.trim()}
 					>
-						Send
+						{m.send()}
 					</button>
 				</form>
 			</div>
 		{:else}
 			<div class="text-muted-foreground flex flex-1 items-center justify-center">
-				Select a conversation to start messaging
+				{m.select_conversation()}
 			</div>
 		{/if}
 	</div>
@@ -197,7 +198,7 @@
 	{#if selectedConversation}
 		<div class="border-border bg-background/50 flex w-80 flex-col border-l">
 			<div class="border-border flex h-14 items-center border-b px-4">
-				<h2 class="text-foreground text-lg font-semibold">Parent Info</h2>
+				<h2 class="text-foreground text-lg font-semibold">{m.parent_info()}</h2>
 			</div>
 			<div class="p-4">
 				<div class="flex items-center gap-4">
@@ -213,7 +214,7 @@
 				</div>
 
 				<div class="mt-6">
-					<h4 class="text-foreground mb-2 font-medium">Pupils</h4>
+					<h4 class="text-foreground mb-2 font-medium">{m.pupils()}</h4>
 					<div class="space-y-2">
 						<hr />
 						{#each selectedConversation.pupils || [] as pupil}

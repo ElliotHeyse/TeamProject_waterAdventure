@@ -30,6 +30,7 @@
 	import type { Level } from '@prisma/client';
 	import LevelBadge from '$lib/components/coach/ui/badge/level-badge.svelte';
 	import DataTableCheckbox from './data-table-checkbox.svelte';
+	import * as m from '$lib/paraglide/messages.js';
 
 	interface Pupil {
 		id: string;
@@ -68,20 +69,20 @@
 					checked: table.getIsAllPageRowsSelected(),
 					onCheckedChange: (value) => table.toggleAllPageRowsSelected(value),
 					indeterminate: table.getIsSomePageRowsSelected(),
-					'aria-label': 'Select all'
+					'aria-label': m.select_all()
 				}),
 			cell: ({ row }) =>
 				renderComponent(DataTableCheckbox, {
 					checked: row.getIsSelected(),
 					onCheckedChange: (value) => row.toggleSelected(value),
-					'aria-label': 'Select row'
+					'aria-label': m.select_row()
 				}),
 			enableSorting: false,
 			enableHiding: false
 		},
 		{
 			accessorKey: 'name',
-			header: 'Name',
+			header: m.name(),
 			enableSorting: true,
 			cell: ({ row }) => {
 				const name = row.getValue<string>('name');
@@ -100,7 +101,7 @@
 		},
 		{
 			accessorKey: 'dateOfBirth',
-			header: 'Age',
+			header: m.age(),
 			enableSorting: true,
 			cell: ({ row }) => {
 				const dateOfBirth = row.getValue<Date>('dateOfBirth');
@@ -115,7 +116,7 @@
 		},
 		{
 			accessorKey: 'level',
-			header: 'Level',
+			header: m.level(),
 			enableSorting: true,
 			cell: ({ row }) => {
 				const level = row.getValue<Level>('level');
@@ -126,16 +127,17 @@
 		},
 		{
 			accessorKey: 'parent.user.name',
-			header: 'Parent/Guardian',
+			header: m.parent_info(),
 			enableSorting: true
 		},
 		{
 			accessorKey: 'parent.user.email',
-			header: 'Contact',
+			header: m.email(),
 			enableSorting: true
 		},
 		{
 			id: 'actions',
+			header: m.actions(),
 			cell: ({ row }) => renderComponent(DataTableActions, { id: row.original.id })
 		}
 	];
@@ -213,7 +215,7 @@
 <div class="w-full">
 	<div class="flex items-center py-4">
 		<Input
-			placeholder="Filter pupils..."
+			placeholder={m.filter_pupils()}
 			value={(table.getColumn('name')?.getFilterValue() as string) ?? ''}
 			onchange={(e) => {
 				table.getColumn('name')?.setFilterValue(e.currentTarget.value);
@@ -227,7 +229,8 @@
 			<DropdownMenu.Trigger>
 				{#snippet child({ props })}
 					<Button {...props} variant="outline" class="ml-auto">
-						Columns <ChevronDown class="ml-2 size-4" />
+						{m.columns()}
+						<ChevronDown class="ml-2 size-4" />
 					</Button>
 				{/snippet}
 			</DropdownMenu.Trigger>
@@ -290,7 +293,9 @@
 					</Table.Row>
 				{:else}
 					<Table.Row>
-						<Table.Cell colspan={columns.length} class="h-24 text-center">No results.</Table.Cell>
+						<Table.Cell colspan={columns.length} class="h-24 text-center"
+							>{m.no_results()}</Table.Cell
+						>
 					</Table.Row>
 				{/each}
 			</Table.Body>
@@ -298,8 +303,10 @@
 	</div>
 	<div class="flex items-center justify-end space-x-2 pt-4">
 		<div class="text-muted-foreground flex-1 text-sm">
-			{table.getFilteredSelectedRowModel().rows.length} of
-			{table.getFilteredRowModel().rows.length} row(s) selected.
+			{m.rows_selected({
+				selected: table.getFilteredSelectedRowModel().rows.length,
+				total: table.getFilteredRowModel().rows.length
+			})}
 		</div>
 		<div class="space-x-2">
 			<Button
@@ -308,7 +315,7 @@
 				onclick={() => table.previousPage()}
 				disabled={!table.getCanPreviousPage()}
 			>
-				Previous
+				{m.previous()}
 			</Button>
 			<Button
 				variant="outline"
@@ -316,7 +323,7 @@
 				onclick={() => table.nextPage()}
 				disabled={!table.getCanNextPage()}
 			>
-				Next
+				{m.next()}
 			</Button>
 		</div>
 	</div>

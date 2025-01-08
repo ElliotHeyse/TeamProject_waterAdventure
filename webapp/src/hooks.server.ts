@@ -1,7 +1,11 @@
+import { i18n } from '$lib/i18n'
+import { sequence } from '@sveltejs/kit/hooks'
 import { redirect, type Handle } from '@sveltejs/kit';
 import { prisma } from '$lib/server/db';
 
 export const handle: Handle = async ({ event, resolve }) => {
+	sequence(i18n.handle())
+
 	// Get the session token from cookie
 	const sessionToken = event.cookies.get('session');
 	const path = event.url.pathname;
@@ -65,4 +69,4 @@ export const handle: Handle = async ({ event, resolve }) => {
 	}
 
 	return resolve(event);
-}; 
+};

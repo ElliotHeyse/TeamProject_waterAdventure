@@ -14,7 +14,7 @@
 
 	<main class="flex flex-1 flex-col">
 		<Header bind:isSidebarOpen />
-		<div class={{ 'flex-1 p-6': page.url.pathname !== '/coach/chat' }}>
+		<div class={{ 'flex-1 p-6': !page.url.pathname.includes('/coach/chat') }}>
 			{@render children()}
 		</div>
 	</main>
