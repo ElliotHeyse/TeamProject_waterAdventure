@@ -2,6 +2,7 @@
 	import ChevronDown from 'lucide-svelte/icons/chevron-down';
 	import ChevronUp from 'lucide-svelte/icons/chevron-up';
 	import ArrowUpDown from 'lucide-svelte/icons/arrow-up-down';
+	import { goto } from '$app/navigation';
 	import {
 		type ColumnDef,
 		type ColumnFiltersState,
@@ -27,10 +28,10 @@
 		renderComponent,
 		renderSnippet
 	} from '$lib/components/coach/ui/data-table/index';
-	import { Badge } from '$lib/components/coach/ui/badge';
-	import { cn } from '$lib/utils';
-	import { CheckCircle, Clock } from 'svelte-hero-icons';
 	import StatusBadge from '$lib/components/coach/ui/badge/status-badge.svelte';
+	import * as m from '$lib/paraglide/messages.js';
+	import * as Select from '$lib/components/coach/ui/select/index';
+	import { Select as SelectPrimitive } from 'bits-ui';
 
 	interface Submission {
 		id: string;
@@ -42,13 +43,36 @@
 		feedback: string;
 	}
 
-	let { submissions }: { submissions: Submission[] } = $props();
+	let {
+		submissions,
+		data
+	}: { submissions: Submission[]; data: { lessons: Array<{ id: string; title: string }> } } =
+		$props();
 	let table: TableType<Submission> | undefined = $state();
+
+	// Get the current URL parameters
+	const url = new URL(window.location.href);
+
+	let currentLesson = $state(
+		data.lessons.find((l) => l.id === url.searchParams.get('lessonId')) ?? null
+	);
+
+	async function handleLessonFilter(lessonId: string) {
+		const newUrl = new URL(window.location.href);
+		if (lessonId) {
+			newUrl.searchParams.set('lessonId', lessonId);
+			currentLesson = data.lessons.find((l) => l.id === lessonId) ?? null;
+		} else {
+			newUrl.searchParams.delete('lessonId');
+			currentLesson = null;
+		}
+		await goto(newUrl.pathname + newUrl.search, { replaceState: true });
+	}
 
 	const columns: ColumnDef<Submission>[] = [
 		{
 			accessorKey: 'pupilName',
-			header: 'Pupil',
+			header: m.pupil(),
 			cell: ({ row }) => {
 				const name = row.getValue<string>('pupilName');
 				const nameSnippet = createRawSnippet<[string]>((getName) => {
@@ -62,15 +86,15 @@
 		},
 		{
 			accessorKey: 'lessonTitle',
-			header: 'Lesson'
+			header: m.lesson()
 		},
 		{
 			accessorKey: 'date',
-			header: 'Submitted'
+			header: m.submitted()
 		},
 		{
 			accessorKey: 'status',
-			header: 'Status',
+			header: m.status(),
 			cell: ({ row }) => {
 				const status = row.getValue<'pending' | 'reviewed'>('status').toUpperCase();
 				return renderComponent(StatusBadge, {
@@ -80,7 +104,7 @@
 		},
 		{
 			id: 'actions',
-			cell: ({ row }) => renderComponent(DataTableActions, { id: row.original.id })
+			cell: ({ row }) => renderComponent(DataTableActions, { submission: row.original })
 		}
 	];
 
@@ -157,7 +181,7 @@
 <div class="w-full">
 	<div class="flex items-center py-4">
 		<Input
-			placeholder="Filter submissions..."
+			placeholder={m.filter_submissions()}
 			value={(table?.getColumn('pupilName')?.getFilterValue() as string) ?? ''}
 			onchange={(e) => {
 				table?.getColumn('pupilName')?.setFilterValue(e.currentTarget.value);
@@ -167,11 +191,35 @@
 			}}
 			class="max-w-sm"
 		/>
+		<div class="ml-2">
+			<SelectPrimitive.Root
+				type="single"
+				onValueChange={handleLessonFilter}
+				value={currentLesson?.id ?? ''}
+			>
+				<Select.Trigger class="w-[200px]">
+					<span class="line-clamp-1">
+						{currentLesson?.title ?? m.all_lessons()}
+					</span>
+				</Select.Trigger>
+				<Select.Content>
+					<Select.Item value="">
+						{m.all_lessons()}
+					</Select.Item>
+					{#each data.lessons as lesson}
+						<Select.Item value={lesson.id}>
+							{lesson.title}
+						</Select.Item>
+					{/each}
+				</Select.Content>
+			</SelectPrimitive.Root>
+		</div>
 		<DropdownMenu.Root>
 			<DropdownMenu.Trigger>
 				{#snippet child({ props })}
 					<Button {...props} variant="outline" class="ml-auto">
-						Columns <ChevronDown class="ml-2 size-4" />
+						{m.columns()}
+						<ChevronDown class="ml-2 size-4" />
 					</Button>
 				{/snippet}
 			</DropdownMenu.Trigger>
@@ -235,7 +283,7 @@
 				{:else}
 					<Table.Row>
 						<Table.Cell colspan={columns.length} class="h-24 text-center">
-							No submissions found.
+							{m.no_submissions_found()}
 						</Table.Cell>
 					</Table.Row>
 				{/each}
@@ -244,7 +292,7 @@
 	</div>
 	<div class="flex items-center justify-end space-x-2 pt-4">
 		<div class="text-muted-foreground flex-1 text-sm">
-			{table?.getFilteredRowModel().rows.length ?? 0} submission(s) total.
+			{m.submissions_total({ count: table?.getFilteredRowModel().rows.length ?? 0 })}
 		</div>
 		<div class="space-x-2">
 			<Button
@@ -253,7 +301,7 @@
 				onclick={() => table?.previousPage()}
 				disabled={!table?.getCanPreviousPage()}
 			>
-				Previous
+				{m.previous()}
 			</Button>
 			<Button
 				variant="outline"
@@ -261,7 +309,7 @@
 				onclick={() => table?.nextPage()}
 				disabled={!table?.getCanNextPage()}
 			>
-				Next
+				{m.next()}
 			</Button>
 		</div>
 	</div>

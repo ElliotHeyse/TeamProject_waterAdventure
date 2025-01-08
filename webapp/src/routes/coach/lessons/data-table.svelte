@@ -42,6 +42,7 @@
 		coachId: string;
 		createdAt: Date;
 		updatedAt: Date;
+		order: number;
 	}
 
 	let { lessons }: { lessons: Lesson[] } = $props();
@@ -66,6 +67,21 @@
 				}),
 			enableSorting: false,
 			enableHiding: false
+		},
+		{
+			accessorKey: 'order',
+			header: m.order(),
+			enableSorting: true,
+			cell: ({ row }) => {
+				const order = row.getValue<number>('order');
+				const orderSnippet = createRawSnippet<[number]>((getOrder) => {
+					const order = getOrder();
+					return {
+						render: () => `<div>${order}</div>`
+					};
+				});
+				return renderSnippet(orderSnippet, order);
+			}
 		},
 		{
 			accessorKey: 'title',

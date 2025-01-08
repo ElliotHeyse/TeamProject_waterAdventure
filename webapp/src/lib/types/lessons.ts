@@ -25,6 +25,7 @@ export interface NewLessonData {
 	duration: number;
 	date: string;
 	maxPupils: number;
+	order: number;
 }
 
 export interface LessonsPageData {

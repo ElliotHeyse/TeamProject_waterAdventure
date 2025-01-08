@@ -1,6 +1,6 @@
 import { error } from '@sveltejs/kit';
 import type { PageServerLoad, Actions } from './$types';
-import { PrismaClient, Level } from '@prisma/client';
+import { PrismaClient, Level, SubmissionStatus } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
@@ -15,6 +15,18 @@ export const load = (async ({ params }: { params: { id: string } }) => {
 			level: true,
 			notes: true,
 			createdAt: true,
+			parent: {
+				select: {
+					id: true,
+					phone: true,
+					user: {
+						select: {
+							name: true,
+							email: true
+						}
+					}
+				}
+			},
 			_count: {
 				select: {
 					submissions: true
@@ -26,6 +38,19 @@ export const load = (async ({ params }: { params: { id: string } }) => {
 	if (!pupil) {
 		throw error(404, 'Pupil not found');
 	}
+
+	const totalLessons = await prisma.lesson.count({
+		where: {
+			level: pupil.level
+		}
+	});
+
+	const completedLessons = await prisma.submission.count({
+		where: {
+			pupilId: pupilId,
+			status: SubmissionStatus.REVIEWED
+		}
+	});
 
 	const lessons = await prisma.lesson.findMany({
 		where: {
@@ -74,7 +99,9 @@ export const load = (async ({ params }: { params: { id: string } }) => {
 	return {
 		pupil,
 		lessons,
-		submissions
+		submissions,
+		totalLessons,
+		completedLessons
 	};
 }) satisfies PageServerLoad;
 

@@ -1,5 +1,7 @@
 <script lang="ts">
 	import { enhance } from '$app/forms';
+	import { goto } from '$app/navigation';
+	import type { ActionResult } from '@sveltejs/kit';
 	import { Icon, UserCircle } from 'svelte-hero-icons';
 	import { Button } from '$lib/components/coach/ui/button';
 	import { cn } from '$lib/utils';
@@ -7,24 +9,19 @@
 
 	let email = $state('');
 	let password = $state('');
+	let formData = $state<{ error?: string } | undefined>(undefined);
 
 	const inputStyles =
 		'mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#FF5555] focus:ring-[#FF5555]';
 
 	function handleSubmit() {
-		return async ({ form, data, action, cancel }) => {
-			const response = await fetch(action, {
-				method: 'POST',
-				body: new FormData(form)
-			});
-
-			if (!response.ok) {
-				return;
-			}
-
-			const result = await response.json();
-			if (result.error) {
-				return;
+		return async ({ result }: { result: ActionResult }) => {
+			if (result.type === 'failure') {
+				formData = result.data as { error: string };
+			} else if (result.type === 'success') {
+				const userData = result.data as { role: string };
+				const redirectPath = userData.role === 'COACH' ? '/coach' : '/app';
+				await goto(redirectPath);
 			}
 		};
 	}
@@ -55,10 +52,10 @@
 			</div>
 
 			<form method="POST" use:enhance={handleSubmit} class="space-y-6">
-				{#if form?.error}
+				{#if formData?.error}
 					<div class="rounded-md bg-red-50 p-4 text-sm text-red-700">
 						<p class="font-medium">{m.auth_failed()}</p>
-						<p>{form.error}</p>
+						<p>{formData.error}</p>
 					</div>
 				{/if}
 

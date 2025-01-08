@@ -18,6 +18,8 @@
 	import { i18n } from '$lib/i18n';
 	import { goto } from '$app/navigation';
 	import type { AvailableLanguageTag } from '$lib/paraglide/runtime';
+	import { Badge } from '$lib/components/coach/ui/badge';
+	import { Gb, Nl, Fr } from 'svelte-flags';
 
 	let { data } = $props<{ data: PageData }>();
 	let formError: string | null = $state(null);
@@ -155,22 +157,28 @@
 		<div class="p-6 space-y-4">
 			<div class="flex items-center justify-between">
 				<div class="space-y-0.5">
-					<Label>{m.email_notifications()}</Label>
+					<div class="flex items-center gap-2">
+						<Label>{m.email_notifications()}</Label>
+						<Badge variant="secondary" class="text-xs">Soon</Badge>
+					</div>
 					<div class="text-sm text-muted-foreground">
 						{m.email_notifications_description()}
 					</div>
 				</div>
-				<Switch bind:checked={emailNotifications} />
+				<Switch bind:checked={emailNotifications} disabled />
 			</div>
 			<Separator />
 			<div class="flex items-center justify-between">
 				<div class="space-y-0.5">
-					<Label>{m.push_notifications()}</Label>
+					<div class="flex items-center gap-2">
+						<Label>{m.push_notifications()}</Label>
+						<Badge variant="secondary" class="text-xs">Soon</Badge>
+					</div>
 					<div class="text-sm text-muted-foreground">
 						{m.push_notifications_description()}
 					</div>
 				</div>
-				<Switch bind:checked={pushNotifications} />
+				<Switch bind:checked={pushNotifications} disabled />
 			</div>
 		</div>
 	</div>
@@ -191,14 +199,38 @@
 					onValueChange={(value: string) => handleLanguageChange(value as AvailableLanguageTag)}
 				>
 					<Select.Trigger class="w-[180px]">
-						<span>
-							{currentLanguage === 'en' ? 'English' : currentLanguage === 'nl' ? 'Dutch' : 'French'}
-						</span>
+						<div class="flex items-center gap-2">
+							{#if currentLanguage === 'en'}
+								<Gb class="w-4 h-4" />
+								<span>English</span>
+							{:else if currentLanguage === 'nl'}
+								<Nl class="w-4 h-4" />
+								<span>Dutch</span>
+							{:else}
+								<Fr class="w-4 h-4" />
+								<span>French</span>
+							{/if}
+						</div>
 					</Select.Trigger>
 					<Select.Content>
-						<Select.Item value="en">English</Select.Item>
-						<Select.Item value="nl">Dutch</Select.Item>
-						<Select.Item value="fr">French</Select.Item>
+						<Select.Item value="en">
+							<div class="flex items-center gap-2">
+								<Gb class="w-4 h-4" />
+								<span>English</span>
+							</div>
+						</Select.Item>
+						<Select.Item value="nl">
+							<div class="flex items-center gap-2">
+								<Nl class="w-4 h-4" />
+								<span>Dutch</span>
+							</div>
+						</Select.Item>
+						<Select.Item value="fr">
+							<div class="flex items-center gap-2">
+								<Fr class="w-4 h-4" />
+								<span>French</span>
+							</div>
+						</Select.Item>
 					</Select.Content>
 				</Select.Root>
 			</div>

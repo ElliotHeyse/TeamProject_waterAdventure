@@ -48,5 +48,38 @@ export const actions = {
 		}
 
 		return { success: true };
+	},
+	deleteLesson: async ({ request }) => {
+		const formData = await request.formData();
+		const id = formData.get('id') as string;
+
+		if (!id) {
+			return fail(400, { message: 'Missing lesson ID' });
+		}
+
+		try {
+			// First, delete all reviews associated with submissions of this lesson
+			await prisma.review.deleteMany({
+				where: {
+					submission: {
+						lessonId: id
+					}
+				}
+			});
+
+			// Then delete all submissions for this lesson
+			await prisma.submission.deleteMany({
+				where: { lessonId: id }
+			});
+
+			// Finally delete the lesson
+			await prisma.lesson.delete({
+				where: { id }
+			});
+			return { success: true };
+		} catch (error) {
+			console.error('Failed to delete lesson:', error);
+			return fail(500, { message: 'Failed to delete lesson' });
+		}
 	}
 } satisfies Actions;

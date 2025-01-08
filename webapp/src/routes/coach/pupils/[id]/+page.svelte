@@ -19,11 +19,15 @@
 	import { invalidateAll } from '$app/navigation';
 	import { CircleAlert } from 'lucide-svelte';
 	import * as m from '$lib/paraglide/messages.js';
+	import ReviewDialog from '$lib/components/coach/submissions/review-dialog.svelte';
 
 	let { data } = $props<{ data: PageData }>();
 	let isEditing = $state(false);
 	let selectedLevel = $state(data.pupil.level);
 	let formError = $state<string | null>(null);
+	let isReviewDialogOpen = $state(false);
+	let selectedSubmission = $state(null);
+	let isProgressDialogOpen = $state(false);
 
 	const levels = ['BEGINNER', 'INTERMEDIATE', 'ADVANCED'] as const;
 
@@ -44,6 +48,11 @@
 		levelInput.name = 'level';
 		levelInput.value = selectedLevel;
 		form.appendChild(levelInput);
+	}
+
+	function openReviewDialog(submission: any) {
+		selectedSubmission = submission;
+		isReviewDialogOpen = true;
 	}
 </script>
 
@@ -174,11 +183,86 @@
 		</div>
 
 		<div class="bg-card text-card-foreground rounded-lg border p-6 shadow-sm">
+			<h3 class="font-semibold">{m.parent_information()}</h3>
+			<dl class="mt-4 space-y-2">
+				<div>
+					<dt class="text-sm text-muted-foreground">{m.name()}</dt>
+					<dd class="text-sm font-medium">{data.pupil.parent.user.name}</dd>
+				</div>
+				<div>
+					<dt class="text-sm text-muted-foreground">{m.email()}</dt>
+					<dd class="text-sm font-medium">{data.pupil.parent.user.email}</dd>
+				</div>
+				{#if data.pupil.parent.phone}
+					<div>
+						<dt class="text-sm text-muted-foreground">{m.phone()}</dt>
+						<dd class="text-sm font-medium">{data.pupil.parent.phone}</dd>
+					</div>
+				{/if}
+			</dl>
+		</div>
+
+		<div class="bg-card text-card-foreground rounded-lg border p-6 shadow-sm">
 			<h3 class="font-semibold">{m.activity_overview()}</h3>
 			<dl class="mt-4 space-y-2">
 				<div>
-					<dt class="text-muted-foreground text-sm">{m.total_lessons()}</dt>
-					<dd class="text-sm font-medium">{data.lessons.length}</dd>
+					<dt class="text-muted-foreground text-sm">{m.lesson_progress()}</dt>
+					<dd class="mt-2">
+						<Dialog bind:open={isProgressDialogOpen}>
+							<DialogTrigger>
+								<button class="w-full">
+									<div class="h-2 w-full rounded-full bg-muted">
+										<div
+											class="h-full rounded-full bg-primary transition-all"
+											style="width: {(data.completedLessons / data.totalLessons) * 100}%"
+										></div>
+									</div>
+									<p class="mt-1 text-sm font-medium">
+										{data.completedLessons}
+										{m.out_of()}
+										{data.totalLessons}
+										{m.lessons_completed()}
+									</p>
+								</button>
+							</DialogTrigger>
+							<DialogContent>
+								<DialogHeader>
+									<DialogTitle>{m.recent_progress()}</DialogTitle>
+								</DialogHeader>
+								<div class="space-y-4">
+									{#if data.submissions.length === 0}
+										<p class="text-muted-foreground">{m.no_submissions()}</p>
+									{:else}
+										<div class="space-y-4">
+											{#each data.submissions.slice(0, 5) as submission}
+												<div class="flex items-center justify-between rounded-md bg-muted p-4">
+													<div class="space-y-1">
+														<p class="font-medium">{submission.lesson.title}</p>
+														<p class="text-sm text-muted-foreground">
+															{m.submitted()}
+															{formatDistance(new Date(submission.createdAt), new Date(), {
+																addSuffix: true
+															})}
+														</p>
+													</div>
+													<div class="flex items-center gap-4">
+														<StatusBadge status={submission.status} />
+														<Button
+															variant="outline"
+															size="sm"
+															onclick={() => openReviewDialog(submission)}
+														>
+															{m.review_submission()}
+														</Button>
+													</div>
+												</div>
+											{/each}
+										</div>
+									{/if}
+								</div>
+							</DialogContent>
+						</Dialog>
+					</dd>
 				</div>
 				<div>
 					<dt class="text-muted-foreground text-sm">{m.total_submissions()}</dt>
@@ -196,24 +280,6 @@
 				</div>
 			</dl>
 		</div>
-
-		<div class="bg-card text-card-foreground rounded-lg border p-6 shadow-sm">
-			<h3 class="font-semibold">{m.recent_progress()}</h3>
-			<div class="mt-4">
-				{#if data.submissions.length === 0}
-					<p class="text-muted-foreground text-sm">{m.no_submissions()}</p>
-				{:else}
-					<div class="space-y-2">
-						{#each data.submissions.slice(0, 3) as submission}
-							<div class="flex items-center justify-between rounded-md bg-muted p-2">
-								<span class="text-sm">{submission.lesson.title}</span>
-								<StatusBadge status={submission.status} />
-							</div>
-						{/each}
-					</div>
-				{/if}
-			</div>
-		</div>
 	</div>
 
 	<!-- Submissions -->
@@ -223,35 +289,51 @@
 			<p class="text-muted-foreground">{m.no_submissions()}</p>
 		{:else}
 			<div class="space-y-4">
-				{#each data.submissions as submission}
-					<div class="bg-muted rounded-lg border p-4">
-						<div class="flex flex-col space-y-2">
-							<div class="flex items-center justify-between">
-								<span class="font-medium">{submission.lesson.title}</span>
-								<StatusBadge status={submission.status} />
-							</div>
-							<div class="text-muted-foreground text-sm">
-								{m.submitted()}
-								{formatDistance(new Date(submission.createdAt), new Date(), {
-									addSuffix: true
-								})}
-							</div>
-							{#if submission.review}
-								<div class="bg-background mt-2 rounded-md p-3">
-									<p class="text-sm font-medium">{m.review_comment()}</p>
-									<p class="text-muted-foreground text-sm">{submission.review.comment}</p>
-									<p class="text-muted-foreground mt-1 text-xs">
-										{m.reviewed()}
-										{formatDistance(new Date(submission.review.createdAt), new Date(), {
-											addSuffix: true
-										})}
-									</p>
+				<div class="grid gap-4 sm:grid-cols-2">
+					{#each data.submissions as submission}
+						<button
+							class="group w-full rounded-lg border bg-muted p-4 text-left transition-colors hover:bg-muted/80"
+							onclick={() => openReviewDialog(submission)}
+							aria-label={m.review_submission()}
+						>
+							<div class="flex flex-col space-y-3">
+								<div class="flex items-start justify-between gap-4">
+									<div class="space-y-1">
+										<h4 class="font-medium leading-none">{submission.lesson.title}</h4>
+										<p class="text-sm text-muted-foreground">
+											{m.submitted()}
+											{formatDistance(new Date(submission.createdAt), new Date(), {
+												addSuffix: true
+											})}
+										</p>
+									</div>
+									<StatusBadge status={submission.status} />
 								</div>
-							{/if}
-						</div>
-					</div>
-				{/each}
+								{#if submission.review}
+									<div class="rounded-md bg-background/50 p-3">
+										<div class="flex flex-col gap-2">
+											<p class="text-sm font-medium leading-none">{m.review_comment()}</p>
+											<p class="text-sm text-muted-foreground">{submission.review.comment}</p>
+											<p class="text-xs text-muted-foreground/80">
+												{m.reviewed()}
+												{formatDistance(new Date(submission.review.createdAt), new Date(), {
+													addSuffix: true
+												})}
+											</p>
+										</div>
+									</div>
+								{/if}
+							</div>
+						</button>
+					{/each}
+				</div>
 			</div>
 		{/if}
 	</div>
+
+	<ReviewDialog
+		submission={selectedSubmission}
+		open={isReviewDialogOpen}
+		onOpenChange={(open) => (isReviewDialogOpen = open)}
+	/>
 </div>

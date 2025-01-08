@@ -93,6 +93,7 @@ model Lesson {
   duration    Int // in minutes
   level       Level
   date        DateTime
+  order       Int      @default(autoincrement())
 
   // Relations
   coach       Coach        @relation(fields: [coachId], references: [id])

@@ -7,14 +7,30 @@ type SubmissionWithRelations = PrismaSubmission & {
 	lesson: Lesson;
 };
 
-export const load: PageServerLoad = async ({ locals }) => {
+export const load: PageServerLoad = async ({ locals, url }) => {
+	const lessonId = url.searchParams.get('lessonId');
+
 	const submissions = await prisma.submission.findMany({
+		where: lessonId ? {
+			lessonId: lessonId
+		} : undefined,
 		include: {
 			pupil: true,
 			lesson: true
 		},
 		orderBy: {
 			createdAt: 'desc'
+		}
+	});
+
+	// Get all unique lessons for the filter dropdown
+	const lessons = await prisma.lesson.findMany({
+		select: {
+			id: true,
+			title: true
+		},
+		orderBy: {
+			title: 'asc'
 		}
 	});
 
@@ -26,7 +42,9 @@ export const load: PageServerLoad = async ({ locals }) => {
 			date: submission.createdAt.toISOString().split('T')[0],
 			status: submission.status.toLowerCase(),
 			videoUrl: submission.videoUrl,
-			feedback: submission.feedback || ''
-		}))
+			feedback: submission.feedback || '',
+			lesson: submission.lesson
+		})),
+		lessons
 	};
 };

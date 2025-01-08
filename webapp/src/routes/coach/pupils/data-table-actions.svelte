@@ -17,8 +17,10 @@
 		{/snippet}
 	</DropdownMenu.Trigger>
 	<DropdownMenu.Content align="end">
-		<DropdownMenu.Item>
-			<a href={`/coach/pupils/${id}`}>{m.view_profile()}</a>
-		</DropdownMenu.Item>
+		<a href={`/coach/pupils/${id}`} class="block cursor-pointer">
+			<DropdownMenu.Item>
+				{m.view_profile()}
+			</DropdownMenu.Item>
+		</a>
 	</DropdownMenu.Content>
 </DropdownMenu.Root>

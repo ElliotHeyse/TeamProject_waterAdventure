@@ -14,13 +14,14 @@
 		level: Level.BEGINNER,
 		duration: 45,
 		date: '',
-		maxPupils: 10
+		maxPupils: 10,
+		order: 0
 	};
 </script>
 
 <div class="space-y-6">
 	<div class="flex items-center justify-between">
-		<h2 class="text-2xl font-bold text-gray-900 dark:text-white">{m.active_lessons()}</h2>
+		<h2 class="text-2xl font-bold tracking-tight">{m.active_lessons()}</h2>
 		<Button variant="outline" onclick={() => (showNewLessonForm = true)}>{m.create_lesson()}</Button
 		>
 	</div>
@@ -93,6 +94,20 @@
 						name="date"
 						bind:value={newLesson.date}
 						class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+						required
+					/>
+				</div>
+
+				<div>
+					<label class="block text-sm font-medium text-gray-700" for="order">{m.order()}</label>
+					<input
+						type="number"
+						id="order"
+						name="order"
+						bind:value={newLesson.order}
+						class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+						min="0"
+						step="1"
 						required
 					/>
 				</div>
