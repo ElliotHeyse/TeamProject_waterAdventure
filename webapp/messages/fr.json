@@ -145,5 +145,8 @@
     "lesson": "Leçon",
     "status": "Statut",
     "no_submissions_found": "Aucune soumission trouvée.",
-    "submissions_total": "{count} soumission(s) au total."
+    "submissions_total": "{count} soumission(s) au total.",
+    "review_submitted": "Évaluation soumise avec succès",
+    "error_submitting_review": "Erreur lors de la soumission de l'évaluation",
+    "submitting": "Soumission en cours..."
 }

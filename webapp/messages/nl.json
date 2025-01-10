@@ -145,5 +145,8 @@
     "lesson": "Les",
     "status": "Status",
     "no_submissions_found": "Geen inzendingen gevonden.",
-    "submissions_total": "{count} inzending(en) totaal."
+    "submissions_total": "{count} inzending(en) totaal.",
+    "review_submitted": "Beoordeling succesvol ingediend",
+    "error_submitting_review": "Fout bij het indienen van de beoordeling",
+    "submitting": "Bezig met indienen..."
 }

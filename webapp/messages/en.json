@@ -145,5 +145,8 @@
     "lesson": "Lesson",
     "status": "Status",
     "no_submissions_found": "No submissions found.",
-    "submissions_total": "{count} submission(s) total."
+    "submissions_total": "{count} submission(s) total.",
+    "review_submitted": "Review submitted successfully",
+    "error_submitting_review": "Error submitting review",
+    "submitting": "Submitting..."
 }
