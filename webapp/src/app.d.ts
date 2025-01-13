@@ -1,12 +1,15 @@
-// See https://svelte.dev/docs/kit/types#app.d.ts
-// for information about these interfaces
+import type { AvailableLanguageTag } from "../../lib/paraglide/runtime"
+import type { ParaglideLocals } from "@inlang/paraglide-sveltekit"
+import type { User } from '@prisma/client';
+
+// See https://kit.svelte.dev/docs/types#app
 declare global {
 	namespace App {
-		// interface Error {}
-		// interface Locals {}
-		// interface PageData {}
-		// interface PageState {}
-		// interface Platform {}
+		interface Locals {
+    paraglide: ParaglideLocals<AvailableLanguageTag>,
+
+			user: User | null;
+		}
 	}
 }
 
