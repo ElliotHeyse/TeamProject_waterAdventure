@@ -20,7 +20,7 @@
 <div class="space-y-6">
 	<div class="flex items-center justify-between">
 		<h2 class="text-2xl font-bold tracking-tight">{m.pupils()}</h2>
-		<Button variant="outline" onclick={() => (showNewPupilForm = true)}>{m.add_pupil()}</Button>
+		<!-- <Button variant="outline" onclick={() => (showNewPupilForm = true)}>{m.add_pupil()}</Button> -->
 	</div>
 
 	{#if showNewPupilForm}

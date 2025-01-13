@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { enhance } from '$app/forms';
-	import { goto } from '$app/navigation';
+	import { goto, invalidateAll } from '$app/navigation';
 	import type { ActionResult } from '@sveltejs/kit';
 	import { Icon, UserCircle } from 'svelte-hero-icons';
 	import { Button } from '$lib/components/coach/ui/button';
@@ -18,10 +18,8 @@
 		return async ({ result }: { result: ActionResult }) => {
 			if (result.type === 'failure') {
 				formData = result.data as { error: string };
-			} else if (result.type === 'success') {
-				const userData = result.data as { role: string };
-				const redirectPath = userData.role === 'COACH' ? '/coach' : '/app';
-				await goto(redirectPath);
+			} else if (result.type === 'redirect') {
+				goto(result.location);
 			}
 		};
 	}
@@ -49,6 +47,7 @@
 				<p class="text-center text-sm text-gray-600">
 					{m.welcome_back()}
 				</p>
+				<p class="text-center text-sm text-gray-500">Demo credentials: demo@demo.com / demo</p>
 			</div>
 
 			<form method="POST" use:enhance={handleSubmit} class="space-y-6">
@@ -70,7 +69,7 @@
 							required
 							value={email}
 							oninput={(e) => (email = e.currentTarget.value)}
-							placeholder="you@example.com"
+							placeholder="demo@demo.com"
 						/>
 					</div>
 

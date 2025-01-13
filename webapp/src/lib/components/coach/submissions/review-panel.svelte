@@ -80,14 +80,14 @@
 			<div class="flex justify-end space-x-3">
 				<button
 					class="bg-background ring-offset-background hover:bg-accent hover:text-accent-foreground focus-visible:ring-ring inline-flex h-9 items-center justify-center rounded-md border px-4 py-2 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
-					on:click={onClose}
+					onclick={onClose}
 					disabled={isSubmitting}
 				>
 					{m.cancel()}
 				</button>
 				<button
 					class="bg-primary text-primary-foreground ring-offset-background hover:bg-primary/90 focus-visible:ring-ring inline-flex h-9 items-center justify-center gap-2 rounded-md px-4 py-2 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
-					on:click={handleSubmit}
+					onclick={handleSubmit}
 					disabled={isSubmitting}
 				>
 					{#if isSubmitting}
