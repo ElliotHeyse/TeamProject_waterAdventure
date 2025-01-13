@@ -1,8 +1,16 @@
+<!-- Submissions page -->
 <script lang="ts">
 	import { CheckCircle, Clock, Icon } from 'svelte-hero-icons';
+	import { Badge } from '$lib/components/coach/ui/badge';
+	import { Button } from '$lib/components/coach/ui/button';
+	import { cn } from '$lib/utils';
+	import { tv } from 'tailwind-variants';
+	import StatusBadge from '$lib/components/coach/ui/badge/status-badge.svelte';
+	import * as m from '$lib/paraglide/messages.js';
+	import ReviewPanel from '$lib/components/coach/submissions/review-panel.svelte';
 
 	interface Submission {
-		id: number;
+		id: string;
 		pupilName: string;
 		lessonTitle: string;
 		date: string;
@@ -11,87 +19,81 @@
 		feedback: string;
 	}
 
-	let submissions = $state<Submission[]>([
-		{
-			id: 1,
-			pupilName: 'Alice Johnson',
-			lessonTitle: 'Freestyle Basics',
-			date: '2024-01-05',
-			status: 'pending',
-			videoUrl: 'https://example.com/video1',
-			feedback: ''
-		},
-		{
-			id: 2,
-			pupilName: 'Bob Smith',
-			lessonTitle: 'Advanced Backstroke',
-			date: '2024-01-04',
-			status: 'reviewed',
-			videoUrl: 'https://example.com/video2',
-			feedback: 'Good form, but work on arm position'
-		}
-	]);
+	interface PageData {
+		submissions: Array<{
+			id: string;
+			pupilName: string;
+			lessonTitle: string;
+			date: string;
+			status: string;
+			videoUrl: string;
+			feedback: string;
+		}>;
+	}
 
+	let { data } = $props<{ data: PageData }>();
+	let submissions = $state<Submission[]>(
+		data.submissions
+			.map((s: Submission) => ({
+				...s,
+				status: s.status as 'pending' | 'reviewed'
+			}))
+			.filter((s: Submission) => s.status === 'pending')
+	);
 	let selectedSubmission = $state<Submission | null>(null);
-	let feedback = $state('');
 
-	function reviewSubmission(submission: Submission) {
-		selectedSubmission = submission;
-		feedback = submission.feedback;
-	}
-
-	function submitReview() {
+	async function submitReview(feedback: string) {
 		if (selectedSubmission) {
-			submissions = submissions.map((s) =>
-				s.id === selectedSubmission!.id ? { ...s, status: 'reviewed', feedback } : s
-			);
-			selectedSubmission = null;
-			feedback = '';
+			const response = await fetch(`/api/submissions/${selectedSubmission.id}/review`, {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json'
+				},
+				body: JSON.stringify({ feedback })
+			});
+
+			if (response.ok) {
+				submissions = submissions.filter((s) => s.id !== selectedSubmission!.id);
+				selectedSubmission = null;
+			}
 		}
 	}
 
-	let pendingCount = $derived(submissions.filter((s) => s.status === 'pending').length);
+	let pendingCount = $derived(submissions.length);
 </script>
 
 <div class="space-y-6">
 	<div class="flex items-center justify-between">
 		<div>
-			<h2 class="text-2xl font-bold text-gray-900">Submissions</h2>
-			<p class="mt-1 text-gray-600">
-				{pendingCount} pending reviews
+			<h2 class="text-2xl font-bold tracking-tight">{m.pending_submissions_title()}</h2>
+			<p class="text-muted-foreground">
+				{pendingCount}
+				{m.pending_reviews()}
 			</p>
 		</div>
+		<Button variant="outline" href="/coach/submissions/all">{m.view_all_submissions()}</Button>
 	</div>
 
 	<div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
 		<!-- Submissions List -->
-		<div class="overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm">
-			<div class="border-b border-gray-200 p-4">
-				<h3 class="font-semibold text-gray-900">All Submissions</h3>
+		<div class="bg-card text-card-foreground rounded-md border shadow">
+			<div class="border-b p-4">
+				<h3 class="font-semibold">{m.pending_submissions_title()}</h3>
 			</div>
-			<div class="divide-y divide-gray-200">
+			<div class="divide-y">
 				{#each submissions as submission}
 					<button
-						class="w-full cursor-pointer p-4 text-left hover:bg-gray-50"
-						class:bg-blue-50={selectedSubmission?.id === submission.id}
-						onclick={() => reviewSubmission(submission)}
+						class="hover:bg-muted/50 w-full cursor-pointer p-4 text-left transition-colors"
+						class:bg-accent={selectedSubmission?.id === submission.id}
+						onclick={() => (selectedSubmission = submission)}
 					>
 						<div class="flex items-start justify-between">
 							<div>
-								<h4 class="font-medium text-gray-900">{submission.pupilName}</h4>
-								<p class="text-sm text-gray-600">{submission.lessonTitle}</p>
-								<p class="text-sm text-gray-500">Submitted on {submission.date}</p>
+								<h4 class="font-medium">{submission.pupilName}</h4>
+								<p class="text-muted-foreground text-sm">{submission.lessonTitle}</p>
+								<p class="text-muted-foreground text-sm">{m.submitted_on()} {submission.date}</p>
 							</div>
-							<span
-								class="flex items-center gap-1 rounded-full px-2 py-1 text-xs"
-								class:bg-yellow-100={submission.status === 'pending'}
-								class:text-yellow-800={submission.status === 'pending'}
-								class:bg-green-100={submission.status === 'reviewed'}
-								class:text-green-800={submission.status === 'reviewed'}
-							>
-								<Icon src={submission.status === 'pending' ? Clock : CheckCircle} class="h-4 w-4" />
-								{submission.status}
-							</span>
+							<StatusBadge status={submission.status.toUpperCase()} />
 						</div>
 					</button>
 				{/each}
@@ -99,51 +101,12 @@
 		</div>
 
 		<!-- Review Panel -->
-		<div class="rounded-lg border border-gray-200 bg-white shadow-sm">
-			{#if selectedSubmission}
-				<div class="space-y-6 p-6">
-					<div>
-						<h3 class="text-lg font-semibold text-gray-900">Review Submission</h3>
-						<p class="text-gray-600">
-							{selectedSubmission.pupilName} - {selectedSubmission.lessonTitle}
-						</p>
-					</div>
-
-					<div class="flex aspect-video items-center justify-center rounded-lg bg-gray-100">
-						<!-- Video player would go here -->
-						<p class="text-gray-500">Video Player Placeholder</p>
-					</div>
-
-					<div class="space-y-4">
-						<label class="block">
-							<span class="text-sm font-medium text-gray-700">Feedback</span>
-							<textarea
-								bind:value={feedback}
-								class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-								rows="4"
-								placeholder="Enter your feedback..."
-							></textarea>
-						</label>
-
-						<div class="flex justify-end space-x-3">
-							<button
-								class="rounded-md border border-gray-300 px-4 py-2 text-gray-700 hover:bg-gray-50"
-								onclick={() => (selectedSubmission = null)}
-							>
-								Cancel
-							</button>
-							<button
-								class="rounded-md bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
-								onclick={submitReview}
-							>
-								Submit Review
-							</button>
-						</div>
-					</div>
-				</div>
-			{:else}
-				<div class="p-6 text-center text-gray-500">Select a submission to review</div>
-			{/if}
+		<div class="bg-card text-card-foreground rounded-md border shadow p-8">
+			<ReviewPanel
+				submission={selectedSubmission}
+				onClose={() => (selectedSubmission = null)}
+				onSubmit={submitReview}
+			/>
 		</div>
 	</div>
 </div>

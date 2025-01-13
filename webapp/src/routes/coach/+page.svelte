@@ -9,87 +9,101 @@
 		Envelope,
 		Calendar
 	} from 'svelte-hero-icons';
+	import type { PageData } from './$types';
+	import type { ActivityItem } from './types';
+	import * as m from '$lib/paraglide/messages.js';
 
-	let stats = $state({
-		totalPupils: 24,
-		activeLessons: 8,
-		pendingSubmissions: 12,
-		unreadMessages: 5
-	});
+	let { data } = $props<{ data: PageData }>();
 
-	let recentActivity = $state([
-		{ type: 'submission', text: 'New video submission from Alice', time: '2 hours ago' },
-		{ type: 'message', text: "Message from Bob's parent", time: '3 hours ago' },
-		{ type: 'lesson', text: 'New lesson scheduled: Advanced Freestyle', time: '5 hours ago' }
-	]);
+	function getActivityIcon(type: ActivityItem['type']) {
+		switch (type) {
+			case 'submission':
+				return VideoCamera;
+			case 'message':
+				return Envelope;
+			case 'lesson':
+				return Calendar;
+		}
+	}
+
+	const stats = [
+		{
+			title: m.total_pupils(),
+			value: data.stats.totalPupils,
+			icon: UserGroup,
+			description: m.active_students(),
+			href: '/coach/pupils'
+		},
+		{
+			title: m.active_lessons(),
+			value: data.stats.activeLessons,
+			icon: BookOpen,
+			description: m.ongoing_lessons(),
+			href: '/coach/lessons'
+		},
+		{
+			title: m.pending_submissions(),
+			value: data.stats.pendingSubmissions,
+			icon: ClipboardDocumentCheck,
+			description: m.submissions_awaiting(),
+			href: '/coach/submissions'
+		},
+		{
+			title: m.unread_messages(),
+			value: data.stats.unreadMessages,
+			icon: ChatBubbleLeftRight,
+			description: m.messages_attention(),
+			href: '/coach/chat'
+		}
+	];
 </script>
 
-<div class="space-y-6">
+<div class="space-y-8 p-6">
 	<div class="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
-		<!-- Stats Cards -->
-		<div class="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
-			<div class="flex items-center justify-between">
-				<div>
-					<p class="text-sm font-medium text-gray-600">Total Pupils</p>
-					<p class="text-2xl font-semibold text-gray-900">{stats.totalPupils}</p>
+		{#each stats as stat}
+			<a
+				href={stat.href}
+				class="group relative block overflow-hidden rounded-md border bg-card p-6 transition-all duration-200 hover:shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+			>
+				<div
+					class="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 transition-opacity duration-200 group-hover:opacity-100"
+				></div>
+				<div class="relative flex items-center justify-between">
+					<div class="space-y-2">
+						<p class="text-sm font-medium text-muted-foreground">{stat.title}</p>
+						<p class="text-3xl font-bold tracking-tight">{stat.value}</p>
+						<p class="text-xs text-muted-foreground">{stat.description}</p>
+					</div>
+					<div
+						class="rounded-full bg-primary/10 p-3 transition-transform duration-200 group-hover:scale-110"
+					>
+						<Icon src={stat.icon} class="h-6 w-6 text-primary" />
+					</div>
 				</div>
-				<Icon src={UserGroup} class="h-8 w-8 text-gray-400" />
-			</div>
-		</div>
-
-		<div class="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
-			<div class="flex items-center justify-between">
-				<div>
-					<p class="text-sm font-medium text-gray-600">Active Lessons</p>
-					<p class="text-2xl font-semibold text-gray-900">{stats.activeLessons}</p>
-				</div>
-				<Icon src={BookOpen} class="h-8 w-8 text-gray-400" />
-			</div>
-		</div>
-
-		<div class="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
-			<div class="flex items-center justify-between">
-				<div>
-					<p class="text-sm font-medium text-gray-600">Pending Submissions</p>
-					<p class="text-2xl font-semibold text-gray-900">{stats.pendingSubmissions}</p>
-				</div>
-				<Icon src={ClipboardDocumentCheck} class="h-8 w-8 text-gray-400" />
-			</div>
-		</div>
-
-		<div class="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
-			<div class="flex items-center justify-between">
-				<div>
-					<p class="text-sm font-medium text-gray-600">Unread Messages</p>
-					<p class="text-2xl font-semibold text-gray-900">{stats.unreadMessages}</p>
-				</div>
-				<Icon src={ChatBubbleLeftRight} class="h-8 w-8 text-gray-400" />
-			</div>
-		</div>
+			</a>
+		{/each}
 	</div>
 
-	<!-- Recent Activity -->
-	<div class="rounded-lg border border-gray-200 bg-white shadow-sm">
-		<div class="p-6">
-			<h3 class="text-lg font-semibold text-gray-900">Recent Activity</h3>
-			<div class="mt-4 space-y-4">
-				{#each recentActivity as activity}
-					<div class="flex items-start space-x-4 rounded-lg p-4 transition-colors hover:bg-gray-50">
+	<div class="rounded-md border bg-card shadow-sm">
+		<div class="border-b p-6">
+			<h3 class="text-xl font-semibold tracking-tight">{m.recent_activity()}</h3>
+			<p class="text-sm text-muted-foreground">{m.latest_updates()}</p>
+		</div>
+		<div class="divide-y">
+			{#each data.recentActivity as activity}
+				<div class="group flex items-start space-x-4 p-6 transition-colors hover:bg-muted/50">
+					<div class="rounded-full bg-primary/10 p-2">
 						<Icon
-							src={activity.type === 'submission'
-								? VideoCamera
-								: activity.type === 'message'
-									? Envelope
-									: Calendar}
-							class="h-5 w-5 text-gray-600"
+							src={getActivityIcon(activity.type)}
+							class="h-5 w-5 text-primary transition-transform duration-200 group-hover:scale-110"
 						/>
-						<div class="flex-1">
-							<p class="text-gray-900">{activity.text}</p>
-							<p class="text-sm text-gray-500">{activity.time}</p>
-						</div>
 					</div>
-				{/each}
-			</div>
+					<div class="flex-1 space-y-1">
+						<p class="font-medium leading-none">{activity.text}</p>
+						<p class="text-sm text-muted-foreground">{activity.time}</p>
+					</div>
+				</div>
+			{/each}
 		</div>
 	</div>
 </div>
