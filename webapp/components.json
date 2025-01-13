@@ -4,14 +4,11 @@
 	"tailwind": {
 		"config": "tailwind.config.ts",
 		"css": "src/lib/styles/app.css",
-		"baseColor": "slate"
+		"baseColor": "neutral"
 	},
 	"aliases": {
 		"components": "$lib/components/coach",
-		"utils": "$lib/components/coach/utils",
-		"ui": "$lib/components/coach/ui",
-		"hooks": "$lib/hooks"
+		"utils": "$lib/components/coach/utils"
 	},
-	"typescript": true,
-	"registry": "https://next.shadcn-svelte.com/registry"
+	"typescript": true
 }

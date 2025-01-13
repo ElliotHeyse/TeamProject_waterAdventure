@@ -4,9 +4,9 @@
 
 <Card>
 	<CardHeader>
-		<CardTitle>Overview</CardTitle>
+		<CardTitle>Achievements</CardTitle>
 	</CardHeader>
 	<CardContent>
-		<p>Welcome to your WaterAdventure dashboard!</p>
+		<p>Track your swimming achievements and progress here!</p>
 	</CardContent>
-</Card>
+</Card> 

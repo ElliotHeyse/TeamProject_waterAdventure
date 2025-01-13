@@ -4,9 +4,9 @@
 
 <Card>
 	<CardHeader>
-		<CardTitle>Overview</CardTitle>
+		<CardTitle>Profile</CardTitle>
 	</CardHeader>
 	<CardContent>
-		<p>Welcome to your WaterAdventure dashboard!</p>
+		<p>View and edit your profile information here!</p>
 	</CardContent>
-</Card>
+</Card> 
