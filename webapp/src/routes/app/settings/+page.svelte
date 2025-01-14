@@ -1,4 +1,11 @@
 <script lang="ts">
+	import zwemfedLogo from '$lib/img/logo-dark.svg';
+	import zwemfedLogoLight from '$lib/img/logo-light.svg';
+	import sportinnovatiecampusLogo from '$lib/img/sportinnovatiecampus-logo-dark.svg';
+	import sportinnovatiecampusLogoLight from '$lib/img/sportinnovatiecampus-logo-light.svg';
+	import howestLogo from '$lib/img/howest-logo-dark.svg';
+	import howestLogoLight from '$lib/img/howest-logo-light.svg';
+
 	import { Label } from '$lib/components/coach/ui/label';
 	import { Input } from '$lib/components/coach/ui/input';
 	import { Button } from '$lib/components/coach/ui/button';
@@ -113,7 +120,7 @@
 			</div>
 			<div class="space-y-2">
 				<Label for="bio">{m.phone()}</Label>
-				<Input id="phone" name="phone" bind:value={phone} placeholder="phone placeholder (update lang message)" />
+				<Input id="phone" name="phone" bind:value={phone} placeholder="phone placeholder (static => update paraglide)" />
 			</div>
 			<div class="flex justify-end">
 				<Button type="submit">{m.save_profile()}</Button>
@@ -125,7 +132,7 @@
 	<div class="bg-card text-card-foreground rounded-lg border shadow-sm">
 		<div class="flex flex-col space-y-1.5 p-6">
 			<h3 class="text-2xl font-semibold leading-none tracking-tight">{m.appearance()}</h3>
-			<p class="text-muted-foreground text-sm">Customize appearance [update message lang]</p>
+			<p class="text-muted-foreground text-sm">Customize appearance (static => update paraglide)</p>
 		</div>
 		<Separator />
 		<div class="p-6">
@@ -232,14 +239,20 @@
 	</div>
 
 	<!-- Partners -->
-	<div class="bg-card text-card-foreground rounded-lg border shadow-sm">
-		<div class="flex flex-col space-y-1.5 p-6">
-			<em>Bij small width (app weergave): partners hier tonen.</em>
-			<em>Bij large width (desktop weergave) partners in bottom zijkant tonen.</em>
-			<Separator />
-			<p><a href="https://www.zwemfed.be">Zwemfed logo</a></p>
-			<p><a href="https://www.sportinnovatiecampus.be">Sportinnovatiecampus Brugge logo</a></p>
-			<p><a href="https://www.howest.be/en">Howest logo</a></p>
-		</div>
+	<div class="flex flex-col space-y-1.5 p-6">
+		<em>Bij small width (app weergave): partners hier tonen.</em>
+		<em>Bij large width (desktop weergave) partners in bottom zijkant tonen.</em>
+	</div>
+	
+	<div class="flex gap-6 space-y-1.5 p-6">
+		<a href="https://www.zwemfed.be">
+			<img src={isDarkMode ? zwemfedLogoLight : zwemfedLogo} alt="WaterAdventure" class="h-8" />
+		</a>
+		<a href="https://www.sportinnovatiecampus.be">
+			<img src={isDarkMode ? sportinnovatiecampusLogoLight : sportinnovatiecampusLogo} alt="WaterAdventure" class="h-8" />
+		</a>
+		<a href="https://www.howest.be/en">
+			<img src={isDarkMode ? howestLogoLight : howestLogo} alt="WaterAdventure" class="h-8" />
+		</a>
 	</div>
 </div>
