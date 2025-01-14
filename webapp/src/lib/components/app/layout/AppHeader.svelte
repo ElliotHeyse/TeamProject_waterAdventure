@@ -6,6 +6,8 @@
 	import * as DropdownMenu from '$lib/components/coach/ui/dropdown-menu';
 	import { Button } from '$lib/components/coach/ui/button';
 	import { ChevronDown } from 'lucide-svelte';
+	import { cn } from "$lib/components/coach/utils";
+	import { isMobileView } from '$lib/stores/viewport';
 	
 	let dropdownIsOpen = $state(false);
 	let selectedOption = $state("Option 1");
@@ -56,14 +58,16 @@
 >
 	<div class="h-16">
 		<div class="flex h-full items-center gap-4 px-4">
-			<div class="u-hide-desktop">
+			<div class={cn(
+				$isMobileView ? "block" : "hidden"
+			)}>
 				<img src={isDarkMode ? logoLight : logo} alt="WaterAdventure" class="h-8" />
 			</div>
 
-			<button
-				class="u-hide-mobile text-muted-foreground hover:bg-muted hover:text-foreground rounded-lg p-2"
-				onclick={() => isSidebarOpen.update(open => !open)}
-			>
+			<button class={cn("text-muted-foreground hover:bg-muted hover:text-foreground rounded-lg p-2",
+				$isMobileView ? "hidden" : "block"
+			)}
+			onclick={() => isSidebarOpen.update(open => !open)}>
 				{#if $isSidebarOpen}
 					<Menu class="h-5 w-5" />
 				{:else}
@@ -71,7 +75,10 @@
 				{/if}
 			</button>
 
-			<nav class="u-hide-mobile flex" aria-label="Breadcrumb">
+			<nav class={cn("flex",
+				$isMobileView ? "hidden" : "block"
+			)}
+			aria-label="Breadcrumb">
 				<Breadcrumb.Root>
 					<Breadcrumb.List>
 						{#each breadcrumbs as { label, href }, i}
@@ -89,10 +96,10 @@
 			</nav>
 
 			<div class="ml-auto flex items-center space-x-4">
-				<button
-					class="u-hide-mobile text-muted-foreground hover:bg-muted hover:text-foreground rounded-lg p-2"
-					onclick={toggleDarkMode}
-				>
+				<button class={cn("text-muted-foreground hover:bg-muted hover:text-foreground rounded-lg p-2",
+					$isMobileView ? "hidden" : "block"
+				)}
+				onclick={toggleDarkMode}>
 					{#if isDarkMode}
 						<Sun class="h-5 w-5" />
 					{:else}
@@ -100,7 +107,9 @@
 					{/if}
 				</button>
 
-				<button class="u-hide-mobile hover:bg-muted relative rounded-lg p-2">
+				<button class={cn("hover:bg-muted relative rounded-lg p-2",
+					$isMobileView ? "hidden" : "block"
+				)}>
 					<Bell class="text-muted-foreground h-5 w-5" />
 					{#if notifications.length > 0}
 						<span
@@ -132,24 +141,3 @@
 		</div>
 	</div>
 </header>
-
-<style>
-
-	.u-hide-desktop {
-		display: none;
-	}
-
-	.u-hide {
-		display: none;
-	}
-
-	@media screen and (max-width: 576px) {
-		.u-hide-mobile {
-			display: none;
-		}
-
-		.u-hide-desktop {
-			display: block;
-		}
-    }
-</style>

@@ -4,7 +4,7 @@ export const isMobileView = writable(false);
 
 // Set up the media query listener if we're in the browser
 if (typeof window !== 'undefined') {
-    const mediaQuery = window.matchMedia('(max-width: 768px)'); // Adjust breakpoint as needed
+    const mediaQuery = window.matchMedia('(max-width: 576px)'); // Adjust breakpoint as needed
     
     // Initial value
     isMobileView.set(mediaQuery.matches);
