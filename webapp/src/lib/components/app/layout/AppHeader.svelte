@@ -1,4 +1,13 @@
 <script lang="ts">
+	// new
+	import * as DropdownMenu from '$lib/components/coach/ui/dropdown-menu';
+	import { Button } from '$lib/components/coach/ui/button';
+	import { ChevronDown } from 'lucide-svelte';
+	
+	let dropdownIsOpen = $state(false);
+	let selectedOption = $state("Option 1");
+
+	// old
 	import { page } from '$app/stores';
 	import { Bell, ChevronRight, Sun, Moon, Menu } from 'lucide-svelte';
 	import { onMount } from 'svelte';
@@ -45,7 +54,7 @@
 	<div class="h-16">
 		<div class="flex h-full items-center gap-4 px-4">
 			<button
-				class="text-muted-foreground hover:bg-muted hover:text-foreground rounded-lg p-2"
+				class="u-hide-mobile text-muted-foreground hover:bg-muted hover:text-foreground rounded-lg p-2"
 				onclick={() => isSidebarOpen.update(open => !open)}
 			>
 				{#if $isSidebarOpen}
@@ -55,7 +64,7 @@
 				{/if}
 			</button>
 
-			<nav class="flex" aria-label="Breadcrumb">
+			<nav class="u-hide-mobile flex" aria-label="Breadcrumb">
 				<Breadcrumb.Root>
 					<Breadcrumb.List>
 						{#each breadcrumbs as { label, href }, i}
@@ -72,7 +81,7 @@
 				</Breadcrumb.Root>
 			</nav>
 
-			<div class="ml-auto flex items-center space-x-4">
+			<div class="u-hide-mobile ml-auto flex items-center space-x-4">
 				<button
 					class="text-muted-foreground hover:bg-muted hover:text-foreground rounded-lg p-2"
 					onclick={toggleDarkMode}
@@ -95,6 +104,47 @@
 					{/if}
 				</button>
 			</div>
+
+			<div class="flex justify-between">
+				<div class="u-hide-desktop">BRAND</div>
+				<DropdownMenu.Root>
+					<DropdownMenu.Trigger asChild>
+						<Button variant="ghost" size="sm" class="flex items-center gap-2 px-3 h-8">
+							<span class="text-sm font-medium">{selectedOption}</span>
+							<ChevronDown class="h-4 w-4 opacity-50"/>
+						</Button>
+					</DropdownMenu.Trigger>
+					<DropdownMenu.Content class="w-56">
+						<DropdownMenu.Label>Options</DropdownMenu.Label>
+						<DropdownMenu.Separator />
+						<DropdownMenu.RadioGroup value={selectedOption}>
+							<DropdownMenu.RadioItem value="Option 1">Option 1</DropdownMenu.RadioItem>
+							<DropdownMenu.RadioItem value="Option 2">Option 2</DropdownMenu.RadioItem>
+							<DropdownMenu.RadioItem value="Option 3">Option 3</DropdownMenu.RadioItem>
+						</DropdownMenu.RadioGroup>
+					</DropdownMenu.Content>
+				</DropdownMenu.Root>
+			</div>
 		</div>
 	</div>
-</header> 
+</header>
+
+<style>
+	.u-hide-desktop {
+		display: none;
+	}
+
+	.u-hide {
+		display: none;
+	}
+
+	@media screen and (max-width: 576px) {
+		.u-hide-mobile {
+			display: none;
+		}
+
+		.u-hide-desktop {
+			display: block;
+		}
+    }
+</style>
