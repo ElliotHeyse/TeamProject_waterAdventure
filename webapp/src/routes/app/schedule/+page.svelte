@@ -4,9 +4,9 @@
 
 <Card>
 	<CardHeader>
-		<CardTitle>Overview</CardTitle>
+		<CardTitle>Schedule</CardTitle>
 	</CardHeader>
 	<CardContent>
-		<p>Welcome to your WaterAdventure dashboard!</p>
+		<p>View and manage your swimming lessons schedule here!</p>
 	</CardContent>
-</Card>
+</Card> 

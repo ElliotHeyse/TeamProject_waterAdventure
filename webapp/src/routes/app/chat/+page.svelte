@@ -4,9 +4,9 @@
 
 <Card>
 	<CardHeader>
-		<CardTitle>Overview</CardTitle>
+		<CardTitle>Chat</CardTitle>
 	</CardHeader>
 	<CardContent>
-		<p>Welcome to your WaterAdventure dashboard!</p>
+		<p>Chat with your swimming coach here!</p>
 	</CardContent>
-</Card>
+</Card> 
