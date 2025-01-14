@@ -1,7 +1,7 @@
 <script lang="ts">
 	import g10 from "$lib/img/g10.svg";
 	import medalGold from "$lib/img/medail-gold.svg";
-	import medalSilver from "$lib/img/medial-silver.svg";
+	import medalSilver from "$lib/img/medail-silver.svg";
 	import medalBronze from "$lib/img/medail-bronze.svg";
 
 	const levels = [
@@ -10,13 +10,13 @@
 		{ id: 5, x: 46, y: 59, status: 'locked' },
 		{ id: 4, x: 35, y: 46, status: 'current' },
 		{ id: 3, x: 64, y: 33, status: 'completed' },
-		{ id: 2, x: 58, y: 20, status: 'completed' },
-		{ id: 1, x: 55, y: 7, status: 'completed' },
+		{ id: 2, x: 58, y: 20, status: 'completed', medal: medalSilver },
+		{ id: 1, x: 55, y: 7, status: 'completed', medal: medalGold },
 	];
 </script>
 
-<div class="min-h-screen bg-white">
-	<h1 class="text-center text-4xl font-bold text-blue-600 pt-4 pb-6">Swimming Levels</h1>
+<div class="min-h-screen bg-background">
+	<h1 class="text-center text-4xl font-bold text-foreground pt-4 pb-6">Swimming Levels</h1>
 
 	<div class="w-full overflow-hidden flex items-center justify-center relative">
 		<img
@@ -26,7 +26,7 @@
 		/>
 		<div class="absolute inset-0 w-full h-full">
 			{#each levels as level}
-				<button 
+				<button
 					class="absolute transform -translate-x-1/2 -translate-y-1/2 transition-all duration-300 hover:scale-110 focus:outline-none"
 					style="left: {level.x}%; top: {level.y}%;"
 				>
@@ -38,6 +38,13 @@
 						<span class="text-white font-bold text-[min(2vw,2rem)] drop-shadow-md">
 							{level.id}
 						</span>
+						{#if level.medal}
+							<img
+								src={level.medal}
+								alt="Medal"
+								class="absolute -top-10 -right-10 w-[min(6vw,6rem)] h-[min(6vw,6rem)]"
+							/>
+						{/if}
 					</div>
 				</button>
 			{/each}
