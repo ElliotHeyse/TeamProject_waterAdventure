@@ -81,7 +81,7 @@
 							<img
 								src={level.medal}
 								alt="Medal"
-								class="absolute -top-10 -right-10 w-[min(6vw,6rem)] h-[min(6vw,6rem)]"
+								class="absolute -top-[30%] -right-[30%] w-[min(6vw,6rem)] h-[min(6vw,6rem)]"
 							/>
 						{/if}
 					</div>
@@ -90,10 +90,10 @@
 				{#if showAlert && clickedLevelId === level.id}
 					<div
 						class="absolute z-50 w-72 transition-opacity animate-in fade-in-0 duration-300"
-						style="left: {level.x + 10}%; top: {level.y}%; transform: translateY(-50%);"
+						style="left: {level.x + 5}%; top: {level.y}%; transform: translateY(-50%);"
 					>
 						<div class="bg-background text-foreground rounded-lg border shadow-lg p-4 space-y-2">
-							<div class="flex items-center gap-2 text-destructive font-medium">
+							<div class="flex items-center gap-2 text-primary font-medium">
 								<CircleAlert class="h-4 w-4" />
 								<span>Level Locked</span>
 							</div>
