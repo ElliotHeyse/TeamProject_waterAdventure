@@ -1,12 +1,15 @@
 <script lang="ts">
-	import { Card, CardContent, CardHeader, CardTitle } from "$lib/components/coach/ui/card";
+	import g10 from "$lib/img/g10.svg";
 </script>
 
-<Card>
-	<CardHeader>
-		<CardTitle>Swimming Levels</CardTitle>
-	</CardHeader>
-	<CardContent>
-		<p>Track your swimming progress and unlock new levels!</p>
-	</CardContent>
-</Card> 
+<div class="min-h-screen bg-white">
+	<h1 class="text-center text-4xl font-bold text-blue-600 pt-4 pb-6">Swimming Levels</h1>
+
+	<div class="w-full overflow-hidden flex items-center justify-center">
+		<img
+			src={g10}
+			alt="Level background"
+			class="w-full h-full object-contain"
+		/>
+	</div>
+</div>
