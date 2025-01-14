@@ -1,5 +1,8 @@
 <script lang="ts">
 	// new
+	import logo from '$lib/img/logo-dark.svg';
+	import logoLight from '$lib/img/logo-light.svg';
+	
 	import * as DropdownMenu from '$lib/components/coach/ui/dropdown-menu';
 	import { Button } from '$lib/components/coach/ui/button';
 	import { ChevronDown } from 'lucide-svelte';
@@ -53,6 +56,10 @@
 >
 	<div class="h-16">
 		<div class="flex h-full items-center gap-4 px-4">
+			<div class="u-hide-desktop">
+				<img src={isDarkMode ? logoLight : logo} alt="WaterAdventure" class="h-8" />
+			</div>
+
 			<button
 				class="u-hide-mobile text-muted-foreground hover:bg-muted hover:text-foreground rounded-lg p-2"
 				onclick={() => isSidebarOpen.update(open => !open)}
@@ -81,9 +88,9 @@
 				</Breadcrumb.Root>
 			</nav>
 
-			<div class="u-hide-mobile ml-auto flex items-center space-x-4">
+			<div class="ml-auto flex items-center space-x-4">
 				<button
-					class="text-muted-foreground hover:bg-muted hover:text-foreground rounded-lg p-2"
+					class="u-hide-mobile text-muted-foreground hover:bg-muted hover:text-foreground rounded-lg p-2"
 					onclick={toggleDarkMode}
 				>
 					{#if isDarkMode}
@@ -93,7 +100,7 @@
 					{/if}
 				</button>
 
-				<button class="hover:bg-muted relative rounded-full p-2">
+				<button class="u-hide-mobile hover:bg-muted relative rounded-full p-2">
 					<Bell class="text-muted-foreground h-5 w-5" />
 					{#if notifications.length > 0}
 						<span
@@ -103,10 +110,7 @@
 						</span>
 					{/if}
 				</button>
-			</div>
 
-			<div class="flex justify-between">
-				<div class="u-hide-desktop">BRAND</div>
 				<DropdownMenu.Root>
 					<DropdownMenu.Trigger asChild>
 						<Button variant="ghost" size="sm" class="flex items-center gap-2 px-3 h-8">
@@ -130,6 +134,7 @@
 </header>
 
 <style>
+
 	.u-hide-desktop {
 		display: none;
 	}
