@@ -125,9 +125,8 @@
 	<div class="bg-card text-card-foreground rounded-lg border shadow-sm">
 		<div class="flex flex-col space-y-1.5 p-6">
 			<h3 class="text-2xl font-semibold leading-none tracking-tight">{m.appearance()}</h3>
-			<p class="text-muted-foreground text-sm">{m.customize_appearance()}</p>
+			<p class="text-muted-foreground text-sm">Customize appearance [update message lang]</p>
 		</div>
-		
 		<Separator />
 		<div class="p-6">
 			<div class="flex items-center justify-between">
@@ -141,12 +140,106 @@
 			</div>
 		</div>
 	</div>
-</div>
 
-<div>
-	<a href="https://www.zwemfed.be">Zwemfed logo</a>
-	<hr>
-	<a href="https://www.sportinnovatiecampus.be">Sportinnovatiecampus Brugge logo</a>
-	<hr>
-	<a href="https://www.howest.be/en">Howest logo</a>
+	<!-- Notification Settings -->
+	<div class="bg-card text-card-foreground rounded-lg border shadow-sm">
+		<div class="flex flex-col space-y-1.5 p-6">
+			<h3 class="text-2xl font-semibold leading-none tracking-tight">{m.notifications()}</h3>
+			<p class="text-muted-foreground text-sm">{m.manage_notifications()}</p>
+		</div>
+		<Separator />
+		<div class="p-6 space-y-4">
+			<div class="flex items-center justify-between">
+				<div class="space-y-0.5">
+					<div class="flex items-center gap-2">
+						<Label>{m.email_notifications()}</Label>
+						<Badge variant="secondary" class="text-xs">Soon</Badge>
+					</div>
+					<div class="text-sm text-muted-foreground">
+						{m.email_notifications_description()}
+					</div>
+				</div>
+				<Switch bind:checked={emailNotifications} disabled />
+			</div>
+			<Separator />
+			<div class="flex items-center justify-between">
+				<div class="space-y-0.5">
+					<div class="flex items-center gap-2">
+						<Label>{m.push_notifications()}</Label>
+						<Badge variant="secondary" class="text-xs">Soon</Badge>
+					</div>
+					<div class="text-sm text-muted-foreground">
+						{m.push_notifications_description()}
+					</div>
+				</div>
+				<Switch bind:checked={pushNotifications} disabled />
+			</div>
+		</div>
+	</div>
+
+	<!-- Account Settings -->
+	<div class="bg-card text-card-foreground rounded-lg border shadow-sm">
+		<div class="flex flex-col space-y-1.5 p-6">
+			<h3 class="text-2xl font-semibold leading-none tracking-tight">{m.account_settings()}</h3>
+			<p class="text-muted-foreground text-sm">{m.manage_account()}</p>
+		</div>
+		<Separator />
+		<div class="p-6 space-y-4">
+			<div class="space-y-2">
+				<Label>{m.language()}</Label>
+				<Select.Root
+					type="single"
+					value={currentLanguage}
+					onValueChange={(value: string) => handleLanguageChange(value as AvailableLanguageTag)}
+				>
+					<Select.Trigger class="w-[180px]">
+						<div class="flex items-center gap-2">
+							{#if currentLanguage === 'en'}
+								<Gb class="w-4 h-4" />
+								<span>English</span>
+							{:else if currentLanguage === 'nl'}
+								<Nl class="w-4 h-4" />
+								<span>Dutch</span>
+							{:else}
+								<Fr class="w-4 h-4" />
+								<span>French</span>
+							{/if}
+						</div>
+					</Select.Trigger>
+					<Select.Content>
+						<Select.Item value="en">
+							<div class="flex items-center gap-2">
+								<Gb class="w-4 h-4" />
+								<span>English</span>
+							</div>
+						</Select.Item>
+						<Select.Item value="nl">
+							<div class="flex items-center gap-2">
+								<Nl class="w-4 h-4" />
+								<span>Dutch</span>
+							</div>
+						</Select.Item>
+						<Select.Item value="fr">
+							<div class="flex items-center gap-2">
+								<Fr class="w-4 h-4" />
+								<span>French</span>
+							</div>
+						</Select.Item>
+					</Select.Content>
+				</Select.Root>
+			</div>
+		</div>
+	</div>
+
+	<!-- Partners -->
+	<div class="bg-card text-card-foreground rounded-lg border shadow-sm">
+		<div class="flex flex-col space-y-1.5 p-6">
+			<em>Bij small width (app weergave): partners hier tonen.</em>
+			<em>Bij large width (desktop weergave) partners in bottom zijkant tonen.</em>
+			<Separator />
+			<p><a href="https://www.zwemfed.be">Zwemfed logo</a></p>
+			<p><a href="https://www.sportinnovatiecampus.be">Sportinnovatiecampus Brugge logo</a></p>
+			<p><a href="https://www.howest.be/en">Howest logo</a></p>
+		</div>
+	</div>
 </div>
