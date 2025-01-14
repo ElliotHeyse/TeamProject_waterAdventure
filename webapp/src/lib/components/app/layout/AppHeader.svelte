@@ -100,7 +100,7 @@
 					{/if}
 				</button>
 
-				<button class="u-hide-mobile hover:bg-muted relative rounded-full p-2">
+				<button class="u-hide-mobile hover:bg-muted relative rounded-lg p-2">
 					<Bell class="text-muted-foreground h-5 w-5" />
 					{#if notifications.length > 0}
 						<span
