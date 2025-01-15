@@ -153,5 +153,7 @@
     "submitting": "Soumission en cours...",
     "parents": "Parents",
     "manage_parents": "Voir et gérer tous les parents",
-    "details": "Détails"
+    "details": "Détails",
+    "changes_saved": "Modifications enregistrées avec succès",
+    "edit_parent_info": "Modifier les informations du Parent"
 }

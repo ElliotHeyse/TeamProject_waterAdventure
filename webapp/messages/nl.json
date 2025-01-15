@@ -153,5 +153,7 @@
     "submitting": "Bezig met indienen...",
     "parents": "Ouders",
     "manage_parents": "Bekijk en beheer alle ouders",
-    "details": "Details"
+    "details": "Details",
+    "changes_saved": "Modificaties opgeslagen",
+    "edit_parent_info": "Bewerk Ouder Informatie"
 }
