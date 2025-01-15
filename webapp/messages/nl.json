@@ -155,5 +155,7 @@
     "manage_parents": "Bekijk en beheer alle ouders",
     "details": "Details",
     "changes_saved": "Modificaties opgeslagen",
-    "edit_parent_info": "Bewerk Ouder Informatie"
+    "edit_parent_info": "Bewerk Ouder Informatie",
+    "assigned_coach": "Toegewezen Coach",
+    "select_coach": "Selecteer een coach"
 }

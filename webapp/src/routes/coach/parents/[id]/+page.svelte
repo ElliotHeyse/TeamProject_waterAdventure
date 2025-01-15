@@ -5,13 +5,15 @@
 	import { Label } from '$lib/components/coach/ui/label';
 	import { Card, CardContent, CardHeader, CardTitle } from '$lib/components/coach/ui/card';
 	import { toast } from 'svelte-sonner';
+	import * as Select from '$lib/components/coach/ui/select';
 
 	let { data } = $props();
-	let { parent } = data;
+	let { parent, coaches } = data;
 
 	let name = $state(parent.user.name);
 	let email = $state(parent.user.email);
 	let phone = $state(parent.phone);
+	let coachId = $state(parent.coachId);
 
 	async function handleSubmit(event: SubmitEvent) {
 		event.preventDefault();
@@ -57,6 +59,36 @@
 				<div class="space-y-2">
 					<Label for="phone">{m.phone()}</Label>
 					<Input type="tel" id="phone" name="phone" bind:value={phone} />
+				</div>
+
+				<div class="space-y-2">
+					<Label for="coachId">{m.assigned_coach()}</Label>
+					<Select.Root
+						type="single"
+						value={coachId || undefined}
+						onValueChange={(value: string) => {
+							coachId = value;
+							// Also update the hidden input for form submission
+							const input = document.querySelector('input[name="coachId"]') as HTMLInputElement;
+							if (input) input.value = value;
+						}}
+					>
+						<Select.Trigger class="w-full">
+							<span>
+								{#if coachId}
+									{coaches.find((c) => c.id === coachId)?.user.name || m.select_coach()}
+								{:else}
+									{m.select_coach()}
+								{/if}
+							</span>
+						</Select.Trigger>
+						<Select.Content>
+							{#each coaches as coach}
+								<Select.Item value={coach.id} label={coach.user.name} />
+							{/each}
+						</Select.Content>
+					</Select.Root>
+					<input type="hidden" name="coachId" value={coachId || ''} />
 				</div>
 
 				<Button type="submit">{m.save_changes()}</Button>

@@ -155,5 +155,7 @@
     "manage_parents": "View and manage all parents",
     "details": "Details",
     "changes_saved": "Changes saved successfully",
-    "edit_parent_info": "Edit Parent Information"
+    "edit_parent_info": "Edit Parent Information",
+    "assigned_coach": "Assigned Coach",
+    "select_coach": "Select a coach"
 }
