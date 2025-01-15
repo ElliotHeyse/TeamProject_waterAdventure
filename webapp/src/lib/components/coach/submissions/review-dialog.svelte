@@ -11,6 +11,7 @@
 		status: 'pending' | 'reviewed';
 		videoUrl: string;
 		feedback: string;
+		medal?: 'GOLD' | 'SILVER' | 'BRONZE' | 'NONE';
 	}
 
 	interface Props {
@@ -20,6 +21,12 @@
 	}
 
 	const { submission, open, onOpenChange }: Props = $props();
+
+	async function handleSubmit(feedback: string, medal: string) {
+		onOpenChange(false);
+		// Reload the page to show updated data
+		window.location.reload();
+	}
 </script>
 
 <Dialog.Root {open} {onOpenChange}>
@@ -27,9 +34,7 @@
 		<ReviewPanel
 			{submission}
 			onClose={() => onOpenChange(false)}
-			onSubmit={(feedback) => {
-				onOpenChange(false);
-			}}
+			onSubmit={handleSubmit}
 		/>
 	</Dialog.Content>
 </Dialog.Root>

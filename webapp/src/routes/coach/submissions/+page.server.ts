@@ -26,7 +26,8 @@ export const load: PageServerLoad = async ({ locals }) => {
 			date: submission.createdAt.toISOString().split('T')[0],
 			status: submission.status.toLowerCase(),
 			videoUrl: submission.videoUrl,
-			feedback: submission.feedback || ''
+			feedback: submission.feedback || '',
+			medal: submission.medal
 		}))
 	};
 };

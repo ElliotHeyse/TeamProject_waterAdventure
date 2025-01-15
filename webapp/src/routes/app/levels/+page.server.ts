@@ -41,10 +41,7 @@ export const load: PageServerLoad = async ({ locals }) => {
 				orderBy: {
 					createdAt: 'desc'
 				},
-				take: 1,
-				include: {
-					review: true
-				}
+				take: 1
 			},
 			levelProgress: {
 				where: {
@@ -68,7 +65,6 @@ export const load: PageServerLoad = async ({ locals }) => {
 	// Transform lessons into level data
 	const levels = lessons.map(lesson => {
 		const submission = lesson.submissions[0];
-		const review = submission?.review;
 		const allPartsCompleted = lesson.levelProgress.every(p => p.completed);
 		
 		let status: 'locked' | 'current' | 'completed' = 'locked';
@@ -77,11 +73,9 @@ export const load: PageServerLoad = async ({ locals }) => {
 		// Determine status
 		if (submission?.status === 'REVIEWED') {
 			status = 'completed';
-			// Assign medal based on rating
-			if (review) {
-				if (review.rating >= 9) medal = 'gold';
-				else if (review.rating >= 7) medal = 'silver';
-				else if (review.rating >= 5) medal = 'bronze';
+			// Get medal directly from submission
+			if (submission.medal !== 'NONE') {
+				medal = submission.medal.toLowerCase() as 'gold' | 'silver' | 'bronze';
 			}
 		} else if (submission?.status === 'PENDING') {
 			status = 'completed'; // Show as completed when video is submitted but pending review
