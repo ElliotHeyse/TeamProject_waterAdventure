@@ -1,56 +1,14 @@
 <script lang="ts">
-  import { onMount } from 'svelte';
+  import type { PageData } from './$types';
 
-  const levelData = {
-    id: 1,
-    title: "Oefening 1",
-    objective: "Angstreflexen in het water overwinnen; vertrouwen",
-    exercises: [
-      {
-        part: "A",
-        location: "thuis",
-        name: "Sproeikampioen",
-        description: "Sproei de tenen en voeten, knieën en benen rustig nat, daarna de buik en de rug, de handen, de schouders, de achterkant van het hoofd, de bovenkant van het hoofd en het gezicht.",
-        important: "Moedig je kind aan om het hoofd onder de waterstraal te staan. Komt er toch water in de ogen? Laat je kind dan met de ogen knipperen om het water woor sneller uit te krijgen. Dat is beter dan wrijven.",
-        tip: "Soms kan je de intensiteit van een sproeikop aanpassen. Een zachte straal werkt in het begin waarschijnlijk beter dan een harde straal. Daag je kind ook uit om langer onder de waterstraal te staan, bv. door luidop te tellen.",
-        videos: [
-          {
-            url: "/src/lib/beeldmateriaalZwemfed/1AA_PG_2_OEF1A.mp4",
-            description: "Sproeikampioen oefening"
-          }
-        ]
-      },
-      {
-        part: "B",
-        location: "zwembad",
-        name: "Spitter, spetter, spat",
-        description: "Zorg dat je kind het lichaam nat maakt met de armen. Laat je kind:\n- tokkelen op het water (zoals piano spelen)\n- golven maken (beweeg van links naar rechts)\n- met de handen op het water slaan\n- jou ook lekker nat spetteren.\n\nZorg dat je kind ook regelmatig van positie wisselt: zitten op de poep op de trapjes van het bad, met de knieën op de bodem of gewoon rechtstaan.",
-        important: "Moedig je kind aan om het hoofd niet weg te draaien van de spetters en te knipperen als het water in de ogen krijgt.",
-        tip: "Probeer eens een variant en laat je kind ook spetteren met de benen: > Zet je kind op de kant of op de trap van het bad > Laat het de benen op en neer in het water bewegen. Zorg dat de benen en voeten gestrekt zijn.",
-        videos: [
-          {
-            url: "/src/lib/beeldmateriaalZwemfed/1BA_PG_7_OEF1B_WWles 1.mp4",
-            description: "Tokkelen op het water"
-          },
-          {
-            url: "/src/lib/beeldmateriaalZwemfed/1BB_PG_20_OEF1BWWLES3.mp4",
-            description: "Golven maken"
-          },
-          {
-            url: "/src/lib/beeldmateriaalZwemfed/1BC_LO_14_oef1B_LO LES2.mp4",
-            description: "Op het water slaan"
-          }
-        ]
-      }
-    ]
-  };
+  export let data: PageData;
 </script>
 
 <div class="container mx-auto px-4 py-8">
-  <h1 class="text-3xl font-bold mb-4 text-foreground">{levelData.title}</h1>
-  <p class="text-xl mb-8 text-orange-500">{levelData.objective}</p>
+  <h1 class="text-3xl font-bold mb-4 text-foreground">{data.lesson.title}</h1>
+  <p class="text-xl mb-8 text-orange-500">{data.lesson.objective}</p>
 
-  {#each levelData.exercises as exercise}
+  {#each data.lesson.exercises as exercise}
     <div class="bg-background border border-border rounded-lg shadow-lg p-6 mb-8">
       <div class="flex justify-between items-start mb-4">
         <div>
@@ -64,15 +22,19 @@
         <p class="whitespace-pre-line text-muted-foreground">{exercise.description}</p>
       </div>
 
-      <div class="mb-4">
-        <h4 class="font-semibold text-orange-500 mb-2">Belangrijk:</h4>
-        <p class="text-muted-foreground">{exercise.important}</p>
-      </div>
+      {#if exercise.important}
+        <div class="mb-4">
+          <h4 class="font-semibold text-orange-500 mb-2">Belangrijk:</h4>
+          <p class="text-muted-foreground">{exercise.important}</p>
+        </div>
+      {/if}
 
-      <div class="mb-4">
-        <h4 class="font-semibold text-primary mb-2">Tip:</h4>
-        <p class="text-muted-foreground">{exercise.tip}</p>
-      </div>
+      {#if exercise.tip}
+        <div class="mb-4">
+          <h4 class="font-semibold text-primary mb-2">Tip:</h4>
+          <p class="text-muted-foreground">{exercise.tip}</p>
+        </div>
+      {/if}
 
       <div class="mt-6 space-y-6">
         {#each exercise.videos as video}

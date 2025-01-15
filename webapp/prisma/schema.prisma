@@ -94,12 +94,42 @@ model Lesson {
   level       Level
   date        DateTime
   order       Int      @default(autoincrement())
+  
+  // Swimming lesson specific fields
+  isSwimmingLesson Boolean @default(false)
+  objective        String?
+  exercises        Exercise[]
 
   // Relations
   coach       Coach        @relation(fields: [coachId], references: [id])
   submissions Submission[]
   createdAt   DateTime     @default(now())
   updatedAt   DateTime     @updatedAt
+}
+
+model Exercise {
+  id          String   @id @default(cuid())
+  part        String
+  location    String
+  name        String
+  description String
+  important   String?
+  tip         String?
+  videos      Video[]
+  lessonId    String
+  lesson      Lesson   @relation(fields: [lessonId], references: [id])
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Video {
+  id          String   @id @default(cuid())
+  url         String
+  description String
+  exerciseId  String
+  exercise    Exercise @relation(fields: [exerciseId], references: [id])
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 }
 
 model Submission {
