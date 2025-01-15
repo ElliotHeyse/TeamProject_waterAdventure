@@ -29,7 +29,7 @@
 	import { Gb, Nl, Fr } from 'svelte-flags';
 
 	let { data } = $props<{ data: PageData }>();
-	// console.info(data); // dev only
+	console.info(data); // dev only
 	let formError: string | null = $state(null);
 
 	// Profile settings
@@ -107,9 +107,13 @@
 						<AlertDescription>{formError}</AlertDescription>
 					</Alert>
 				</div>
-			{/if}
-		-->
-		<form action="" class="p-6 space-y-4">
+			{/if} -->
+		
+		<form
+			method="POST"
+			action="?/updateProfile"
+			class="p-6 space-y-4"
+		>
 			<div class="space-y-2">
 				<Label for="name">{m.name()}</Label>
 				<Input id="name" value={data.parent.user.name} disabled />
