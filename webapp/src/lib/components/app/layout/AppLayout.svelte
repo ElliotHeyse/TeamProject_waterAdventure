@@ -1,11 +1,11 @@
 <script lang="ts">
-	import { Button } from "$lib/components/coach/ui/button";
-	import { Sheet, SheetContent, SheetTrigger } from "$lib/components/coach/ui/sheet";
-	import { Menu } from "lucide-svelte";
-	import AppSidebar from "./AppSidebar.svelte";
-	import AppHeader from "./AppHeader.svelte";
-	import { isSidebarOpen } from "$lib/stores/sidebar";
-	
+	import { Button } from '$lib/components/coach/ui/button';
+	import { Sheet, SheetContent, SheetTrigger } from '$lib/components/coach/ui/sheet';
+	import { Menu } from 'lucide-svelte';
+	import AppSidebar from './AppSidebar.svelte';
+	import AppHeader from './AppHeader.svelte';
+	import { isSidebarOpen } from '$lib/stores/sidebar';
+
 	let { children } = $props<{ children: any }>();
 </script>
 

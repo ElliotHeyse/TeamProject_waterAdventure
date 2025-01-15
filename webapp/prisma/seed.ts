@@ -206,22 +206,6 @@ async function main() {
 			})
 	);
 
-	// Create messages
-	await Promise.all(
-		parents.flatMap((parent) =>
-			Array.from({ length: 3 }).map((_, index) => {
-				return prisma.message.create({
-					data: {
-						content: `Message ${index + 1} from parent to coach`,
-						coachId: coachUser.coach!.id,
-						parentId: parent.parent!.id,
-						read: Math.random() > 0.5
-					}
-				});
-			})
-		)
-	);
-
 	console.log('Database seeded successfully!');
 }
 

@@ -42,24 +42,26 @@ model Coach {
 
   // Relations
   pupils    Pupil[]
-  lessons   Lesson[]
   reviews   Review[]
   messages  Message[] @relation("CoachMessages")
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
+  parents   Parent[]
 }
 
 model Parent {
-  id     String  @id @default(cuid())
-  userId String  @unique
-  user   User    @relation(fields: [userId], references: [id], onDelete: Cascade)
-  phone  String?
+  id      String  @id @default(cuid())
+  userId  String  @unique
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  phone   String?
+  coachId String?
 
   // Relations
   pupils    Pupil[]
   messages  Message[] @relation("ParentMessages")
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
+  coach     Coach?    @relation(fields: [coachId], references: [id])
 }
 
 model Pupil {
@@ -89,14 +91,12 @@ model Lesson {
   id          String   @id @default(cuid())
   title       String
   description String
-  coachId     String
   duration    Int // in minutes
   level       Level
   date        DateTime
   order       Int      @default(autoincrement())
 
   // Relations
-  coach       Coach        @relation(fields: [coachId], references: [id])
   submissions Submission[]
   createdAt   DateTime     @default(now())
   updatedAt   DateTime     @updatedAt
@@ -138,11 +138,12 @@ model Review {
 }
 
 model Message {
-  id       String  @id @default(cuid())
-  content  String
-  coachId  String
-  parentId String
-  read     Boolean @default(false)
+  id           String  @id @default(cuid())
+  content      String
+  coachId      String
+  parentId     String
+  read         Boolean @default(false)
+  isFromParent Boolean @default(false)
 
   // Relations
   coach     Coach    @relation("CoachMessages", fields: [coachId], references: [id])
