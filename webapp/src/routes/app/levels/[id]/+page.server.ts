@@ -2,31 +2,76 @@ import { prisma } from '$lib/server/db';
 import type { PageServerLoad } from './$types';
 import { error } from '@sveltejs/kit';
 
-export const load: PageServerLoad = async ({ params }) => {
-	const levelNumber = parseInt(params.id);
-	if (isNaN(levelNumber)) {
-		throw error(400, 'Invalid level number');
+export const load: PageServerLoad = async ({ params, locals }) => {
+	if (!locals.user) {
+		throw error(401, 'Unauthorized');
 	}
 
+	// Get the pupil ID from the user's relations
+	const parent = await prisma.parent.findUnique({
+		where: {
+			userId: locals.user.id
+		},
+		include: {
+			pupils: {
+				take: 1
+			}
+		}
+	});
+
+	if (!parent || !parent.pupils[0]) {
+		throw error(404, 'No pupil found');
+	}
+
+	const pupilId = parent.pupils[0].id;
+
+	// Find the lesson by order number
 	const lesson = await prisma.lesson.findFirst({
 		where: {
 			isSwimmingLesson: true,
-			order: levelNumber
+			order: parseInt(params.id)
 		},
 		include: {
 			exercises: {
 				include: {
 					videos: true
 				}
+			},
+			submissions: {
+				where: {
+					pupilId: pupilId
+				},
+				include: {
+					review: true
+				}
+			},
+			levelProgress: {
+				where: {
+					pupilId: pupilId
+				}
 			}
 		}
 	});
 
 	if (!lesson) {
-		throw error(404, 'Swimming lesson not found');
+		throw error(404, 'Lesson not found');
 	}
 
+	// Combine exercises with their progress
+	const exercisesWithProgress = lesson.exercises.map(exercise => ({
+		...exercise,
+		title: exercise.name, // Map name to title for frontend consistency
+		completed: lesson.levelProgress.some(p => p.part === exercise.part && p.completed)
+	}));
+
 	return {
-		lesson
+		lesson: {
+			id: lesson.id,
+			title: lesson.title,
+			objective: lesson.objective || '',
+			exercises: exercisesWithProgress
+		},
+		progress: lesson.levelProgress,
+		submissions: lesson.submissions
 	};
 };

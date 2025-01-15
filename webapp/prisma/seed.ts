@@ -76,49 +76,37 @@ async function main() {
 			name: 'Sophie Chen',
 			dob: new Date(2012, 5, 15),
 			level: Level.INTERMEDIATE,
+			parentEmail: 'mchen@example.com',
 			notes: 'Strong freestyle technique, working on butterfly. Shows natural talent in sprints.'
 		},
 		{
 			name: 'Lucas Chen',
 			dob: new Date(2014, 3, 22),
 			level: Level.BEGINNER,
+			parentEmail: 'mchen@example.com',
 			notes: 'New to swimming, making excellent progress in water confidence.'
 		},
 		{
 			name: 'Isabella Rodriguez',
 			dob: new Date(2013, 7, 8),
 			level: Level.ADVANCED,
-			notes:
-				'Competitive swimmer, specializing in backstroke. Preparing for regional championships.'
-		},
-		{
-			name: 'Emma Williams',
-			dob: new Date(2011, 9, 30),
-			level: Level.INTERMEDIATE,
-			notes: 'Good all-around swimmer, particularly strong in breaststroke.'
-		},
-		{
-			name: 'Carlos Garcia',
-			dob: new Date(2013, 2, 12),
-			level: Level.ADVANCED,
-			notes: 'Excellent endurance, training for long-distance events.'
-		},
-		{
-			name: 'Oliver Wilson',
-			dob: new Date(2015, 1, 25),
-			level: Level.BEGINNER,
-			notes: 'Enthusiastic learner, working on basic stroke mechanics.'
+			parentEmail: 'erodriguez@example.com',
+			notes: 'Competitive swimmer, specializing in backstroke. Preparing for regional championships.'
 		}
 	];
 
 	const pupils = await Promise.all(
-		pupilData.map((pupil, index) => {
+		pupilData.map(async (pupil) => {
+			const parent = parents.find(p => p.email === pupil.parentEmail);
+			if (!parent || !parent.parent) {
+				throw new Error(`Parent not found for pupil ${pupil.name}`);
+			}
 			return prisma.pupil.create({
 				data: {
 					name: pupil.name,
 					dateOfBirth: pupil.dob,
 					level: pupil.level,
-					parentId: parents[Math.floor(index / 2)].parent!.id,
+					parentId: parent.parent.id,
 					coachId: coachUser.coach!.id,
 					notes: pupil.notes
 				}
@@ -548,38 +536,134 @@ async function main() {
 		})
 	]);
 
-	// Create submissions for both regular and swimming lessons
-	const allLessons = [...regularLessons, ...swimmingLessons];
-	const submissions = await Promise.all(
-		pupils.flatMap((pupil) =>
-			allLessons.slice(0, 3).map((lesson) => {
+	// Create example submissions and reviews for swimming lessons
+	const submissionData = [
+		// Sophie Chen - Completed first 3 levels with medals
+		{
+			pupilId: pupils[0].id,
+			lessonId: swimmingLessons[0].id, // Level 1
+			videoUrl: 'https://example.com/submission1.mp4',
+			status: SubmissionStatus.REVIEWED,
+			feedback: 'Excellent progress in overcoming water anxiety. Perfect execution of all exercises.',
+			rating: 10 // Gold medal
+		},
+		{
+			pupilId: pupils[0].id,
+			lessonId: swimmingLessons[1].id, // Level 2
+			videoUrl: 'https://example.com/submission2.mp4',
+			status: SubmissionStatus.REVIEWED,
+			feedback: 'Very good understanding of water resistance. Great arm positioning.',
+			rating: 8 // Silver medal
+		},
+		{
+			pupilId: pupils[0].id,
+			lessonId: swimmingLessons[2].id, // Level 3
+			videoUrl: 'https://example.com/submission3.mp4',
+			status: SubmissionStatus.REVIEWED,
+			feedback: 'Good progress with aquatic breathing. Keep practicing the exercises.',
+			rating: 6 // Bronze medal
+		},
+		{
+			pupilId: pupils[0].id,
+			lessonId: swimmingLessons[3].id, // Level 4
+			videoUrl: 'https://example.com/submission4.mp4',
+			status: SubmissionStatus.PENDING,
+			feedback: null,
+			rating: null
+		},
+
+		// Lucas Chen - Completed first level with gold medal, second level pending
+		{
+			pupilId: pupils[1].id,
+			lessonId: swimmingLessons[0].id, // Level 1
+			videoUrl: 'https://example.com/submission5.mp4',
+			status: SubmissionStatus.REVIEWED,
+			feedback: 'Outstanding performance in water confidence exercises.',
+			rating: 9 // Gold medal
+		},
+		{
+			pupilId: pupils[1].id,
+			lessonId: swimmingLessons[1].id, // Level 2
+			videoUrl: 'https://example.com/submission6.mp4',
+			status: SubmissionStatus.PENDING,
+			feedback: null,
+			rating: null
+		},
+
+		// Isabella Rodriguez - Completed first 4 levels with high scores
+		{
+			pupilId: pupils[2].id,
+			lessonId: swimmingLessons[0].id, // Level 1
+			videoUrl: 'https://example.com/submission7.mp4',
+			status: SubmissionStatus.REVIEWED,
+			feedback: 'Perfect execution of all exercises. Natural talent in water.',
+			rating: 10 // Gold medal
+		},
+		{
+			pupilId: pupils[2].id,
+			lessonId: swimmingLessons[1].id, // Level 2
+			videoUrl: 'https://example.com/submission8.mp4',
+			status: SubmissionStatus.REVIEWED,
+			feedback: 'Excellent control and understanding of water resistance.',
+			rating: 9 // Gold medal
+		},
+		{
+			pupilId: pupils[2].id,
+			lessonId: swimmingLessons[2].id, // Level 3
+			videoUrl: 'https://example.com/submission9.mp4',
+			status: SubmissionStatus.REVIEWED,
+			feedback: 'Outstanding aquatic breathing control.',
+			rating: 9 // Gold medal
+		},
+		{
+			pupilId: pupils[2].id,
+			lessonId: swimmingLessons[3].id, // Level 4
+			videoUrl: 'https://example.com/submission10.mp4',
+			status: SubmissionStatus.REVIEWED,
+			feedback: 'Very good progress with advanced techniques.',
+			rating: 8 // Silver medal
+		},
+		{
+			pupilId: pupils[2].id,
+			lessonId: swimmingLessons[4].id, // Level 5
+			videoUrl: 'https://example.com/submission11.mp4',
+			status: SubmissionStatus.PENDING,
+			feedback: null,
+			rating: null
+		}
+	];
+
+	// Create submissions and their reviews
+	await Promise.all(
+		submissionData.map(async (submission) => {
+			if (submission.status === SubmissionStatus.REVIEWED) {
 				return prisma.submission.create({
 					data: {
-						lessonId: lesson.id,
-						pupilId: pupil.id,
-						videoUrl: 'https://example.com/video.mp4',
-						status: Math.random() > 0.5 ? SubmissionStatus.REVIEWED : SubmissionStatus.PENDING,
-						feedback: Math.random() > 0.5 ? 'Good progress, keep practicing!' : null
+						pupilId: submission.pupilId,
+						lessonId: submission.lessonId,
+						videoUrl: submission.videoUrl,
+						status: submission.status,
+						feedback: submission.feedback,
+						review: {
+							create: {
+								coachId: coachUser.coach!.id,
+								rating: submission.rating!,
+								comment: submission.feedback!
+							}
+						}
 					}
 				});
-			})
-		)
-	);
-
-	// Create reviews for reviewed submissions
-	await Promise.all(
-		submissions
-			.filter((s) => s.status === SubmissionStatus.REVIEWED)
-			.map((submission) => {
-				return prisma.review.create({
+			} else {
+				return prisma.submission.create({
 					data: {
-						submissionId: submission.id,
-						coachId: coachUser.coach!.id,
-						rating: Math.floor(Math.random() * 5) + 1,
-						comment: 'Great improvement in technique!'
+						pupilId: submission.pupilId,
+						lessonId: submission.lessonId,
+						videoUrl: submission.videoUrl,
+						status: submission.status
 					}
 				});
-			})
+			}
+		})
 	);
 
 	// Create messages

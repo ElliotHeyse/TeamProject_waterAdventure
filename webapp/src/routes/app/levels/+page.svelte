@@ -4,20 +4,44 @@
 	import medalSilver from "$lib/img/medail-silver.svg";
 	import medalBronze from "$lib/img/medail-bronze.svg";
 	import { goto } from "$app/navigation";
-	import Alert from "$lib/components/coach/ui/alert/alert.svelte";
-	import AlertTitle from "$lib/components/coach/ui/alert/alert-title.svelte";
-	import AlertDescription from "$lib/components/coach/ui/alert/alert-description.svelte";
 	import { CircleAlert } from "lucide-svelte";
 
-	const levels = [
-		{ id: 7, x: 46, y: 90, status: 'locked' },
-		{ id: 6, x: 52, y: 72, status: 'locked' },
-		{ id: 5, x: 46, y: 59, status: 'locked' },
-		{ id: 4, x: 35, y: 46, status: 'current' },
-		{ id: 3, x: 64, y: 33, status: 'completed' },
-		{ id: 2, x: 58, y: 20, status: 'completed', medal: medalSilver },
-		{ id: 1, x: 55, y: 7, status: 'completed', medal: medalGold },
-	];
+	interface Level {
+		id: number;
+		status: 'locked' | 'current' | 'completed';
+		medal: 'gold' | 'silver' | 'bronze' | null;
+	}
+
+	const { data } = $props<{ data: { levels: Level[] } }>();
+
+	const medalImages = {
+		gold: medalGold,
+		silver: medalSilver,
+		bronze: medalBronze
+	} as const;
+
+	// Hardcoded positions for each level
+	const levelPositions = [
+		{ id: 7, x: 46, y: 90 },
+		{ id: 6, x: 52, y: 72 },
+		{ id: 5, x: 46, y: 59 },
+		{ id: 4, x: 35, y: 46 },
+		{ id: 3, x: 64, y: 33 },
+		{ id: 2, x: 58, y: 20 },
+		{ id: 1, x: 55, y: 7 }
+	] as const;
+
+	// Combine hardcoded positions with dynamic data
+	const levels = $derived(levelPositions.map(pos => {
+		const levelData = data.levels.find(l => l.id === pos.id) || {
+			status: 'locked' as const,
+			medal: null
+		};
+		return {
+			...pos,
+			...levelData
+		};
+	}));
 
 	let showAlert = $state(false);
 	let alertMessage = $state('');
@@ -33,7 +57,7 @@
 		}
 	});
 
-	function handleLevelClick(level: typeof levels[0], event: MouseEvent) {
+	function handleLevelClick(level: (typeof levels)[0], event: MouseEvent) {
 		if (level.status === 'locked') {
 			const nextLevel = levels.find(l => l.status === 'current');
 			if (nextLevel) {
@@ -77,9 +101,9 @@
 						<span class="text-white font-bold text-[min(2vw,2rem)] drop-shadow-md">
 							{level.id}
 						</span>
-						{#if level.medal}
+						{#if level.medal && level.medal in medalImages}
 							<img
-								src={level.medal}
+								src={medalImages[level.medal as keyof typeof medalImages]}
 								alt="Medal"
 								class="absolute -top-[30%] -right-[30%] w-[min(6vw,6rem)] h-[min(6vw,6rem)]"
 							/>
