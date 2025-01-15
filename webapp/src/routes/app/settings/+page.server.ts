@@ -10,9 +10,10 @@ export const load = (async ({ cookies }) => {
     const sessionToken = cookies.get('session');
     
     if (!sessionToken) {
+        console.error('No session token found');
         throw error(401, 'No session token found');
     } else {
-        console.log('Session token found'); // dev
+        console.log('Session token found');
     }
     
     parent = await findParent(sessionToken);
@@ -24,11 +25,9 @@ export const load = (async ({ cookies }) => {
 
 export const actions = {
     updateProfile: async ({ request }) => {
-        console.log('Updating parent profile'); // dev
-
         const data = await request.formData();
+        console.log(`updateProfile: data=${data}`);
         const phone = data.get('phone') as string;
-        console.log('Phone:', phone); // dev
         
         try {
             // Update only the phone number for the parent
@@ -37,7 +36,7 @@ export const actions = {
                 data: { phone }
             });
 
-            console.log('Parent profile updated successfully'); // dev
+            console.log('Parent profile updated successfully');
             return { success: true };
         } catch (error) {
             console.error('Failed to update profile:', error);
