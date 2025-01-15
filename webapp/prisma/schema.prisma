@@ -47,6 +47,7 @@ model Coach {
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
   parents   Parent[]
+  Lesson    Lesson[]
 }
 
 model Parent {
@@ -61,7 +62,29 @@ model Parent {
   messages  Message[] @relation("ParentMessages")
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
-  coach     Coach?    @relation(fields: [coachId], references: [id])
+  Coach     Coach?    @relation(fields: [coachId], references: [id])
+}
+
+enum Part {
+  A
+  B
+}
+
+model LevelProgress {
+  id          String    @id @default(cuid())
+  pupilId     String
+  lessonId    String
+  part        Part
+  completed   Boolean   @default(false)
+  completedAt DateTime?
+
+  // Relations
+  pupil     Pupil    @relation(fields: [pupilId], references: [id])
+  lesson    Lesson   @relation(fields: [lessonId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([pupilId, lessonId, part])
 }
 
 model Pupil {
@@ -74,11 +97,12 @@ model Pupil {
   notes       String?
 
   // Relations
-  parent      Parent       @relation(fields: [parentId], references: [id])
-  coach       Coach        @relation(fields: [coachId], references: [id])
-  submissions Submission[]
-  createdAt   DateTime     @default(now())
-  updatedAt   DateTime     @updatedAt
+  parent        Parent          @relation(fields: [parentId], references: [id])
+  coach         Coach           @relation(fields: [coachId], references: [id])
+  submissions   Submission[]
+  levelProgress LevelProgress[]
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
 }
 
 enum Level {
@@ -91,15 +115,48 @@ model Lesson {
   id          String   @id @default(cuid())
   title       String
   description String
+  coachId     String
   duration    Int // in minutes
   level       Level
   date        DateTime
   order       Int      @default(autoincrement())
 
+  // Swimming lesson specific fields
+  isSwimmingLesson Boolean    @default(false)
+  objective        String?
+  exercises        Exercise[]
+
   // Relations
-  submissions Submission[]
-  createdAt   DateTime     @default(now())
-  updatedAt   DateTime     @updatedAt
+  coach         Coach           @relation(fields: [coachId], references: [id])
+  submissions   Submission[]
+  levelProgress LevelProgress[]
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+}
+
+model Exercise {
+  id          String   @id @default(cuid())
+  part        String
+  location    String
+  name        String
+  description String
+  important   String?
+  tip         String?
+  videos      Video[]
+  lessonId    String
+  lesson      Lesson   @relation(fields: [lessonId], references: [id])
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Video {
+  id          String   @id @default(cuid())
+  url         String
+  description String
+  exerciseId  String
+  exercise    Exercise @relation(fields: [exerciseId], references: [id])
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 }
 
 model Submission {

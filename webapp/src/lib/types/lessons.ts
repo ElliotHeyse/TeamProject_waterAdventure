@@ -1,5 +1,22 @@
 import type { Level } from '@prisma/client';
 
+export interface Exercise {
+	id: string;
+	part: string;
+	location: string;
+	name: string;
+	description: string;
+	important?: string;
+	tip?: string;
+	videos: Video[];
+}
+
+export interface Video {
+	id: string;
+	url: string;
+	description: string;
+}
+
 export interface LessonData {
 	id: string;
 	title: string;
@@ -8,6 +25,9 @@ export interface LessonData {
 	duration: number;
 	date: Date;
 	maxPupils: number;
+	isSwimmingLesson?: boolean;
+	objective?: string;
+	exercises?: Exercise[];
 	lessonPupils: {
 		pupil: {
 			id: string;
@@ -26,6 +46,20 @@ export interface NewLessonData {
 	date: string;
 	maxPupils: number;
 	order: number;
+	isSwimmingLesson?: boolean;
+	objective?: string;
+	exercises?: {
+		part: string;
+		location: string;
+		name: string;
+		description: string;
+		important?: string;
+		tip?: string;
+		videos: {
+			url: string;
+			description: string;
+		}[];
+	}[];
 }
 
 export interface LessonsPageData {

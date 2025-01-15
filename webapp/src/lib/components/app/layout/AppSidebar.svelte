@@ -9,6 +9,7 @@
 	import logoLight from '$lib/img/logo-light.svg';
 	import logoIcon from '$lib/img/logo-icon.svg';
 	import { isSidebarOpen } from '$lib/stores/sidebar';
+	import { isMobileView } from '$lib/stores/viewport';
 
 	let isDarkMode = $state(false);
 
@@ -45,11 +46,18 @@
 
 <aside
 	class={cn(
-		'border-border bg-background/50 supports-[backdrop-filter]:bg-background/80 sticky top-0 flex h-screen flex-col border-r shadow-sm backdrop-blur transition-all duration-300',
-		$isSidebarOpen ? 'w-64' : 'w-16'
+		'border-border bg-background/50 flex supports-[backdrop-filter]:bg-background/80 shadow-sm backdrop-blur transition-all duration-300',
+		$isMobileView
+			? 'border-t flex-grow-0'
+			: `sticky top-0 h-screen border-r flex-col ${$isSidebarOpen ? 'w-64' : 'w-16'}`
 	)}
 >
-	<div class="border-border flex h-16 items-center justify-between border-b px-4">
+	<div
+		class={cn(
+			'border-border flex h-16 items-center justify-between border-b px-4',
+			$isMobileView ? 'hidden' : ''
+		)}
+	>
 		{#if $isSidebarOpen}
 			<img src={isDarkMode ? logoLight : logo} alt="WaterAdventure" class="h-8" />
 		{:else}
@@ -59,17 +67,21 @@
 		{/if}
 	</div>
 
-	<nav class="flex-1 space-y-1 p-2">
+	<nav class={cn('flex-1 space-y-1 p-2', $isMobileView ? 'flex justify-evenly' : '')}>
 		{#each navItems as { href, icon: Icon, label }}
 			{@const isActive =
 				page.url.pathname === href || (page.url.pathname.startsWith(href) && href !== '/app')}
 			<Button
 				variant={isActive ? 'secondary' : 'ghost'}
 				{href}
-				class={cn('w-full justify-start', !$isSidebarOpen && 'justify-center px-2')}
+				class={cn(
+					$isMobileView
+						? 'mobile style mt-1'
+						: `w-full justify-start ${$isSidebarOpen ? '' : 'justify-center px-2'}`
+				)}
 			>
 				<Icon class={cn('h-5 w-5', isActive ? 'text-primary' : 'text-muted-foreground')} />
-				{#if $isSidebarOpen}
+				{#if !$isMobileView && $isSidebarOpen}
 					<span class="ml-2">{label}</span>
 				{/if}
 			</Button>
