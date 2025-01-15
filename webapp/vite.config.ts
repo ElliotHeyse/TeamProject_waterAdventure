@@ -1,3 +1,4 @@
+import { paraglide } from '@inlang/paraglide-sveltekit/vite'
 import { sveltekit } from '@sveltejs/kit/vite';
 import { defineConfig } from 'vite';
 import type { ViteDevServer } from 'vite';
@@ -53,7 +54,7 @@ const webSocketServer = {
 };
 
 export default defineConfig({
-	plugins: [sveltekit(), webSocketServer],
+	plugins: [paraglide({ project: './project.inlang', outdir: './src/lib/paraglide' }),sveltekit(), webSocketServer],
 	server: {
 		port: 5173
 	}
