@@ -1,17 +1,23 @@
 <script lang="ts">
 	import { Button } from "$lib/components/coach/ui/button";
 	import { Sheet, SheetContent, SheetTrigger } from "$lib/components/coach/ui/sheet";
+	import { cn } from "$lib/components/coach/utils";
 	import { Menu } from "lucide-svelte";
 	import AppSidebar from "./AppSidebar.svelte";
 	import AppHeader from "./AppHeader.svelte";
 	import { isSidebarOpen } from "$lib/stores/sidebar";
+	import { isMobileView } from "$lib/stores/viewport";
 	
 	let { children } = $props<{ children: any }>();
 </script>
 
 <div class="relative flex min-h-screen">
 	<!-- Desktop Sidebar -->
-	<div class={`lg:block ${$isSidebarOpen ? 'block' : 'hidden'}`}>
+	<div class={cn(
+		$isMobileView
+			? "fixed bottom-0 min-h-fit w-full"
+			: `lg:block ${$isSidebarOpen ? 'block' : 'hidden'}`
+	)}>
 		<AppSidebar />
 	</div>
 
