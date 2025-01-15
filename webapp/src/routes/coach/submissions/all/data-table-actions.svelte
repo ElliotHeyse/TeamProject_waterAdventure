@@ -13,18 +13,19 @@
 		status: 'pending' | 'reviewed';
 		videoUrl: string;
 		feedback: string;
+		medal?: 'GOLD' | 'SILVER' | 'BRONZE' | 'NONE';
 	}
 
 	let props = $props<{ submission: Submission }>();
 	let showReviewDialog = $state(false);
 
-	async function handleSubmitReview(feedback: string) {
+	async function handleSubmitReview(feedback: string, medal: string) {
 		const response = await fetch(`/api/submissions/${props.submission.id}/review`, {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json'
 			},
-			body: JSON.stringify({ feedback })
+			body: JSON.stringify({ feedback, medal })
 		});
 
 		if (response.ok) {

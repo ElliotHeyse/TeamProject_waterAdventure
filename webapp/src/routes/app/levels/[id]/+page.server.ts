@@ -42,8 +42,20 @@ export const load: PageServerLoad = async ({ params, locals }) => {
 					pupilId: pupilId
 				},
 				include: {
-					review: true
-				}
+					lesson: {
+						include: {
+							coach: {
+								include: {
+									user: true
+								}
+							}
+						}
+					}
+				},
+				orderBy: {
+					createdAt: 'desc'
+				},
+				take: 1
 			},
 			levelProgress: {
 				where: {
@@ -64,6 +76,14 @@ export const load: PageServerLoad = async ({ params, locals }) => {
 		completed: lesson.levelProgress.some(p => p.part === exercise.part && p.completed)
 	}));
 
+	const submission = lesson.submissions[0];
+	const reviewInfo = submission?.status === 'REVIEWED' ? {
+		feedback: submission.feedback,
+		medal: submission.medal,
+		reviewedAt: submission.updatedAt,
+		teacherName: submission.lesson.coach.user.name
+	} : null;
+
 	return {
 		lesson: {
 			id: lesson.id,
@@ -72,6 +92,11 @@ export const load: PageServerLoad = async ({ params, locals }) => {
 			exercises: exercisesWithProgress
 		},
 		progress: lesson.levelProgress,
-		submissions: lesson.submissions
+		submission: submission ? {
+			id: submission.id,
+			videoUrl: submission.videoUrl,
+			status: submission.status,
+			reviewInfo
+		} : null
 	};
 };

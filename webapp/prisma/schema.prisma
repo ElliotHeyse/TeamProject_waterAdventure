@@ -77,6 +77,7 @@ model LevelProgress {
   part        Part
   completed   Boolean   @default(false)
   completedAt DateTime?
+  medal       Medal     @default(NONE)
 
   // Relations
   pupil     Pupil    @relation(fields: [pupilId], references: [id])
@@ -159,6 +160,13 @@ model Video {
   updatedAt   DateTime @updatedAt
 }
 
+enum Medal {
+  GOLD
+  SILVER
+  BRONZE
+  NONE
+}
+
 model Submission {
   id       String           @id @default(cuid())
   lessonId String
@@ -166,6 +174,7 @@ model Submission {
   videoUrl String
   status   SubmissionStatus @default(PENDING)
   feedback String?
+  medal    Medal            @default(NONE)
 
   // Relations
   lesson    Lesson   @relation(fields: [lessonId], references: [id])

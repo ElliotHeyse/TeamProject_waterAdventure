@@ -3,7 +3,7 @@ import type { PageServerLoad, Actions } from './$types';
 import { fail } from '@sveltejs/kit';
 
 export const load = (async () => {
-    // TODO: Replace with actual auth 
+    // TODO: Replace with actual auth
     const parent = await prisma.parent.findFirst({
         include: {
             user: {
@@ -20,7 +20,25 @@ export const load = (async () => {
     }
 
     return {
-        parent
+        parent,
+        submissions: await prisma.submission.findMany({
+            where: { pupilId: parent.pupilId },
+            select: {
+                id: true,
+                lessonId: true,
+                videoUrl: true,
+                status: true,
+                feedback: true,
+                medal: true,
+                createdAt: true,
+                lesson: {
+                    select: {
+                        title: true
+                    }
+                }
+            },
+            orderBy: { createdAt: 'desc' }
+        }),
     };
 }) satisfies PageServerLoad;
 

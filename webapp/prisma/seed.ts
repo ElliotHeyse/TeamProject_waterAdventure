@@ -666,6 +666,50 @@ async function main() {
 		})
 	);
 
+	// Create messages
+	await Promise.all(
+		parents.flatMap((parent) =>
+			Array.from({ length: 3 }).map((_, index) => {
+				return prisma.message.create({
+					data: {
+						content: `Message ${index + 1} from parent to coach`,
+						coachId: coachUser.coach!.id,
+						parentId: parent.parent!.id,
+						read: Math.random() > 0.5
+					}
+				});
+			})
+		)
+	);
+
+	// New parent with no progress
+	const newParentUser = await prisma.user.create({
+		data: {
+			email: 'emma.dubois@gmail.com',
+			name: 'Emma Dubois',
+			password: await hash('password123', 10),
+			role: UserRole.PARENT,
+			parent: {
+				create: {}
+			}
+		},
+		include: {
+			parent: true
+		}
+	});
+
+	// Create child with no progress
+	await prisma.pupil.create({
+		data: {
+			name: 'Lucas Dubois',
+			dateOfBirth: new Date('2018-05-15'),
+			level: Level.BEGINNER,
+			parentId: newParentUser.parent!.id,
+			coachId: coachUser.coach!.id,
+			notes: 'New student starting their swimming journey.'
+		}
+	});
+
 	console.log('Database seeded successfully!');
 }
 

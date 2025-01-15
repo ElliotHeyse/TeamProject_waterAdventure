@@ -20,6 +20,9 @@
 	import { CircleAlert } from 'lucide-svelte';
 	import * as m from '$lib/paraglide/messages.js';
 	import ReviewDialog from '$lib/components/coach/submissions/review-dialog.svelte';
+	import medalGold from '$lib/img/medail-gold.svg';
+	import medalSilver from '$lib/img/medail-silver.svg';
+	import medalBronze from '$lib/img/medail-bronze.svg';
 
 	let { data } = $props<{ data: PageData }>();
 	let isEditing = $state(false);
@@ -314,6 +317,23 @@
 										<div class="flex flex-col gap-2">
 											<p class="text-sm font-medium leading-none">{m.review_comment()}</p>
 											<p class="text-sm text-muted-foreground">{submission.review.comment}</p>
+											{#if submission.medal !== 'NONE'}
+												<div class="flex items-center gap-2">
+													<span class="text-sm font-medium">Medaille:</span>
+													<div class="flex items-center gap-1">
+														{#if submission.medal === 'GOLD'}
+															<img src={medalGold} alt="Gouden medaille" class="h-5 w-5" />
+															<span class="text-sm">Goud</span>
+														{:else if submission.medal === 'SILVER'}
+															<img src={medalSilver} alt="Zilveren medaille" class="h-5 w-5" />
+															<span class="text-sm">Zilver</span>
+														{:else if submission.medal === 'BRONZE'}
+															<img src={medalBronze} alt="Bronzen medaille" class="h-5 w-5" />
+															<span class="text-sm">Brons</span>
+														{/if}
+													</div>
+												</div>
+											{/if}
 											<p class="text-xs text-muted-foreground/80">
 												{m.reviewed()}
 												{formatDistance(new Date(submission.review.createdAt), new Date(), {
