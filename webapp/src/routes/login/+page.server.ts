@@ -18,7 +18,7 @@ export const load: PageServerLoad = async ({ locals }) => {
 };
 
 export const actions = {
-	default: async ({ request, cookies }) => {
+	default: async ({ request, cookies, locals }) => {
 		let formData;
 		try {
 			formData = await request.formData();
@@ -47,41 +47,12 @@ export const actions = {
 			const validPassword = await bcrypt.compare(password, user.password);
 
 			if (!validPassword) {
-				//console.log('Login failed: Invalid password for user:', email);
 				return fail(400, {
 					error: 'Invalid email or password',
 					email
 				});
 			}
 
-			// Check for existing valid session first
-			const existingSession = await prisma.session.findFirst({
-				where: {
-					userId: user.id,
-					expiresAt: {
-						gt: new Date()
-					}
-				}
-			});
-
-			let sessionToken;
-			if (existingSession) {
-				console.log('Using existing valid session for user:', email);
-				sessionToken = existingSession.token;
-			} else {
-				console.log('No valid session found, creating new session for user:', email);
-				// Clean up expired sessions for this user
-				const deletedSessions = await prisma.session.deleteMany({
-					where: {
-						userId: user.id,
-						expiresAt: {
-							lte: new Date()
-						}
-					}
-				});
-				console.log('Cleaned up expired sessions:', deletedSessions.count);
-
-				// Create new session
 				const token = randomBytes(32).toString('hex');
 				const twoDaysFromNow = new Date(Date.now() + 2 * 24 * 60 * 60 * 1000);
 
@@ -92,9 +63,8 @@ export const actions = {
 						expiresAt: twoDaysFromNow
 					}
 				});
-				console.log('Created new session for user:', email);
-				sessionToken = session.token;
-			}
+
+				const sessionToken = session.token;
 
 			// Set session cookie
 			cookies.set('session', sessionToken, {
@@ -105,10 +75,8 @@ export const actions = {
 				maxAge: 60 * 60 * 24 * 2 // 2 days
 			});
 
-			//console.log('Login successful for user:', email);
-			//console.log('Redirecting to:', user.role === 'COACH' ? '/coach' : '/app');
+			locals.user = user;
 
-			// Use throw redirect to ensure proper handling
 			throw redirect(303, user.role === 'COACH' ? '/coach' : '/app');
 		} catch (error) {
 			// Only handle non-redirect errors

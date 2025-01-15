@@ -22,7 +22,7 @@ export const handle: Handle = async ({ event, resolve }) => {
 	if (sessionToken) {
 		// Get the session and related user
 		const session = await prisma.session.findUnique({
-			where: { 
+			where: {
 				token: sessionToken,
 				expiresAt: { gt: new Date() }
 			},
@@ -48,7 +48,7 @@ export const handle: Handle = async ({ event, resolve }) => {
 		} else {
 			// Invalid or expired session, clean it up
 			event.cookies.delete('session', { path: '/' });
-			
+
 			// Clean up expired sessions for this token
 			if (sessionToken) {
 				console.log('Cleaning up expired session:', sessionToken);
