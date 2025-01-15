@@ -74,14 +74,46 @@
         <p class="text-muted-foreground">{exercise.tip}</p>
       </div>
 
-      <div class="mt-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div class="mt-6 space-y-6">
         {#each exercise.videos as video}
-          <div class="video-container">
-            <p class="text-sm font-medium mb-2 text-muted-foreground">{video.description}</p>
-            <video controls class="w-full rounded-lg border border-border">
-              <source src={video.url} type="video/mp4">
-              Your browser does not support the video tag.
-            </video>
+          <div class="flex flex-col md:flex-row gap-6">
+            <div class="w-full md:w-1/2">
+              <h5 class="text-lg font-semibold mb-2 text-foreground">{video.description}</h5>
+              <video controls class="w-full rounded-lg border border-border">
+                <source src={video.url} type="video/mp4">
+                Your browser does not support the video tag.
+              </video>
+            </div>
+            <div class="w-full md:w-1/2 text-muted-foreground md:mt-10">
+              {#if video.description === "Tokkelen op het water"}
+                <ul class="list-disc pl-4 space-y-2">
+                  <li>Zittend op de trap met de handen golven maken</li>
+                  <li>Drijvend voorwaarts voortduwen</li>
+                  <li>Rustig in water stappen</li>
+                  <li>Handen in het water houden</li>
+                  <li>Vingers sturen</li>
+                  <li>Voorwerpen niet omstoten</li>
+                </ul>
+              {:else if video.description === "Golven maken"}
+                <ul class="list-disc pl-4 space-y-2">
+                  <li>Zittend op de trap met de benen</li>
+                  <li>Vriesvluchtige voorbij of omrijdende</li>
+                  <li>Gestrekte benen en voet-tenen</li>
+                  <li>Been-beweging zonder hulp</li>
+                  <li>Been-verplaatsing</li>
+                </ul>
+              {:else if video.description === "Op het water slaan"}
+                <ul class="list-disc pl-4 space-y-2">
+                  <li>Carwash</li>
+                  <li>Plezier door de voorwaarts lopen</li>
+                  <li>Met handen spelen op het water</li>
+                  <li>Achterwaarts, zijwaarts, springend... in de voorwaarts</li>
+                  <li>Een doorgang uitsluiten</li>
+                  <li>Ogen open houden</li>
+                  <li>Met vingers samengeknepen sturen</li>
+                </ul>
+              {/if}
+            </div>
           </div>
         {/each}
       </div>
