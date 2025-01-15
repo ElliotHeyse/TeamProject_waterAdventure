@@ -1,23 +1,17 @@
 <script lang="ts">
-	// new
 	import logo from '$lib/img/logo-dark.svg';
 	import logoLight from '$lib/img/logo-light.svg';
-	
-	import * as DropdownMenu from '$lib/components/coach/ui/dropdown-menu';
-	import { Button } from '$lib/components/coach/ui/button';
-	import { ChevronDown } from 'lucide-svelte';
-	import { cn } from "$lib/components/coach/utils";
-	import { isMobileView } from '$lib/stores/viewport';
-	
-	let dropdownIsOpen = $state(false);
-	let selectedOption = $state("Option 1");
-
-	// old
 	import { page } from '$app/stores';
-	import { Bell, ChevronRight, Sun, Moon, Menu } from 'lucide-svelte';
+	import { Bell, ChevronRight, Sun, Moon, Menu, ChevronDown } from 'lucide-svelte';
 	import { onMount } from 'svelte';
 	import * as Breadcrumb from '$lib/components/coach/ui/breadcrumb';
+	import * as DropdownMenu from '$lib/components/coach/ui/dropdown-menu';
+	import { Button } from '$lib/components/coach/ui/button';
+	import { cn } from "$lib/components/coach/utils";
 	import { isSidebarOpen } from '$lib/stores/sidebar';
+	import { isMobileView } from '$lib/stores/viewport';
+
+	let selectedOption = $state("Option 1");
 
 	interface Notification {
 		id: number;

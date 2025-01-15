@@ -1,8 +1,4 @@
 <script lang="ts">
-	// new
-	import { isMobileView } from "$lib/stores/viewport";
-
-	// old
 	import { page } from "$app/stores";
 	import { Button } from "$lib/components/coach/ui/button";
 	import { cn } from "$lib/components/coach/utils";
@@ -19,6 +15,7 @@
 	import logoLight from '$lib/img/logo-light.svg';
 	import logoIcon from '$lib/img/logo-icon.svg';
 	import { isSidebarOpen } from '$lib/stores/sidebar';
+	import { isMobileView } from "$lib/stores/viewport";
 
 	let isDarkMode = $state(false);
 

@@ -1,15 +1,12 @@
 <script lang="ts">
-	// new
-	import { isMobileView } from "$lib/stores/viewport";
-	import { cn } from "$lib/components/coach/utils";
-
-	// old
 	import { Button } from "$lib/components/coach/ui/button";
 	import { Sheet, SheetContent, SheetTrigger } from "$lib/components/coach/ui/sheet";
+	import { cn } from "$lib/components/coach/utils";
 	import { Menu } from "lucide-svelte";
 	import AppSidebar from "./AppSidebar.svelte";
 	import AppHeader from "./AppHeader.svelte";
 	import { isSidebarOpen } from "$lib/stores/sidebar";
+	import { isMobileView } from "$lib/stores/viewport";
 	
 	let { children } = $props<{ children: any }>();
 </script>
