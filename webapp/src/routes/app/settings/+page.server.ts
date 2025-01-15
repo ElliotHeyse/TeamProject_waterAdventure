@@ -26,8 +26,8 @@ export const load = (async ({ cookies }) => {
 export const actions = {
     updateProfile: async ({ request }) => {
         const data = await request.formData();
-        console.log(`updateProfile: data=${data}`);
         const phone = data.get('phone') as string;
+        console.log(`updateProfile: phone=${phone}`);
         
         try {
             // Update only the phone number for the parent
@@ -36,7 +36,7 @@ export const actions = {
                 data: { phone }
             });
 
-            console.log('Parent profile updated successfully');
+            console.log('Parent profile updated successfully'); // dev
             return { success: true };
         } catch (error) {
             console.error('Failed to update profile:', error);
