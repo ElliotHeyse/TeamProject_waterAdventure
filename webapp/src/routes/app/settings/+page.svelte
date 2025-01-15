@@ -14,11 +14,6 @@
 	import { Separator } from '$lib/components/coach/ui/separator';
 	import { Icon, Sun, Moon } from 'svelte-hero-icons';
 	import { onMount } from 'svelte';
-	import { enhance } from '$app/forms';
-	import Alert from '$lib/components/coach/ui/alert/alert.svelte';
-	import AlertTitle from '$lib/components/coach/ui/alert/alert-title.svelte';
-	import AlertDescription from '$lib/components/coach/ui/alert/alert-description.svelte';
-	import { CircleAlert } from 'lucide-svelte';
 	import { toast } from 'svelte-sonner';
 	import type { PageData } from './$types';
 	import * as m from '$lib/paraglide/messages.js';
@@ -27,9 +22,10 @@
 	import type { AvailableLanguageTag } from '$lib/paraglide/runtime';
 	import { Badge } from '$lib/components/coach/ui/badge';
 	import { Gb, Nl, Fr } from 'svelte-flags';
+	import { browser } from '$app/environment';
+	import { Alert, AlertTitle, AlertDescription } from '$lib/components/coach/ui/alert';
 
 	let { data } = $props<{ data: PageData }>();
-	console.info(data); // dev only
 	let formError: string | null = $state(null);
 
 	// Profile settings
@@ -44,7 +40,7 @@
 
 	// Account settings
 	let currentLanguage = $state<AvailableLanguageTag>(
-		(i18n.strategy.getLanguageFromLocalisedPath(window.location.pathname) ||
+		(i18n.strategy.getLanguageFromLocalisedPath(browser ? window.location.pathname : '/en') ||
 			'en') as AvailableLanguageTag
 	);
 
@@ -55,12 +51,37 @@
 	}
 
 	async function handleLanguageChange(newLang: AvailableLanguageTag) {
-		const currentPath = window.location.pathname;
+		const currentPath = browser ? window.location.pathname : '/en';
 		const canonicalPath = i18n.strategy.getCanonicalPath(currentPath, currentLanguage);
 		const newPath = i18n.strategy.getLocalisedPath(canonicalPath, newLang);
 		currentLanguage = newLang;
 		await goto(newPath, { invalidateAll: true });
 	}
+
+	async function handleSubmit(event: SubmitEvent) {
+		event.preventDefault();
+		const form = event.target as HTMLFormElement;
+		const formData = new FormData(form);
+
+		const response = await fetch(form.action, {
+			method: 'POST',
+			body: formData
+		});
+
+		const result = await response.json();
+
+		if (result.type === 'success') {
+			console.log('success');
+			toast.success(m.changes_saved(), {
+				description: m.settings_saved_description()
+			});
+		} else if (result.type === 'error') {
+			toast.error(m.settings_save_failed(), {
+				description: result.error
+			});
+		}
+	}
+	``;
 
 	onMount(() => {
 		const savedDarkMode = localStorage.getItem('darkMode') === 'true';
@@ -71,7 +92,7 @@
 
 <div class="mx-auto space-y-6">
 	<h1 class="text-3xl font-bold mb-8">Settings</h1>
-	
+
 	<!-- Profile Settings -->
 	<div class="bg-card text-card-foreground rounded-lg border shadow-sm">
 		<div class="flex flex-col space-y-1.5 p-6">
@@ -79,41 +100,16 @@
 			<p class="text-muted-foreground text-sm">{m.manage_personal_info()}</p>
 		</div>
 		<Separator />
-		<!-- <form
-			method="POST"
-			action="?/updateProfile"
-			use:enhance={() => {
-				formError = null;
-				return async ({ result }) => {
-					if (result.type === 'failure') {
-						formError = result.data?.message as string;
-						toast.error(m.settings_save_failed(), {
-							description: result.data?.message as string
-						});
-					} else {
-						toast.success(m.settings_saved(), {
-							description: m.settings_saved_description()
-						});
-					}
-				};
-			}}
-			class="p-6 space-y-4"
-		>
+		<form method="POST" action="?/updateProfile" class="p-6 space-y-4" onsubmit={handleSubmit}>
 			{#if formError}
 				<div class="alert-wrapper">
 					<Alert variant="destructive">
-						<CircleAlert class="h-4 w-4" />
 						<AlertTitle>{m.error()}</AlertTitle>
 						<AlertDescription>{formError}</AlertDescription>
 					</Alert>
 				</div>
-			{/if} -->
-		
-		<form
-			method="POST"
-			action="?/updateProfile"
-			class="p-6 space-y-4"
-		>
+			{/if}
+
 			<div class="space-y-2">
 				<Label for="name">{m.name()}</Label>
 				<Input id="name" value={data.parent.user.name} disabled />
@@ -124,7 +120,12 @@
 			</div>
 			<div class="space-y-2">
 				<Label for="bio">{m.phone()}</Label>
-				<Input id="phone" name="phone" bind:value={phone} placeholder="phone placeholder (static => update paraglide)" />
+				<Input
+					id="phone"
+					name="phone"
+					bind:value={phone}
+					placeholder="phone placeholder (static => update paraglide)"
+				/>
 			</div>
 			<div class="flex justify-end">
 				<Button type="submit">{m.save_profile()}</Button>
@@ -247,13 +248,17 @@
 		<em>Bij small width (app weergave): partners hier tonen.</em>
 		<em>Bij large width (desktop weergave) partners in bottom zijkant tonen.</em>
 	</div>
-	
+
 	<div class="flex gap-6 space-y-1.5 p-6">
 		<a href="https://www.zwemfed.be">
 			<img src={isDarkMode ? zwemfedLogoLight : zwemfedLogo} alt="WaterAdventure" class="h-8" />
 		</a>
 		<a href="https://www.sportinnovatiecampus.be">
-			<img src={isDarkMode ? sportinnovatiecampusLogoLight : sportinnovatiecampusLogo} alt="WaterAdventure" class="h-8" />
+			<img
+				src={isDarkMode ? sportinnovatiecampusLogoLight : sportinnovatiecampusLogo}
+				alt="WaterAdventure"
+				class="h-8"
+			/>
 		</a>
 		<a href="https://www.howest.be/en">
 			<img src={isDarkMode ? howestLogoLight : howestLogo} alt="WaterAdventure" class="h-8" />

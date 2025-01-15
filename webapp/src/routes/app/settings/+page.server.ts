@@ -8,14 +8,14 @@ let parent: Awaited<ReturnType<typeof findParent>>;
 export const load = (async ({ cookies }) => {
     // Get session token from cookie
     const sessionToken = cookies.get('session');
-    
+
     if (!sessionToken) {
         console.error('No session token found');
         throw error(401, 'No session token found');
     } else {
         console.log('Session token found');
     }
-    
+
     parent = await findParent(sessionToken);
 
     return {
@@ -28,7 +28,7 @@ export const actions = {
         const data = await request.formData();
         const phone = data.get('phone') as string;
         console.log(`updateProfile: phone=${phone}`);
-        
+
         try {
             // Update only the phone number for the parent
             await prisma.parent.update({
@@ -40,9 +40,9 @@ export const actions = {
             return { success: true };
         } catch (error) {
             console.error('Failed to update profile:', error);
-            return fail(400, { 
+            return fail(400, {
                 message: 'Failed to update profile',
-                phone 
+                phone
             });
         }
     }

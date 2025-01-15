@@ -6,14 +6,15 @@
 	import { Card, CardContent, CardHeader, CardTitle } from '$lib/components/coach/ui/card';
 	import { toast } from 'svelte-sonner';
 
-	export let data;
+	let { data } = $props();
 	let { parent } = data;
 
-	let name = parent.user.name;
-	let email = parent.user.email;
-	let phone = parent.phone;
+	let name = $state(parent.user.name);
+	let email = $state(parent.user.email);
+	let phone = $state(parent.phone);
 
 	async function handleSubmit(event: SubmitEvent) {
+		event.preventDefault();
 		const form = event.target as HTMLFormElement;
 		const formData = new FormData(form);
 
@@ -42,7 +43,7 @@
 			<CardTitle>{m.edit_parent_info()}</CardTitle>
 		</CardHeader>
 		<CardContent>
-			<form method="POST" on:submit|preventDefault={handleSubmit} class="space-y-4">
+			<form method="POST" onsubmit={handleSubmit} class="space-y-4">
 				<div class="space-y-2">
 					<Label for="name">{m.name()}</Label>
 					<Input type="text" id="name" name="name" bind:value={name} required />
