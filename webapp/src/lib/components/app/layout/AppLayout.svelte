@@ -1,4 +1,9 @@
 <script lang="ts">
+	// new
+	import { isMobileView } from "$lib/stores/viewport";
+	import { cn } from "$lib/components/coach/utils";
+
+	// old
 	import { Button } from "$lib/components/coach/ui/button";
 	import { Sheet, SheetContent, SheetTrigger } from "$lib/components/coach/ui/sheet";
 	import { Menu } from "lucide-svelte";
@@ -11,7 +16,11 @@
 
 <div class="relative flex min-h-screen">
 	<!-- Desktop Sidebar -->
-	<div class={`lg:block ${$isSidebarOpen ? 'block' : 'hidden'}`}>
+	<div class={cn(
+		$isMobileView
+			? "fixed bottom-0 min-h-fit w-full"
+			: `lg:block ${$isSidebarOpen ? 'block' : 'hidden'}`
+	)}>
 		<AppSidebar />
 	</div>
 
