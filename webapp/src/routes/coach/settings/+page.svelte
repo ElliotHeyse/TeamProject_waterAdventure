@@ -20,6 +20,7 @@
 	import type { AvailableLanguageTag } from '$lib/paraglide/runtime';
 	import { Badge } from '$lib/components/coach/ui/badge';
 	import { Gb, Nl, Fr } from 'svelte-flags';
+	import { browser } from '$app/environment';
 
 	let { data } = $props<{ data: PageData }>();
 	let formError: string | null = $state(null);
@@ -37,7 +38,7 @@
 
 	// Account settings
 	let currentLanguage = $state<AvailableLanguageTag>(
-		(i18n.strategy.getLanguageFromLocalisedPath(window.location.pathname) ||
+		(i18n.strategy.getLanguageFromLocalisedPath(browser ? window.location.pathname : 'en') ||
 			'en') as AvailableLanguageTag
 	);
 
@@ -48,6 +49,8 @@
 	}
 
 	async function handleLanguageChange(newLang: AvailableLanguageTag) {
+		if (!browser) return;
+
 		const currentPath = window.location.pathname;
 		const canonicalPath = i18n.strategy.getCanonicalPath(currentPath, currentLanguage);
 		const newPath = i18n.strategy.getLocalisedPath(canonicalPath, newLang);
