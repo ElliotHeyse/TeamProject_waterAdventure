@@ -32,6 +32,9 @@
 	import * as m from '$lib/paraglide/messages.js';
 	import * as Select from '$lib/components/coach/ui/select/index';
 	import { Select as SelectPrimitive } from 'bits-ui';
+	import medalGold from '$lib/img/medail-gold.svg';
+	import medalSilver from '$lib/img/medail-silver.svg';
+	import medalBronze from '$lib/img/medail-bronze.svg';
 
 	interface Submission {
 		id: string;
@@ -71,6 +74,25 @@
 
 	const columns: ColumnDef<Submission>[] = [
 		{
+			id: 'select',
+			header: ({ table }) => {
+				return renderComponent(Table.Checkbox, {
+					checked: table.getIsAllPageRowsSelected(),
+					'aria-label': 'Select all',
+					onCheckedChange: (value) => table.toggleAllPageRowsSelected(!!value)
+				});
+			},
+			cell: ({ row }) => {
+				return renderComponent(Table.Checkbox, {
+					checked: row.getIsSelected(),
+					'aria-label': 'Select row',
+					onCheckedChange: (value) => row.toggleSelected(!!value)
+				});
+			},
+			enableSorting: false,
+			enableHiding: false
+		},
+		{
 			accessorKey: 'pupilName',
 			header: m.pupil(),
 			cell: ({ row }) => {
@@ -100,6 +122,31 @@
 				return renderComponent(StatusBadge, {
 					status
 				});
+			}
+		},
+		{
+			accessorKey: 'medal',
+			header: 'Medaille',
+			cell: ({ row }) => {
+				const medal = row.getValue<'GOLD' | 'SILVER' | 'BRONZE' | 'NONE'>('medal');
+				if (medal === 'NONE') return '-';
+				const medalImages = {
+					GOLD: { src: medalGold, alt: 'Gouden medaille', text: 'Goud' },
+					SILVER: { src: medalSilver, alt: 'Zilveren medaille', text: 'Zilver' },
+					BRONZE: { src: medalBronze, alt: 'Bronzen medaille', text: 'Brons' }
+				};
+				const medalInfo = medalImages[medal];
+				return renderSnippet(createRawSnippet<[typeof medalInfo]>((getMedalInfo) => {
+					const info = getMedalInfo();
+					return {
+						render: () => `
+							<div class="flex items-center gap-1">
+								<img src="${info.src}" alt="${info.alt}" class="h-5 w-5" />
+								<span class="text-sm">${info.text}</span>
+							</div>
+						`
+					};
+				}), medalInfo);
 			}
 		},
 		{

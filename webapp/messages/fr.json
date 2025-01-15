@@ -150,5 +150,8 @@
     "submissions_total": "{count} soumission(s) au total.",
     "review_submitted": "Évaluation soumise avec succès",
     "error_submitting_review": "Erreur lors de la soumission de l'évaluation",
-    "submitting": "Soumission en cours..."
+    "submitting": "Soumission en cours...",
+    "parents": "Parents",
+    "manage_parents": "Voir et gérer tous les parents",
+    "details": "Détails"
 }

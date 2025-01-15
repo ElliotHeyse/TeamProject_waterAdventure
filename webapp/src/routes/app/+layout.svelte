@@ -1,7 +1,9 @@
 <script lang="ts">
-	import AppLayout from "$lib/components/app/layout/AppLayout.svelte";
+	import AppLayout from '$lib/components/app/layout/AppLayout.svelte';
+
+	let { children } = $props();
 </script>
 
 <AppLayout>
-	<slot />
+	{@render children()}
 </AppLayout>

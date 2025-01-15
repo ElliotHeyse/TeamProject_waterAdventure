@@ -11,16 +11,18 @@
 		status: 'pending' | 'reviewed';
 		videoUrl: string;
 		feedback: string;
+		medal?: 'GOLD' | 'SILVER' | 'BRONZE' | 'NONE';
 	}
 
 	interface Props {
 		submission: Submission | null;
 		onClose: () => void;
-		onSubmit: (feedback: string) => void;
+		onSubmit: (feedback: string, medal: string) => void;
 	}
 
 	const { submission, onClose, onSubmit }: Props = $props();
 	let feedback = $state(submission?.feedback || '');
+	let medal = $state(submission?.medal || 'NONE');
 	let isSubmitting = $state(false);
 
 	async function handleSubmit() {
@@ -33,7 +35,7 @@
 				headers: {
 					'Content-Type': 'application/json'
 				},
-				body: JSON.stringify({ feedback })
+				body: JSON.stringify({ feedback, medal })
 			});
 
 			if (!response.ok) {
@@ -42,7 +44,7 @@
 			}
 
 			toast.success(m.review_submitted());
-			onSubmit(feedback);
+			onSubmit(feedback, medal);
 		} catch (error) {
 			console.error('Error:', error);
 			toast.error(m.error_submitting_review());
@@ -75,6 +77,19 @@
 					rows="4"
 					placeholder={m.enter_feedback()}
 				></textarea>
+			</label>
+
+			<label class="block">
+				<span class="text-sm font-medium">Medaille</span>
+				<select
+					bind:value={medal}
+					class="bg-background focus:border-ring focus:ring-ring mt-1 block w-full rounded-md border shadow-sm"
+				>
+					<option value="NONE">Geen</option>
+					<option value="BRONZE">Brons</option>
+					<option value="SILVER">Zilver</option>
+					<option value="GOLD">Goud</option>
+				</select>
 			</label>
 
 			<div class="flex justify-end space-x-3">

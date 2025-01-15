@@ -43,6 +43,7 @@ export const load: PageServerLoad = async ({ locals, url }) => {
 			status: submission.status.toLowerCase(),
 			videoUrl: submission.videoUrl,
 			feedback: submission.feedback || '',
+			medal: submission.medal,
 			lesson: submission.lesson
 		})),
 		lessons

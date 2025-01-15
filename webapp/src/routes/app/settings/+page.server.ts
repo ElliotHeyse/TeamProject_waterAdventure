@@ -19,7 +19,7 @@ export const load = (async ({ cookies }) => {
     parent = await findParent(sessionToken);
 
     return {
-        parent: parent
+        parent
     };
 }) satisfies PageServerLoad;
 
