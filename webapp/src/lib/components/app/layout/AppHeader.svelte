@@ -122,9 +122,9 @@
 
 				<DropdownMenu.Root>
 					<DropdownMenu.Trigger asChild>
-						<Button variant="ghost" size="sm" class="flex items-center gap-2 px-3 h-8">
+						<Button variant="ghost" size="sm" class="flex items-center gap-2 px-3 h-8 border">
 							<span class="text-sm font-medium">{selectedOption}</span>
-							<ChevronDown class="h-4 w-4 opacity-50"/>
+							<ChevronDown class="h-4 w-4"/>
 						</Button>
 					</DropdownMenu.Trigger>
 					<DropdownMenu.Content class="w-56">

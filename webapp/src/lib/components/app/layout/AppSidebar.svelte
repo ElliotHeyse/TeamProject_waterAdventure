@@ -81,7 +81,7 @@
 				{href}
 				class={cn(
 					$isMobileView
-						? "mobile style"
+						? "mobile style mt-1"
 						: `w-full justify-start ${$isSidebarOpen ? "" : "justify-center px-2"}`
 				)}
 			>
