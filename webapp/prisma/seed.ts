@@ -8,13 +8,13 @@ async function main() {
 	await prisma.message.deleteMany();
 	await prisma.review.deleteMany();
 	await prisma.submission.deleteMany();
+	await prisma.video.deleteMany();
+	await prisma.exercise.deleteMany();
+	await prisma.lesson.deleteMany();
 	await prisma.pupil.deleteMany();
 	await prisma.coach.deleteMany();
 	await prisma.parent.deleteMany();
 	await prisma.user.deleteMany();
-	await prisma.video.deleteMany();
-	await prisma.exercise.deleteMany();
-	await prisma.lesson.deleteMany();
 
 	// Create coach user
 	const coachUser = await prisma.user.create({
@@ -202,7 +202,7 @@ async function main() {
 							videos: {
 								create: [
 									{
-										url: "/src/lib/beeldmateriaalZwemfed/1AA_PG_2_OEF1A.mp4",
+										url: "/src/lib/beeldmateriaalZwemfed/lesson1_a_ex1_1.mp4",
 										description: "Sproeikampioen oefening"
 									}
 								]
@@ -218,15 +218,15 @@ async function main() {
 							videos: {
 								create: [
 									{
-										url: "/src/lib/beeldmateriaalZwemfed/1BA_PG_7_OEF1B_WWles 1.mp4",
+										url: "/src/lib/beeldmateriaalZwemfed/lesson1_b_ex1_2.mp4",
 										description: "Tokkelen op het water"
 									},
 									{
-										url: "/src/lib/beeldmateriaalZwemfed/1BB_PG_20_OEF1BWWLES3.mp4",
+										url: "/src/lib/beeldmateriaalZwemfed/lesson1_b_ex1_3.mp4",
 										description: "Golven maken"
 									},
 									{
-										url: "/src/lib/beeldmateriaalZwemfed/1BC_LO_14_oef1B_LO LES2.mp4",
+										url: "/src/lib/beeldmateriaalZwemfed/lesson1_c_ex1_1.mp4",
 										description: "Op het water slaan"
 									}
 								]
@@ -261,8 +261,8 @@ async function main() {
 							videos: {
 								create: [
 									{
-										url: "/src/lib/beeldmateriaalZwemfed/2AA_PG_3_OEF2A_WWles1.mp4",
-										description: "Waar zijn die handjes?"
+										url: "/src/lib/beeldmateriaalZwemfed/lesson2_a_ex2_1.mp4",
+										description: "Carwash oefening"
 									}
 								]
 							}
@@ -277,12 +277,12 @@ async function main() {
 							videos: {
 								create: [
 									{
-										url: "/src/lib/beeldmateriaalZwemfed/2BA_PG_26_oef2b_WWles 5.mp4",
-										description: "Bestuur de trein"
+										url: "/src/lib/beeldmateriaalZwemfed/lesson2_b_ex2_1.mp4",
+										description: "Voorwaarts lopen"
 									},
 									{
-										url: "/src/lib/beeldmateriaalZwemfed/2BB_WG_45_oef2B_wwles10.mp4",
-										description: "Bestuur de trein variatie"
+										url: "/src/lib/beeldmateriaalZwemfed/lesson2_b_ex2_2.mp4",
+										description: "Achterwaarts lopen"
 									}
 								]
 							}
@@ -316,8 +316,8 @@ async function main() {
 							videos: {
 								create: [
 									{
-										url: "/src/lib/beeldmateriaalZwemfed/3AA_PG_8_oef3A_WWles1.mp4",
-										description: "Bellenblazer thuis"
+										url: "/src/lib/beeldmateriaalZwemfed/lesson3_a_ex3_1.mp4",
+										description: "Bellen blazen"
 									}
 								]
 							}
@@ -332,12 +332,12 @@ async function main() {
 							videos: {
 								create: [
 									{
-										url: "/src/lib/beeldmateriaalZwemfed/3BA_PG_11_oef3B_WWles2.mp4",
-										description: "Bellenblazer zwembad"
+										url: "/src/lib/beeldmateriaalZwemfed/lesson3_b_ex3_1.mp4",
+										description: "Bellen blazen onder water"
 									},
 									{
-										url: "/src/lib/beeldmateriaalZwemfed/3BB_WG_12_OEF3B_WWles 1.mp4",
-										description: "Bellenblazer variatie"
+										url: "/src/lib/beeldmateriaalZwemfed/lesson3_b_ex3_2.mp4",
+										description: "Bellen blazen met neus"
 									}
 								]
 							}
@@ -371,8 +371,8 @@ async function main() {
 							videos: {
 								create: [
 									{
-										url: "/src/lib/beeldmateriaalZwemfed/4AA_PG_13_oef4A_wwles3.mp4",
-										description: "Bellenblazer oefening"
+										url: "/src/lib/beeldmateriaalZwemfed/lesson4_a_ex4_1.mp4",
+										description: "Duiken naar voorwerp"
 									}
 								]
 							}
@@ -387,16 +387,12 @@ async function main() {
 							videos: {
 								create: [
 									{
-										url: "/src/lib/beeldmateriaalZwemfed/4BA_PG_14_oef4B_wwles2.mp4",
-										description: "Onder het poortje door"
+										url: "/src/lib/beeldmateriaalZwemfed/lesson4_b_ex4_1.mp4",
+										description: "Duiken door hoepel"
 									},
 									{
-										url: "/src/lib/beeldmateriaalZwemfed/4BB_WG_24_oef4A_wwles4.mp4",
-										description: "Onder het poortje variatie 1"
-									},
-									{
-										url: "/src/lib/beeldmateriaalZwemfed/4BB_WG_27_oef4B_wwles6.mp4",
-										description: "Onder het poortje variatie 2"
+										url: "/src/lib/beeldmateriaalZwemfed/lesson4_b_ex4_2.mp4",
+										description: "Duiken naar bodem"
 									}
 								]
 							}
@@ -430,12 +426,12 @@ async function main() {
 							videos: {
 								create: [
 									{
-										url: "/src/lib/beeldmateriaalZwemfed/5AA_PG_15_oef5A_wwles3.mp4",
-										description: "Duikexpert oefening"
+										url: "/src/lib/beeldmateriaalZwemfed/lesson5_a_ex5_1.mp4",
+										description: "Drijven op buik"
 									},
 									{
-										url: "/src/lib/beeldmateriaalZwemfed/5AB_PG_16_oef5A_wwles3.mp4",
-										description: "Duikexpert variatie"
+										url: "/src/lib/beeldmateriaalZwemfed/lesson5_a_ex5_2.mp4",
+										description: "Drijven op rug"
 									}
 								]
 							}
@@ -469,32 +465,32 @@ async function main() {
 							videos: {
 								create: [
 									{
-										url: "/src/lib/beeldmateriaalZwemfed/6AA_PG_18_oef6A_wwles2.mp4",
-										description: "Op de carrousel"
+										url: "/src/lib/beeldmateriaalZwemfed/lesson6_a_ex6_1.mp4",
+										description: "Voortbewegen op buik"
 									},
 									{
-										url: "/src/lib/beeldmateriaalZwemfed/6AB_WG_19_X_oef6A_wwles4.mp4",
-										description: "Carrousel variatie 1"
+										url: "/src/lib/beeldmateriaalZwemfed/lesson6_b_ex6_1.mp4",
+										description: "Voortbewegen met plank"
 									},
 									{
-										url: "/src/lib/beeldmateriaalZwemfed/6AC_PG_36_Oef6A_WWles6.mp4",
-										description: "Carrousel variatie 2"
+										url: "/src/lib/beeldmateriaalZwemfed/lesson6_c_ex6_1.mp4",
+										description: "Voortbewegen met armen"
 									},
 									{
-										url: "/src/lib/beeldmateriaalZwemfed/6AD_PG_37_Oef6A_WWles7.mp4",
-										description: "Carrousel variatie 3"
+										url: "/src/lib/beeldmateriaalZwemfed/lesson6_d_ex6_1.mp4",
+										description: "Voortbewegen met benen"
 									},
 									{
-										url: "/src/lib/beeldmateriaalZwemfed/6AE_PG_35_oef6A_wwles4.mp4",
-										description: "Carrousel variatie 4"
+										url: "/src/lib/beeldmateriaalZwemfed/lesson6_e_ex6_1.mp4",
+										description: "Voortbewegen combinatie"
 									},
 									{
-										url: "/src/lib/beeldmateriaalZwemfed/6AF_WG_18_oef6A_WWles4.mp4",
-										description: "Carrousel variatie 5"
+										url: "/src/lib/beeldmateriaalZwemfed/lesson6_f_ex6_1.mp4",
+										description: "Voortbewegen met hulp"
 									},
 									{
-										url: "/src/lib/beeldmateriaalZwemfed/6AG_oefLO_01_oef6A_LO les6 v.mp4",
-										description: "Carrousel variatie 6"
+										url: "/src/lib/beeldmateriaalZwemfed/lesson6_g_ex6_1.mp4",
+										description: "Voortbewegen zelfstandig"
 									}
 								]
 							}
@@ -528,20 +524,20 @@ async function main() {
 							videos: {
 								create: [
 									{
-										url: "/src/lib/beeldmateriaalZwemfed/7AA_PG_16_oef7A_wwles1.mp4",
-										description: "Springkampioen oefening"
+										url: "/src/lib/beeldmateriaalZwemfed/lesson7_a_ex7_1.mp4",
+										description: "Rugcrawl basis"
 									},
 									{
-										url: "/src/lib/beeldmateriaalZwemfed/7AB_WG_17_X_oef7A_WWles6.mp4",
-										description: "Springkampioen variatie 1"
+										url: "/src/lib/beeldmateriaalZwemfed/lesson7_b_ex7_1.mp4",
+										description: "Rugcrawl armen"
 									},
 									{
-										url: "/src/lib/beeldmateriaalZwemfed/7AC_WG_43_oef7A_wwles9.mp4",
-										description: "Springkampioen variatie 2"
+										url: "/src/lib/beeldmateriaalZwemfed/lesson7_c_ex7_1.mp4",
+										description: "Rugcrawl benen"
 									},
 									{
-										url: "/src/lib/beeldmateriaalZwemfed/7AD_LO_oef_7_LOles3_20.mp4",
-										description: "Springkampioen variatie 3"
+										url: "/src/lib/beeldmateriaalZwemfed/lesson7_d_ex7_1.mp4",
+										description: "Rugcrawl combinatie"
 									}
 								]
 							}
