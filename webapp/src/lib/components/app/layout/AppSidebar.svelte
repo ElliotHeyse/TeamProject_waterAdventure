@@ -53,9 +53,10 @@
 	];
 </script>
 
-<aside class={cn(
-	"border-border bg-background/50 supports-[backdrop-filter]:bg-background/80 sticky top-0 flex h-screen flex-col border-r shadow-sm backdrop-blur transition-all duration-300",
-	$isSidebarOpen ? "w-64" : "w-16"
+<aside class={cn("border-border bg-background/50 flex supports-[backdrop-filter]:bg-background/80 shadow-sm backdrop-blur transition-all duration-300",
+	$isMobileView
+		? "border-t flex-grow-0"
+		: `sticky top-0 h-screen border-r flex-col ${$isSidebarOpen ? "w-64" : "w-16"}`
 )}>
 	<div class={cn("border-border flex h-16 items-center justify-between border-b px-4",
 		$isMobileView ? "hidden" : ""
