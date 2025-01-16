@@ -31,14 +31,8 @@
 	let bio = $state(data.coach.bio || '');
 	let specialties = $state(data.coach.specialties?.join(', ') || '');
 
-	// Settings from store
-	let settings = $state($userSettings);
-	$effect(() => {
-		settings = $userSettings;
-	});
-
 	async function toggleDarkMode() {
-		const newMode = settings.themeMode === 'LIGHT' ? 'DARK' : 'LIGHT';
+		const newMode = $userSettings.themeMode === 'LIGHT' ? 'DARK' : 'LIGHT';
 		const success = await userSettings.updateSettings({ themeMode: newMode });
 		if (success) {
 			toast.success(m.changes_saved());
@@ -53,7 +47,7 @@
 			const currentPath = window.location.pathname;
 			const currentLang = i18n.strategy.getLanguageFromLocalisedPath(currentPath) || 'en';
 			const canonicalPath = i18n.strategy.getCanonicalPath(currentPath, currentLang as Language);
-			
+
 			// For English, we don't need a language prefix
 			if (newLang === 'en') {
 				await goto(canonicalPath, { invalidateAll: true });
@@ -71,7 +65,7 @@
 		const update = type === 'push' 
 			? { pushNotifications: enabled }
 			: { emailNotifications: enabled };
-		
+
 		const success = await userSettings.updateSettings(update);
 		if (success) {
 			toast.success(m.changes_saved());
@@ -184,10 +178,10 @@
 						{m.email_notifications_description()}
 					</div>
 				</div>
-				<Switch 
-					checked={settings.emailNotifications} 
+				<Switch
+					checked={$userSettings.emailNotifications}
 					onCheckedChange={(checked) => handleNotificationChange('email', checked)}
-					disabled 
+					disabled
 				/>
 			</div>
 			<Separator />
@@ -201,10 +195,10 @@
 						{m.push_notifications_description()}
 					</div>
 				</div>
-				<Switch 
-					checked={settings.pushNotifications}
+				<Switch
+					checked={$userSettings.pushNotifications}
 					onCheckedChange={(checked) => handleNotificationChange('push', checked)}
-					disabled 
+					disabled
 				/>
 			</div>
 		</div>
@@ -222,15 +216,15 @@
 				<Label>{m.language()}</Label>
 				<Select.Root
 					type="single"
-					value={settings.language}
+					value={$userSettings.language}
 					onValueChange={(value: string) => handleLanguageChange(value as AvailableLanguageTag)}
 				>
 					<Select.Trigger class="w-[180px]">
 						<div class="flex items-center gap-2">
-							{#if settings.language === 'en'}
+							{#if $userSettings.language === 'en'}
 								<Gb class="w-4 h-4" />
 								<span>English</span>
-							{:else if settings.language === 'nl'}
+							{:else if $userSettings.language === 'nl'}
 								<Nl class="w-4 h-4" />
 								<span>Dutch</span>
 							{:else}

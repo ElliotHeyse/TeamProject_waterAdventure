@@ -33,14 +33,8 @@
 	// Profile settings
 	let phone = $state(data.parent.phone || '');
 
-	// Settings from store
-	let settings = $state($userSettings);
-	$effect(() => {
-		settings = $userSettings;
-	});
-
 	async function toggleDarkMode() {
-		const newMode = settings.themeMode === 'LIGHT' ? 'DARK' : 'LIGHT';
+		const newMode = $userSettings.themeMode === 'LIGHT' ? 'DARK' : 'LIGHT';
 		const success = await userSettings.updateSettings({ themeMode: newMode });
 		if (success) {
 			toast.success(m.changes_saved());
@@ -55,7 +49,7 @@
 			const currentPath = window.location.pathname;
 			const currentLang = i18n.strategy.getLanguageFromLocalisedPath(currentPath) || 'en';
 			const canonicalPath = i18n.strategy.getCanonicalPath(currentPath, currentLang as Language);
-			
+
 			// For English, we don't need a language prefix
 			if (newLang === 'en') {
 				await goto(canonicalPath, { invalidateAll: true });
@@ -187,10 +181,10 @@
 						{m.email_notifications_description()}
 					</div>
 				</div>
-				<Switch 
-					checked={settings.emailNotifications} 
+				<Switch
+					checked={$userSettings.emailNotifications}
 					onCheckedChange={(checked) => handleNotificationChange('email', checked)}
-					disabled 
+					disabled
 				/>
 			</div>
 			<Separator />
@@ -204,10 +198,10 @@
 						{m.push_notifications_description()}
 					</div>
 				</div>
-				<Switch 
-					checked={settings.pushNotifications}
+				<Switch
+					checked={$userSettings.pushNotifications}
 					onCheckedChange={(checked) => handleNotificationChange('push', checked)}
-					disabled 
+					disabled
 				/>
 			</div>
 		</div>
@@ -225,15 +219,15 @@
 				<Label>{m.language()}</Label>
 				<Select.Root
 					type="single"
-					value={settings.language}
+					value={$userSettings.language}
 					onValueChange={(value: string) => handleLanguageChange(value as AvailableLanguageTag)}
 				>
 					<Select.Trigger class="w-[180px]">
 						<div class="flex items-center gap-2">
-							{#if settings.language === 'en'}
+							{#if $userSettings.language === 'en'}
 								<Gb class="w-4 h-4" />
 								<span>English</span>
-							{:else if settings.language === 'nl'}
+							{:else if $userSettings.language === 'nl'}
 								<Nl class="w-4 h-4" />
 								<span>Dutch</span>
 							{:else}
@@ -275,17 +269,17 @@
 
 	<div class="flex gap-6 space-y-1.5 p-6">
 		<a href="https://www.zwemfed.be">
-			<img src={settings.themeMode === 'LIGHT' ? zwemfedLogoLight : zwemfedLogo} alt="WaterAdventure" class="h-8" />
+			<img src={$userSettings.themeMode === 'LIGHT' ? zwemfedLogoLight : zwemfedLogo} alt="WaterAdventure" class="h-8" />
 		</a>
 		<a href="https://www.sportinnovatiecampus.be">
 			<img
-				src={settings.themeMode === 'LIGHT' ? sportinnovatiecampusLogoLight : sportinnovatiecampusLogo}
+				src={$userSettings.themeMode === 'LIGHT' ? sportinnovatiecampusLogoLight : sportinnovatiecampusLogo}
 				alt="WaterAdventure"
 				class="h-8"
 			/>
 		</a>
 		<a href="https://www.howest.be/en">
-			<img src={settings.themeMode === 'LIGHT' ? howestLogoLight : howestLogo} alt="WaterAdventure" class="h-8" />
+			<img src={$userSettings.themeMode === 'LIGHT' ? howestLogoLight : howestLogo} alt="WaterAdventure" class="h-8" />
 		</a>
 	</div>
 </div>
