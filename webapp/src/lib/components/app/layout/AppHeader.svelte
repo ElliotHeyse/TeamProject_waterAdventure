@@ -10,6 +10,7 @@
 	import { cn } from "$lib/components/coach/utils";
 	import { isSidebarOpen } from '$lib/stores/sidebar';
 	import { isMobileView } from '$lib/stores/viewport';
+	import { userSettings } from '$lib/stores/userSettings';
 
 	let selectedOption = $state("Option 1");
 
@@ -19,7 +20,6 @@
 		timestamp: string;
 	}
 
-	let isDarkMode = $state(false);
 	let notifications = $state<Notification[]>([]);
 
 	// Generate breadcrumb items based on current path
@@ -34,17 +34,10 @@
 
 	let breadcrumbs = $state<Array<{ label: string; href: string }>>([]);
 
-	function toggleDarkMode() {
-		isDarkMode = !isDarkMode;
-		document.documentElement.classList.toggle('dark', isDarkMode);
-		localStorage.setItem('darkMode', isDarkMode.toString());
+	async function toggleDarkMode() {
+		const newMode = $userSettings.themeMode === 'LIGHT' ? 'DARK' : 'LIGHT';
+		await userSettings.updateSettings({ themeMode: newMode });
 	}
-
-	onMount(() => {
-		const savedDarkMode = localStorage.getItem('darkMode') === 'true';
-		isDarkMode = savedDarkMode;
-		document.documentElement.classList.toggle('dark', savedDarkMode);
-	});
 </script>
 
 <header
@@ -55,7 +48,7 @@
 			<div class={cn(
 				$isMobileView ? "block" : "hidden"
 			)}>
-				<img src={isDarkMode ? logoLight : logo} alt="WaterAdventure" class="h-8" />
+				<img src={$userSettings.themeMode === 'DARK' ? logoLight : logo} alt="WaterAdventure" class="h-8" />
 			</div>
 
 			<button class={cn("text-muted-foreground hover:bg-muted hover:text-foreground rounded-lg p-2",
@@ -94,7 +87,7 @@
 					$isMobileView ? "hidden" : "block"
 				)}
 				onclick={toggleDarkMode}>
-					{#if isDarkMode}
+					{#if $userSettings.themeMode === 'DARK'}
 						<Sun class="h-5 w-5" />
 					{:else}
 						<Moon class="h-5 w-5" />

@@ -24,6 +24,8 @@
 	import { Gb, Nl, Fr } from 'svelte-flags';
 	import { browser } from '$app/environment';
 	import { Alert, AlertTitle, AlertDescription } from '$lib/components/coach/ui/alert';
+	import { userSettings } from '$lib/stores/userSettings';
+	import type { Language } from '$lib/stores/userSettings';
 
 	let { data } = $props<{ data: PageData }>();
 	let formError: string | null = $state(null);
@@ -31,31 +33,53 @@
 	// Profile settings
 	let phone = $state(data.parent.phone || '');
 
-	// Appearance settings
-	let isDarkMode = $state(false);
+	// Settings from store
+	let settings = $state($userSettings);
+	$effect(() => {
+		settings = $userSettings;
+	});
 
-	// Notification settings
-	let emailNotifications = $state(true);
-	let pushNotifications = $state(true);
-
-	// Account settings
-	let currentLanguage = $state<AvailableLanguageTag>(
-		(i18n.strategy.getLanguageFromLocalisedPath(browser ? window.location.pathname : '/en') ||
-			'en') as AvailableLanguageTag
-	);
-
-	function toggleDarkMode() {
-		isDarkMode = !isDarkMode;
-		document.documentElement.classList.toggle('dark', isDarkMode);
-		localStorage.setItem('darkMode', isDarkMode.toString());
+	async function toggleDarkMode() {
+		const newMode = settings.themeMode === 'LIGHT' ? 'DARK' : 'LIGHT';
+		const success = await userSettings.updateSettings({ themeMode: newMode });
+		if (success) {
+			toast.success(m.changes_saved());
+		} else {
+			toast.error(m.settings_save_failed());
+		}
 	}
 
 	async function handleLanguageChange(newLang: AvailableLanguageTag) {
-		const currentPath = browser ? window.location.pathname : '/en';
-		const canonicalPath = i18n.strategy.getCanonicalPath(currentPath, currentLanguage);
-		const newPath = i18n.strategy.getLocalisedPath(canonicalPath, newLang);
-		currentLanguage = newLang;
-		await goto(newPath, { invalidateAll: true });
+		const success = await userSettings.updateSettings({ language: newLang });
+		if (success) {
+			const currentPath = window.location.pathname;
+			const currentLang = i18n.strategy.getLanguageFromLocalisedPath(currentPath) || 'en';
+			const canonicalPath = i18n.strategy.getCanonicalPath(currentPath, currentLang as Language);
+			
+			// For English, we don't need a language prefix
+			if (newLang === 'en') {
+				await goto(canonicalPath, { invalidateAll: true });
+			} else {
+				const newPath = i18n.strategy.getLocalisedPath(canonicalPath, newLang);
+				await goto(newPath, { invalidateAll: true });
+			}
+			toast.success(m.changes_saved());
+		} else {
+			toast.error(m.settings_save_failed());
+		}
+	}
+
+	async function handleNotificationChange(type: 'push' | 'email', enabled: boolean) {
+		const update = type === 'push' 
+			? { pushNotifications: enabled }
+			: { emailNotifications: enabled };
+
+		const success = await userSettings.updateSettings(update);
+		if (success) {
+			toast.success(m.changes_saved());
+		} else {
+			toast.error(m.settings_save_failed());
+		}
 	}
 
 	async function handleSubmit(event: SubmitEvent) {
@@ -71,7 +95,6 @@
 		const result = await response.json();
 
 		if (result.type === 'success') {
-			console.log('success');
 			toast.success(m.changes_saved(), {
 				description: m.settings_saved_description()
 			});
@@ -81,13 +104,6 @@
 			});
 		}
 	}
-	``;
-
-	onMount(() => {
-		const savedDarkMode = localStorage.getItem('darkMode') === 'true';
-		isDarkMode = savedDarkMode;
-		document.documentElement.classList.toggle('dark', savedDarkMode);
-	});
 </script>
 
 <div class="mx-auto space-y-6">
@@ -147,7 +163,7 @@
 					<div class="text-sm text-muted-foreground">{m.dark_mode_description()}</div>
 				</div>
 				<Button variant="outline" size="icon" onclick={toggleDarkMode}>
-					<Icon src={isDarkMode ? Sun : Moon} class="h-5 w-5" />
+					<Icon src={$userSettings.themeMode === 'DARK' ? Sun : Moon} class="h-5 w-5" />
 				</Button>
 			</div>
 		</div>
@@ -171,7 +187,11 @@
 						{m.email_notifications_description()}
 					</div>
 				</div>
-				<Switch bind:checked={emailNotifications} disabled />
+				<Switch 
+					checked={settings.emailNotifications} 
+					onCheckedChange={(checked) => handleNotificationChange('email', checked)}
+					disabled 
+				/>
 			</div>
 			<Separator />
 			<div class="flex items-center justify-between">
@@ -184,7 +204,11 @@
 						{m.push_notifications_description()}
 					</div>
 				</div>
-				<Switch bind:checked={pushNotifications} disabled />
+				<Switch 
+					checked={settings.pushNotifications}
+					onCheckedChange={(checked) => handleNotificationChange('push', checked)}
+					disabled 
+				/>
 			</div>
 		</div>
 	</div>
@@ -201,15 +225,15 @@
 				<Label>{m.language()}</Label>
 				<Select.Root
 					type="single"
-					value={currentLanguage}
+					value={settings.language}
 					onValueChange={(value: string) => handleLanguageChange(value as AvailableLanguageTag)}
 				>
 					<Select.Trigger class="w-[180px]">
 						<div class="flex items-center gap-2">
-							{#if currentLanguage === 'en'}
+							{#if settings.language === 'en'}
 								<Gb class="w-4 h-4" />
 								<span>English</span>
-							{:else if currentLanguage === 'nl'}
+							{:else if settings.language === 'nl'}
 								<Nl class="w-4 h-4" />
 								<span>Dutch</span>
 							{:else}
@@ -251,17 +275,17 @@
 
 	<div class="flex gap-6 space-y-1.5 p-6">
 		<a href="https://www.zwemfed.be">
-			<img src={isDarkMode ? zwemfedLogoLight : zwemfedLogo} alt="WaterAdventure" class="h-8" />
+			<img src={settings.themeMode === 'LIGHT' ? zwemfedLogoLight : zwemfedLogo} alt="WaterAdventure" class="h-8" />
 		</a>
 		<a href="https://www.sportinnovatiecampus.be">
 			<img
-				src={isDarkMode ? sportinnovatiecampusLogoLight : sportinnovatiecampusLogo}
+				src={settings.themeMode === 'LIGHT' ? sportinnovatiecampusLogoLight : sportinnovatiecampusLogo}
 				alt="WaterAdventure"
 				class="h-8"
 			/>
 		</a>
 		<a href="https://www.howest.be/en">
-			<img src={isDarkMode ? howestLogoLight : howestLogo} alt="WaterAdventure" class="h-8" />
+			<img src={settings.themeMode === 'LIGHT' ? howestLogoLight : howestLogo} alt="WaterAdventure" class="h-8" />
 		</a>
 	</div>
 </div>

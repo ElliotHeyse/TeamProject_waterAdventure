@@ -1,479 +1,655 @@
-## Step-by-Step Plan to Implement Submission Feedback and Medals
+# Step-by-Step Plan to Implement Persistent User Settings
 
-### **1. Update the Database Schema**
+This plan outlines the necessary steps to implement persistent user settings for both the app and coach interfaces. The settings include push notifications, email notifications, light/dark mode, and language preferences. By following this structured approach, users will have their preferences saved in the database and automatically applied upon login.
 
-**a. Add `medal` Field to Submissions**
+## **1. Update the Database Schema**
 
-- **Objective:** Allow storing medals associated with each submission.
+### **a. Add `UserSettings` Model**
 
-- **Action:**
-  
-  Update your Prisma schema to include a `medal` field in the `Submission` model.
+**Objective:** Create a new `UserSettings` model to store user preferences.
 
-  ```typescript
-  // prisma/schema.prisma
+**Action:**
 
-  enum Medal {
-    GOLD
-    SILVER
-    BRONZE
-    NONE
+Update your Prisma schema to include the `UserSettings` model associated with the `User` model.
+
+```typescript:prisma/schema.prisma
+enum ThemeMode {
+  LIGHT
+  DARK
+}
+
+model UserSettings {
+  id                  String      @id @default(uuid())
+  userId              String      @unique
+  pushNotifications   Boolean     @default(true)
+  emailNotifications  Boolean     @default(true)
+  themeMode           ThemeMode   @default(LIGHT)
+  language            String      @default("en") // Ensure this matches your language tags
+  createdAt           DateTime    @default(now())
+  updatedAt           DateTime    @updatedAt
+
+  user                User        @relation(fields: [userId], references: [id])
+}
+```
+
+### **b. Run Migration**
+
+**Objective:** Apply the schema changes to the database.
+
+**Action:**
+
+```bash
+npx prisma migrate dev --name add_user_settings
+```
+
+## **2. Backend API Enhancements**
+
+### **a. Create API Endpoints for User Settings**
+
+**Objective:** Provide endpoints to fetch and update user settings.
+
+**Action:**
+
+Create a new file for handling user settings, e.g., `webapp/src/routes/api/user/settings/+server.ts`.
+
+```typescript:src/routes/api/user/settings/+server.ts
+import { prisma } from '$lib/server/db';
+import { authenticated } from '$lib/server/auth'; // Assuming you have an auth middleware
+import type { RequestHandler } from '@sveltejs/kit';
+
+export const GET: RequestHandler = authenticated(async ({ user }) => {
+  const settings = await prisma.userSettings.findUnique({
+    where: { userId: user.id }
+  });
+
+  if (!settings) {
+    // Return default settings if none exist
+    return new Response(JSON.stringify({
+      pushNotifications: true,
+      emailNotifications: true,
+      themeMode: 'LIGHT',
+      language: 'en'
+    }), { status: 200 });
   }
 
-  model Submission {
-    id        String   @id @default(uuid())
-    pupilId   String
-    lessonId  String
-    videoUrl  String
-    status    SubmissionStatus
-    feedback  String?
-    medal     Medal     @default(NONE)
-    createdAt DateTime @default(now())
+  return new Response(JSON.stringify(settings), { status: 200 });
+});
 
-    pupil     Pupil    @relation(fields: [pupilId], references: [id])
-    lesson    Lesson   @relation(fields: [lessonId], references: [id])
-    review    Review?
+export const PATCH: RequestHandler = authenticated(async ({ request, user }) => {
+  const updateData = await request.json();
 
-    // Other fields...
-  }
-  ```
-
-- **Run Migration:**
-  
-  ```bash
-  npx prisma migrate dev --name add_medal_to_submission
-  ```
-
-**b. Link Medal to Levels (Optional)**
-
-- **Objective:** If medals are associated with levels rather than individual submissions, ensure that levels can store medal information.
-
-- **Action:**
-  
-  Update the `Level` model in your Prisma schema.
-
-  ```typescript
-  // prisma/schema.prisma
-
-  enum LevelMedal {
-    GOLD
-    SILVER
-    BRONZE
-    NONE
-  }
-
-  model Level {
-    id        Int         @id @default(autoincrement())
-    title     String
-    status    LevelStatus
-    medal     LevelMedal  @default(NONE)
-    // Other fields...
-  }
-  ```
-
-- **Run Migration:**
-  
-  ```bash
-  npx prisma migrate dev --name add_medal_to_level
-  ```
-
-### **2. Backend API Enhancements**
-
-**a. Update Submission Review Action**
-
-- **Objective:** Allow coaches to add a medal when reviewing a submission.
-
-- **Action:**
-  
-  Modify the `review_submission` action in your server-side code to accept and save the `medal`.
-
-  ```typescript
-  // webapp/src/routes/coach/submissions/+page.server.ts
-
-  import { prisma } from '$lib/server/db';
-  import type { Actions } from './$types';
-  import { fail } from '@sveltejs/kit';
-
-  export const actions: Actions = {
-    reviewSubmission: async ({ request }) => {
-      const formData = await request.formData();
-      const submissionId = formData.get('submissionId') as string;
-      const feedback = formData.get('feedback') as string;
-      const medal = formData.get('medal') as 'GOLD' | 'SILVER' | 'BRONZE' | 'NONE';
-
-      if (!submissionId || !feedback || !medal) {
-        return fail(400, { message: 'Missing required fields' });
+  try {
+    const settings = await prisma.userSettings.upsert({
+      where: { userId: user.id },
+      update: updateData,
+      create: {
+        userId: user.id,
+        ...updateData
       }
+    });
 
-      try {
-        await prisma.submission.update({
-          where: { id: submissionId },
-          data: {
-            feedback,
-            medal,
-            status: 'REVIEWED',
-          },
+    return new Response(JSON.stringify(settings), { status: 200 });
+  } catch (error) {
+    console.error('Failed to update user settings:', error);
+    return new Response(JSON.stringify({ message: 'Failed to update settings' }), { status: 500 });
+  }
+});
+```
+
+### **b. Update Server-Side Load Functions**
+
+**Objective:** Ensure user settings are loaded when the user accesses the app.
+
+**Action:**
+
+Modify your `+layout.server.ts` or relevant server-side load function to include user settings.
+
+```typescript:src/routes/+layout.server.ts
+import type { LayoutServerLoad } from './$types';
+import { prisma } from '$lib/server/db';
+import { getUser } from '$lib/server/auth'; // Your auth utility
+
+export const load: LayoutServerLoad = async ({ request }) => {
+  const user = await getUser(request);
+
+  if (user) {
+    const settings = await prisma.userSettings.findUnique({
+      where: { userId: user.id }
+    });
+
+    return {
+      user,
+      settings
+    };
+  }
+
+  return {};
+};
+```
+
+## **3. Frontend Implementation**
+
+### **a. Create Settings Store**
+
+**Objective:** Manage user settings state across the application.
+
+**Action:**
+
+Create a new store to hold user settings, e.g., `src/lib/stores/userSettings.ts`.
+
+```typescript:src/lib/stores/userSettings.ts
+import { writable } from 'svelte/store';
+
+export interface UserSettings {
+  pushNotifications: boolean;
+  emailNotifications: boolean;
+  themeMode: 'LIGHT' | 'DARK';
+  language: string;
+}
+
+export const userSettings = writable<UserSettings>({
+  pushNotifications: true,
+  emailNotifications: true,
+  themeMode: 'LIGHT',
+  language: 'en'
+});
+```
+
+### **b. Fetch User Settings on Load**
+
+**Objective:** Populate the settings store with data from the backend upon user login.
+
+**Action:**
+
+In your main layout or a top-level component, fetch and update the settings store.
+
+```typescript:src/routes/+layout.svelte
+<script lang="ts">
+  import { onMount } from 'svelte';
+  import { userSettings } from '$lib/stores/userSettings';
+  import { get } from 'svelte/store';
+
+  onMount(async () => {
+    const response = await fetch('/api/user/settings');
+    if (response.ok) {
+      const data = await response.json();
+      userSettings.set({
+        pushNotifications: data.pushNotifications,
+        emailNotifications: data.emailNotifications,
+        themeMode: data.themeMode,
+        language: data.language
+      });
+
+      // Apply theme
+      document.documentElement.classList.toggle('dark', data.themeMode === 'DARK');
+
+      // Apply language
+      // Implement your i18n language switching logic here
+    }
+  });
+</script>
+
+<slot />
+```
+
+### **c. Update Settings Component**
+
+**Objective:** Allow users to update their settings through the UI.
+
+**Action:**
+
+Modify both app and coach settings pages to include settings controls that interact with the settings store and backend API.
+
+**Example for App Settings (`src/routes/app/settings/+page.svelte`):**
+
+```typescript:src/routes/app/settings/+page.svelte
+<script lang="ts">
+  import { userSettings } from '$lib/stores/userSettings';
+  import { onMount } from 'svelte';
+  import { toast } from 'svelte-sonner';
+
+  let settings;
+  userSettings.subscribe(value => {
+    settings = value;
+  });
+
+  async function updateSettings(updates) {
+    try {
+      const response = await fetch('/api/user/settings', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(updates)
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        userSettings.set({
+          pushNotifications: data.pushNotifications,
+          emailNotifications: data.emailNotifications,
+          themeMode: data.themeMode,
+          language: data.language
         });
-        return { success: true };
-      } catch (error) {
-        console.error('Failed to review submission:', error);
-        return fail(500, { message: 'Failed to review submission' });
+        toast.success('Settings updated successfully');
+      } else {
+        const error = await response.json();
+        toast.error(error.message || 'Failed to update settings');
       }
-    },
-  };
-  ```
-
-**b. Update Load Functions for Parent Views**
-
-- **Objective:** Ensure that parent views receive the `medal` information.
-
-- **Action:**
-  
-  Modify the relevant `load` functions to include the `medal` field.
-
-  ```typescript
-  // webapp/src/routes/app/settings/+page.server.ts
-
-  export const load = (async () => {
-      // Existing code...
-      return {
-          parent,
-          submissions: await prisma.submission.findMany({
-              where: { pupilId: parent.pupilId },
-              include: { lesson: true },
-              orderBy: { createdAt: 'desc' },
-          }),
-      };
-  }) satisfies PageServerLoad;
-  ```
-
-### **3. Frontend Enhancements**
-
-**a. Update Coach's Review Panel to Include Medal Selection**
-
-- **Objective:** Allow coaches to select a medal when providing feedback.
-
-- **Action:**
-  
-  Modify the `ReviewPanel` component to include a medal dropdown.
-
-  ```svelte
-  <!-- webapp/src/lib/components/coach/submissions/review-panel.svelte -->
-
-  <script lang="ts">
-    import { toast } from 'svelte-sonner';
-    import { Loader2 } from 'lucide-svelte';
-    import * as m from '$lib/paraglide/messages.js';
-
-    interface Submission {
-      id: string;
-      pupilName: string;
-      lessonTitle: string;
-      date: string;
-      status: 'pending' | 'reviewed';
-      videoUrl: string;
-      feedback: string;
-      medal: 'GOLD' | 'SILVER' | 'BRONZE' | 'NONE';
+    } catch (error) {
+      console.error('Error updating settings:', error);
+      toast.error('An unexpected error occurred');
     }
+  }
 
-    interface Props {
-      submission: Submission | null;
-      onClose: () => void;
-      onSubmit: (feedback: string, medal: string) => void;
-    }
+  function toggleDarkMode() {
+    const newMode = settings.themeMode === 'LIGHT' ? 'DARK' : 'LIGHT';
+    updateSettings({ themeMode: newMode });
+    document.documentElement.classList.toggle('dark', newMode === 'DARK');
+  }
 
-    const { submission, onClose, onSubmit }: Props = $props();
-    let feedback = $state(submission?.feedback || '');
-    let medal = $state(submission?.medal || 'NONE');
-    let isSubmitting = $state(false);
+  function handleLanguageChange(event) {
+    const newLanguage = event.target.value;
+    updateSettings({ language: newLanguage });
+    // Implement your i18n language switching logic here
+  }
 
-    async function handleSubmit() {
-      if (!submission) return;
+  function handleTogglePushNotifications() {
+    updateSettings({ pushNotifications: !settings.pushNotifications });
+  }
 
-      isSubmitting = true;
-      try {
-        const response = await fetch(`/api/submissions/${submission.id}/review`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({ feedback, medal })
-        });
+  function handleToggleEmailNotifications() {
+    updateSettings({ emailNotifications: !settings.emailNotifications });
+  }
+</script>
 
-        if (!response.ok) {
-          const error = await response.json();
-          throw new Error(error.error || 'Failed to submit review');
-        }
+<div class="mx-auto space-y-6">
+  <h1 class="text-3xl font-bold mb-8">Settings</h1>
 
-        toast.success(m.review_submitted());
-        onSubmit(feedback, medal);
-      } catch (error) {
-        console.error('Error:', error);
-        toast.error(m.error_submitting_review());
-      } finally {
-        isSubmitting = false;
-      }
-    }
-  </script>
-
-  <div class="space-y-6">
-    <!-- Existing code for submission details and video -->
-
-    <div class="space-y-4">
-      <label class="block">
-        <span class="text-sm font-medium">{m.feedback()}</span>
-        <textarea
-          bind:value={feedback}
-          class="bg-background focus:border-ring focus:ring-ring mt-1 block w-full rounded-md border shadow-sm"
-          rows="4"
-          placeholder={m.enter_feedback()}
-        ></textarea>
-      </label>
-
-      <label class="block">
-        <span class="text-sm font-medium">Medaille</span>
-        <select
-          bind:value={medal}
-          class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-        >
-          <option value="NONE">Geen</option>
-          <option value="BRONZE">Brons</option>
-          <option value="SILVER">Zilver</option>
-          <option value="GOLD">Goud</option>
-        </select>
-      </label>
-
-      <div class="flex justify-end space-x-3">
-        <button
-          class="bg-background ring-offset-background hover:bg-accent hover:text-accent-foreground focus-visible:ring-ring inline-flex h-9 items-center justify-center rounded-md border px-4 py-2 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
-          onclick={onClose}
-          disabled={isSubmitting}
-        >
-          {m.cancel()}
-        </button>
-        <button
-          class="bg-primary text-primary-foreground ring-offset-background hover:bg-primary/90 focus-visible:ring-ring inline-flex h-9 items-center justify-center gap-2 rounded-md px-4 py-2 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
-          onclick={handleSubmit}
-          disabled={isSubmitting}
-        >
-          {#if isSubmitting}
-            <Loader2 class="h-4 w-4 animate-spin" />
-            {m.submitting()}
-          {:else}
-            {m.submit_review()}
-          {/if}
+  <!-- Appearance Settings -->
+  <div class="bg-card text-card-foreground rounded-lg border shadow-sm">
+    <div class="flex flex-col space-y-1.5 p-6">
+      <h3 class="text-2xl font-semibold leading-none tracking-tight">Appearance</h3>
+      <p class="text-muted-foreground text-sm">Customize the application's appearance.</p>
+    </div>
+    <Separator />
+    <div class="p-6">
+      <div class="flex items-center justify-between">
+        <div class="space-y-0.5">
+          <label class="block text-sm font-medium">Dark Mode</label>
+          <p class="text-sm text-muted-foreground">Toggle between light and dark mode.</p>
+        </div>
+        <button on:click={toggleDarkMode} class="px-4 py-2 bg-gray-200 dark:bg-gray-700 rounded">
+          {settings.themeMode === 'DARK' ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
         </button>
       </div>
     </div>
   </div>
-  ```
 
-**b. Display Feedback, Video, and Medal for Parents**
-
-- **Objective:** Show parents the feedback, video, and medal beneath their submitted videos.
-
-- **Action:**
-  
-  Update the parent's submission view to include these details.
-
-  ```svelte
-  <!-- webapp/src/routes/app/settings/+page.svelte -->
-
-  <script lang="ts">
-    import type { PageData } from './$types';
-    // Import necessary components
-
-    let { data } = $props<{ data: PageData }>();
-    let submissions = data.submissions;
-  </script>
-
-  <div class="space-y-6">
-    {#each submissions as submission}
-      <div class="bg-card p-6 rounded-md shadow">
-        <h3 class="text-lg font-semibold">{submission.lessonTitle}</h3>
-        <video controls class="w-full mt-4">
-          <source src={submission.videoUrl} type="video/mp4">
-          Your browser does not support the video tag.
-        </video>
-        {#if submission.feedback}
-          <div class="mt-4">
-            <h4 class="font-medium">Feedback:</h4>
-            <p>{submission.feedback}</p>
-          </div>
-        {/if}
-        {#if submission.medal !== 'NONE'}
-          <div class="mt-4 flex items-center">
-            <span class="font-medium">Medaille:</span>
-            <img src={`/path-to-medals/${submission.medal.toLowerCase()}.svg`} alt={submission.medal} class="ml-2 w-6 h-6"/>
-          </div>
-        {/if}
+  <!-- Notification Settings -->
+  <div class="bg-card text-card-foreground rounded-lg border shadow-sm">
+    <div class="flex flex-col space-y-1.5 p-6">
+      <h3 class="text-2xl font-semibold leading-none tracking-tight">Notifications</h3>
+      <p class="text-muted-foreground text-sm">Manage your notification preferences.</p>
+    </div>
+    <Separator />
+    <div class="p-6 space-y-4">
+      <div class="flex items-center justify-between">
+        <div class="space-y-0.5">
+          <label class="block text-sm font-medium">Push Notifications</label>
+          <p class="text-sm text-muted-foreground">Receive push notifications in your browser.</p>
+        </div>
+        <button on:click={handleTogglePushNotifications} class="px-4 py-2 bg-gray-200 dark:bg-gray-700 rounded">
+          {settings.pushNotifications ? 'Disable' : 'Enable'}
+        </button>
       </div>
-    {/each}
+      <div class="flex items-center justify-between">
+        <div class="space-y-0.5">
+          <label class="block text-sm font-medium">Email Notifications</label>
+          <p class="text-sm text-muted-foreground">Receive email notifications about important updates.</p>
+        </div>
+        <button on:click={handleToggleEmailNotifications} class="px-4 py-2 bg-gray-200 dark:bg-gray-700 rounded">
+          {settings.emailNotifications ? 'Disable' : 'Enable'}
+        </button>
+      </div>
+    </div>
   </div>
-  ```
 
-**c. Enable Medal Display on Level Icons**
+  <!-- Language Settings -->
+  <div class="bg-card text-card-foreground rounded-lg border shadow-sm">
+    <div class="flex flex-col space-y-1.5 p-6">
+      <h3 class="text-2xl font-semibold leading-none tracking-tight">Language</h3>
+      <p class="text-muted-foreground text-sm">Select your preferred language.</p>
+    </div>
+    <Separator />
+    <div class="p-6">
+      <select bind:value={settings.language} on:change={handleLanguageChange} class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md">
+        <option value="en">English</option>
+        <option value="nl">Dutch</option>
+        <option value="fr">French</option>
+      </select>
+    </div>
+  </div>
+</div>
+```
 
-- **Objective:** Show medals on the level path based on the awards received.
+### **d. Apply Settings on App Load**
 
-- **Action:**
-  
-  Modify the `level-badge` component to reflect the medal.
+**Objective:** Ensure the app applies user settings (theme and language) upon loading.
 
-  ```svelte
-  <!-- webapp/src/lib/components/coach/ui/badge/level-badge.svelte -->
+**Action:**
 
-  <script lang="ts">
-    import { Icon } from 'svelte-hero-icons';
-    import { cn } from '$lib/utils';
-    import { Badge } from '$lib/components/coach/ui/badge';
-    import { tv } from 'tailwind-variants';
+Enhance your main layout or entry component to respond to changes in the settings store.
 
-    let { level = 'BEGINNER', medal = 'NONE' }: { level: string; medal: string } = $props();
+```typescript:src/routes/+layout.svelte
+<script lang="ts">
+  import { onMount } from 'svelte';
+  import { userSettings } from '$lib/stores/userSettings';
+  import { subscribe } from 'svelte/store';
+  import { i18n } from '$lib/i18n'; // Your i18n setup
 
-    const levelVariants = tv({
-      base: 'transition-colors',
-      variants: {
-        level: {
-          BEGINNER: 'bg-emerald-100 text-emerald-700',
-          INTERMEDIATE: 'bg-sky-100 text-sky-700',
-          ADVANCED: 'bg-violet-100 text-violet-700',
-        }
-      },
-      defaultVariants: {
-        level: 'BEGINNER'
+  userSettings.subscribe(settings => {
+    // Apply theme
+    document.documentElement.classList.toggle('dark', settings.themeMode === 'DARK');
+
+    // Apply language
+    i18n.changeLanguage(settings.language);
+  });
+
+  onMount(async () => {
+    // Initial fetch is handled in the earlier step
+  });
+</script>
+
+<slot />
+```
+
+## **4. Update Coach Interface**
+
+### **a. Modify Coach Settings Page**
+
+**Objective:** Allow coaches to update their settings similarly to the app users.
+
+**Action:**
+
+Replicate the settings implementation in the coach settings page (`src/routes/coach/settings/+page.svelte`).
+
+```typescript:src/routes/coach/settings/+page.svelte
+<script lang="ts">
+  import { userSettings } from '$lib/stores/userSettings';
+  import { onMount } from 'svelte';
+  import { toast } from 'svelte-sonner';
+
+  let settings;
+  userSettings.subscribe(value => {
+    settings = value;
+  });
+
+  async function updateSettings(updates) {
+    try {
+      const response = await fetch('/api/user/settings', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(updates)
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        userSettings.set({
+          pushNotifications: data.pushNotifications,
+          emailNotifications: data.emailNotifications,
+          themeMode: data.themeMode,
+          language: data.language
+        });
+        toast.success('Settings updated successfully');
+      } else {
+        const error = await response.json();
+        toast.error(error.message || 'Failed to update settings');
+      }
+    } catch (error) {
+      console.error('Error updating settings:', error);
+      toast.error('An unexpected error occurred');
+    }
+  }
+
+  function toggleDarkMode() {
+    const newMode = settings.themeMode === 'LIGHT' ? 'DARK' : 'LIGHT';
+    updateSettings({ themeMode: newMode });
+    document.documentElement.classList.toggle('dark', newMode === 'DARK');
+  }
+
+  function handleLanguageChange(event) {
+    const newLanguage = event.target.value;
+    updateSettings({ language: newLanguage });
+    // Implement your i18n language switching logic here
+  }
+
+  function handleTogglePushNotifications() {
+    updateSettings({ pushNotifications: !settings.pushNotifications });
+  }
+
+  function handleToggleEmailNotifications() {
+    updateSettings({ emailNotifications: !settings.emailNotifications });
+  }
+</script>
+
+<div class="mx-auto space-y-6">
+  <h1 class="text-3xl font-bold mb-8">Settings</h1>
+
+  <!-- Appearance Settings -->
+  <div class="bg-card text-card-foreground rounded-lg border shadow-sm">
+    <div class="flex flex-col space-y-1.5 p-6">
+      <h3 class="text-2xl font-semibold leading-none tracking-tight">Appearance</h3>
+      <p class="text-muted-foreground text-sm">Customize the application's appearance.</p>
+    </div>
+    <Separator />
+    <div class="p-6">
+      <div class="flex items-center justify-between">
+        <div class="space-y-0.5">
+          <label class="block text-sm font-medium">Dark Mode</label>
+          <p class="text-sm text-muted-foreground">Toggle between light and dark mode.</p>
+        </div>
+        <button on:click={toggleDarkMode} class="px-4 py-2 bg-gray-200 dark:bg-gray-700 rounded">
+          {settings.themeMode === 'DARK' ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Notification Settings -->
+  <div class="bg-card text-card-foreground rounded-lg border shadow-sm">
+    <div class="flex flex-col space-y-1.5 p-6">
+      <h3 class="text-2xl font-semibold leading-none tracking-tight">Notifications</h3>
+      <p class="text-muted-foreground text-sm">Manage your notification preferences.</p>
+    </div>
+    <Separator />
+    <div class="p-6 space-y-4">
+      <div class="flex items-center justify-between">
+        <div class="space-y-0.5">
+          <label class="block text-sm font-medium">Push Notifications</label>
+          <p class="text-sm text-muted-foreground">Receive push notifications in your browser.</p>
+        </div>
+        <button on:click={handleTogglePushNotifications} class="px-4 py-2 bg-gray-200 dark:bg-gray-700 rounded">
+          {settings.pushNotifications ? 'Disable' : 'Enable'}
+        </button>
+      </div>
+      <div class="flex items-center justify-between">
+        <div class="space-y-0.5">
+          <label class="block text-sm font-medium">Email Notifications</label>
+          <p class="text-sm text-muted-foreground">Receive email notifications about important updates.</p>
+        </div>
+        <button on:click={handleToggleEmailNotifications} class="px-4 py-2 bg-gray-200 dark:bg-gray-700 rounded">
+          {settings.emailNotifications ? 'Disable' : 'Enable'}
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Language Settings -->
+  <div class="bg-card text-card-foreground rounded-lg border shadow-sm">
+    <div class="flex flex-col space-y-1.5 p-6">
+      <h3 class="text-2xl font-semibold leading-none tracking-tight">Language</h3>
+      <p class="text-muted-foreground text-sm">Select your preferred language.</p>
+    </div>
+    <Separator />
+    <div class="p-6">
+      <select bind:value={settings.language} on:change={handleLanguageChange} class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md">
+        <option value="en">English</option>
+        <option value="nl">Dutch</option>
+        <option value="fr">French</option>
+      </select>
+    </div>
+  </div>
+</div>
+```
+
+## **5. Ensure Settings Persistence on Login**
+
+### **a. Apply Settings During Authentication**
+
+**Objective:** When a user logs in, automatically apply their saved settings.
+
+**Action:**
+
+Modify your authentication flow to fetch and apply settings immediately after successful login.
+
+```typescript:src/lib/server/auth.ts
+import { prisma } from '$lib/server/db';
+import type { RequestEvent } from '@sveltejs/kit';
+
+export async function handleLogin(event: RequestEvent, userId: string) {
+  // After authenticating the user
+  const settings = await prisma.userSettings.findUnique({
+    where: { userId }
+  });
+
+  if (settings) {
+    event.locals.userSettings = settings;
+  } else {
+    // Initialize default settings
+    const defaultSettings = await prisma.userSettings.create({
+      data: {
+        userId,
+        pushNotifications: true,
+        emailNotifications: true,
+        themeMode: 'LIGHT',
+        language: 'en'
       }
     });
+    event.locals.userSettings = defaultSettings;
+  }
+}
+```
 
-    const medalVariants = {
-      GOLD: '/path-to-medals/gold.svg',
-      SILVER: '/path-to-medals/silver.svg',
-      BRONZE: '/path-to-medals/bronze.svg',
-      NONE: null
-    };
-  </script>
+### **b. Update Client-Side to Reflect Settings**
 
-  <Badge
-    class={cn(
-      'gap-1.5 pl-2 pr-2.5 font-medium',
-      levelVariants({ level: level as 'BEGINNER' | 'INTERMEDIATE' | 'ADVANCED' })
-    )}
-  >
-    {#if medal !== 'NONE'}
-      <img src={medalVariants[medal]} alt={medal} class="w-4 h-4"/>
-    {/if}
-    {level.charAt(0).toUpperCase() + level.slice(1).toLowerCase()}
-  </Badge>
-  ```
+**Objective:** Ensure the frontend reflects the user's settings upon login.
 
-  Update the level path component to utilize the updated `level-badge`.
+**Action:**
 
-  ```svelte
-  <!-- webapp/src/routes/app/levels/+page.svelte -->
+Leverage the settings store to update the UI based on the fetched settings, as demonstrated in previous steps.
 
-  <script lang="ts">
-    import LevelBadge from '$lib/components/coach/ui/badge/level-badge.svelte';
-    // Existing imports and script...
+## **6. Testing**
 
-    function handleLevelClick(level, event) {
-      // Existing logic...
-    }
-  </script>
+### **a. Backend Testing**
 
-  <div class="absolute inset-0 w-full h-full">
-    {#each levels as level}
-      <button
-        class="absolute transform -translate-x-1/2 -translate-y-1/2 transition-all duration-300 hover:scale-110 focus:outline-none"
-        style="left: {level.x}%; top: {level.y}%;"
-        onclick={(e) => handleLevelClick(level, e)}
-      >
-        <LevelBadge level={level.status} medal={level.medal} />
-      </button>
-    {/each}
-  </div>
-  ```
+**Objective:** Verify that settings are correctly saved and retrieved from the database.
 
-### **4. Update Coach Interface to Add Medals**
+**Action:**
 
-- **Objective:** Allow coaches to assign medals during the review process.
+- **Create Tests:**
+  - Submit various settings updates and ensure they persist.
+  - Fetch settings for different users and verify accuracy.
 
-- **Action:**
-  
-  Ensure that the coach's review form includes the medal selection and that it's correctly processed.
+- **Manual Testing:**
+  - Use tools like Postman to test the API endpoints.
+  - Check database entries to ensure data integrity.
 
-  *(Refer to Step 3a for the `ReviewPanel` component modification.)*
+### **b. Frontend Testing**
 
-### **5. Parent Interface to Display Medals**
+**Objective:** Ensure the frontend correctly interacts with the backend and reflects user settings.
 
-- **Objective:** Parents should see the medals awarded to their submissions.
+**Action:**
 
-- **Action:**
-  
-  Ensure that the parent view (refer to Step 3b) fetches and displays the `medal` field.
+- **Functionality:**
+  - Toggle dark mode and verify UI changes.
+  - Enable/disable notifications and confirm updates.
+  - Change language and ensure the app displays the correct translations.
 
-### **6. Display Medals on the Level Path**
+- **Persistence:**
+  - Refresh the page and ensure settings persist.
+  - Log out and log back in to verify settings are re-applied.
 
-- **Objective:** Visually represent medals on the level progression path.
+### **c. UI/UX Testing**
 
-- **Action:**
-  
-  *(Refer to Step 3c for modifying the `level-badge` component and the level path.)*
+**Objective:** Ensure the settings interface is intuitive and responsive.
 
-### **7. Testing**
+**Action:**
 
-**a. Backend Testing**
+- **Responsiveness:**
+  - Test settings on various screen sizes to ensure layout consistency.
 
-- **Objective:** Verify that medals are correctly saved and retrieved.
+- **Accessibility:**
+  - Verify that all interactive elements are accessible via keyboard.
+  - Ensure proper contrast ratios for text and backgrounds, especially for dark mode.
 
-- **Action:**
-  
-  - Submit a review with a medal and ensure it persists in the database.
-  - Fetch submissions and verify the `medal` field is included.
+## **7. Deployment**
 
-**b. Frontend Testing**
+### **a. Apply Migrations**
 
-- **Objective:** Ensure that both coaches and parents can interact with the new features seamlessly.
+**Objective:** Ensure the production database includes the new `UserSettings` model.
 
-- **Action:**
-  
-  - **For Coaches:**
-    - Submit feedback with different medals.
-    - Verify that the submission updates correctly.
-  
-  - **For Parents:**
-    - Check that feedback, video, and medals appear under their submissions.
-    - Confirm that medals display correctly on the level path.
+**Action:**
 
-**c. UI/UX Testing**
+Run the Prisma migration on your production environment.
 
-- **Objective:** Ensure that the UI changes are intuitive and visually consistent.
+```bash
+npx prisma migrate deploy
+```
 
-- **Action:**
-  
-  - Test responsiveness of the medal displays.
-  - Verify accessibility features (e.g., alt texts for images).
+### **b. Verify Deployment**
 
-### **8. Deployment**
+**Objective:** Confirm that settings functionality works as expected in production.
 
-- **Objective:** Deploy the updated application to your production environment.
+**Action:**
 
-- **Action:**
-  
-  - Ensure all migrations are applied.
-  - Test the deployment in a staging environment before going live.
+- Perform end-to-end testing in the production environment.
+- Monitor logs for any errors related to user settings.
 
-### **9. Documentation and Handover**
+## **8. Documentation and Handover**
 
-- **Objective:** Provide clear documentation for future maintenance and for the composer.
+### **a. Update README.md**
 
-- **Action:**
-  
-  - Update README.md with new features.
-  - Document any new API endpoints or database changes.
-  - Provide screenshots or UI mockups if necessary.
+**Objective:** Provide clear instructions on the new settings feature.
 
----
+**Action:**
 
-## Summary
+```markdown
+## User Settings
 
-This plan outlines the necessary steps to enhance your application by enabling coaches to provide feedback and assign medals to submissions, and allowing parents to view this information. It covers database schema updates, backend API modifications, frontend interface changes for both coaches and parents, UI enhancements for displaying medals, thorough testing, deployment, and documentation. Following this structured approach will ensure a smooth implementation of the desired features.
+Users can customize their preferences in the Settings section, including:
+
+- **Theme Mode:** Toggle between Light and Dark modes.
+- **Notifications:** Enable or disable Push and Email notifications.
+- **Language:** Select your preferred language (English, Dutch, French).
+
+These settings are saved and automatically applied on subsequent logins.
+```
+
+### **b. Document API Endpoints**
+
+**Objective:** Ensure future maintenance can easily understand the settings API.
+
+**Action:**
+
+Add detailed documentation for the `/api/user/settings` endpoints, including request and response schemas.
+
+### **c. Provide UI Mockups**
+
+**Objective:** Assist designers and developers in maintaining consistent UI.
+
+**Action:**
+
+Include screenshots or mockups of the settings interface in your documentation.
+
+# Summary
+
+This step-by-step plan guides you through implementing persistent user settings in your application. By updating the database schema, enhancing backend APIs, modifying the frontend to manage and apply settings, and ensuring thorough testing and documentation, users will enjoy a seamless and personalized experience every time they log in.
