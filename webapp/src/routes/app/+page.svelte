@@ -1,8 +1,7 @@
 <script lang="ts">
-	import { Card, CardContent, CardHeader, CardTitle } from "$lib/components/coach/ui/card";
-	import { goto } from "$app/navigation";
-	import type { PageData } from './$types';
-	import { page } from "$app/stores";
+	import { Card, CardContent, CardHeader, CardTitle } from '$lib/components/coach/ui/card';
+	import { goto } from '$app/navigation';
+	import { selectedChildIdStore } from '$lib/stores/child.store';
 
 	interface Child {
 		id: string;
@@ -24,11 +23,9 @@
 	}
 
 	const { data } = $props<{ data: { children: Child[] } }>();
-	
-	// Get the selected child ID from URL or use the first child
-	const selectedChildId = $derived($page.url.searchParams.get('child') || data.children[0]?.id);
+
 	const selectedChild = $derived(
-		data.children.find((child: Child) => child.id === selectedChildId) || data.children[0]
+		data.children.find((child: Child) => child.id === $selectedChildIdStore) || data.children[0]
 	);
 
 	function handleReviewClick(child: Child) {
@@ -69,7 +66,8 @@
 							{#if selectedChild.latestReview?.review}
 								<div class="space-y-2">
 									<p class="text-muted-foreground text-sm">
-										Reviewed by {selectedChild.latestReview.review.coach?.user?.name || 'Unknown'} on {new Date(selectedChild.latestReview.updatedAt).toLocaleDateString()}
+										Reviewed by {selectedChild.latestReview.review.coach?.user?.name || 'Unknown'} on
+										{new Date(selectedChild.latestReview.updatedAt).toLocaleDateString()}
 									</p>
 									<p>{selectedChild.latestReview.review.feedback}</p>
 								</div>

@@ -1,17 +1,17 @@
 <script lang="ts">
 	import logo from '$lib/img/logo-dark.svg';
 	import logoLight from '$lib/img/logo-light.svg';
-	import { page } from '$app/stores';
+	import { page } from '$app/state';
 	import { Bell, ChevronRight, Sun, Moon, Menu, ChevronDown } from 'lucide-svelte';
-	import { onMount } from 'svelte';
 	import * as Breadcrumb from '$lib/components/coach/ui/breadcrumb';
 	import * as DropdownMenu from '$lib/components/coach/ui/dropdown-menu';
 	import { Button } from '$lib/components/coach/ui/button';
-	import { cn } from "$lib/components/coach/utils";
+	import { cn } from '$lib/components/coach/utils';
 	import { isSidebarOpen } from '$lib/stores/sidebar';
 	import { isMobileView } from '$lib/stores/viewport';
 	import { userSettings } from '$lib/stores/userSettings';
-	import { invalidate, goto } from '$app/navigation';
+	import { invalidateAll } from '$app/navigation';
+	import { selectedChildIdStore } from '$lib/stores/child.store';
 
 	interface Child {
 		id: string;
@@ -19,10 +19,6 @@
 		currentLevel: string;
 		currentLevelOrder: number;
 	}
-
-	let selectedChild = $state<Child | null>(null);
-	let children = $state<Child[]>([]);
-
 	interface Notification {
 		id: number;
 		message: string;
@@ -33,7 +29,7 @@
 
 	// Generate breadcrumb items based on current path
 	$effect(() => {
-		const path = $page.url.pathname;
+		const path = page.url.pathname;
 		const segments = path.split('/').filter(Boolean);
 		breadcrumbs = segments.map((segment, index) => ({
 			label: segment.charAt(0).toUpperCase() + segment.slice(1),
@@ -48,25 +44,18 @@
 		await userSettings.updateSettings({ themeMode: newMode });
 	}
 
-	// Get children data from URL
-	$effect(() => {
-		const data = $page.data;
-		if (data && 'children' in data) {
-			children = data.children as Child[];
-			const childId = $page.url.searchParams.get('child');
-			selectedChild = children.find(child => child.id === childId) || children[0] || null;
-		}
-	});
+	const data = $state(page.data);
+	const children = $state<Child[]>(data.children);
+	let selectedChildId = $state($selectedChildIdStore);
+	let selectedChild = $state(
+		children.find((child) => child.id === selectedChildId) || children[0] || null
+	);
 
 	async function handleChildSelect(childId: string) {
-		const url = new URL(window.location.href);
-		url.searchParams.set('child', childId);
-		// Navigate with invalidation to ensure all pages update
-		await goto(url.toString(), { 
-			replaceState: true, 
-			invalidateAll: true,
-			keepFocus: true // Keep the dropdown focused
-		});
+		selectedChildIdStore.set(childId);
+		selectedChild = children.find((child) => child.id === childId) || children[0] || null;
+
+		invalidateAll();
 	}
 </script>
 
@@ -75,16 +64,21 @@
 >
 	<div class="h-16">
 		<div class="flex h-full items-center gap-4 px-4">
-			<div class={cn(
-				$isMobileView ? "block" : "hidden"
-			)}>
-				<img src={$userSettings.themeMode === 'DARK' ? logoLight : logo} alt="WaterAdventure" class="h-8" />
+			<div class={cn($isMobileView ? 'block' : 'hidden')}>
+				<img
+					src={$userSettings.themeMode === 'DARK' ? logoLight : logo}
+					alt="WaterAdventure"
+					class="h-8"
+				/>
 			</div>
 
-			<button class={cn("text-muted-foreground hover:bg-muted hover:text-foreground rounded-lg p-2",
-				$isMobileView ? "hidden" : "block"
-			)}
-			onclick={() => isSidebarOpen.update(open => !open)}>
+			<button
+				class={cn(
+					'text-muted-foreground hover:bg-muted hover:text-foreground rounded-lg p-2',
+					$isMobileView ? 'hidden' : 'block'
+				)}
+				onclick={() => isSidebarOpen.update((open) => !open)}
+			>
 				{#if $isSidebarOpen}
 					<Menu class="h-5 w-5" />
 				{:else}
@@ -92,10 +86,7 @@
 				{/if}
 			</button>
 
-			<nav class={cn("flex",
-				$isMobileView ? "hidden" : "block"
-			)}
-			aria-label="Breadcrumb">
+			<nav class={cn('flex', $isMobileView ? 'hidden' : 'block')} aria-label="Breadcrumb">
 				<Breadcrumb.Root>
 					<Breadcrumb.List>
 						{#each breadcrumbs as { label, href }, i}
@@ -113,10 +104,13 @@
 			</nav>
 
 			<div class="ml-auto flex items-center space-x-4">
-				<button class={cn("text-muted-foreground hover:bg-muted hover:text-foreground rounded-lg p-2",
-					$isMobileView ? "hidden" : "block"
-				)}
-				onclick={toggleDarkMode}>
+				<button
+					class={cn(
+						'text-muted-foreground hover:bg-muted hover:text-foreground rounded-lg p-2',
+						$isMobileView ? 'hidden' : 'block'
+					)}
+					onclick={toggleDarkMode}
+				>
 					{#if $userSettings.themeMode === 'DARK'}
 						<Sun class="h-5 w-5" />
 					{:else}
@@ -124,9 +118,9 @@
 					{/if}
 				</button>
 
-				<button class={cn("hover:bg-muted relative rounded-lg p-2",
-					$isMobileView ? "hidden" : "block"
-				)}>
+				<button
+					class={cn('hover:bg-muted relative rounded-lg p-2', $isMobileView ? 'hidden' : 'block')}
+				>
 					<Bell class="text-muted-foreground h-5 w-5" />
 					{#if notifications.length > 0}
 						<span
@@ -140,8 +134,8 @@
 				<DropdownMenu.Root>
 					<DropdownMenu.Trigger>
 						<Button variant="ghost" size="sm" class="flex items-center gap-2 px-3 h-8 border">
-							<span class="text-sm font-medium">{selectedChild?.name || "Select child"}</span>
-							<ChevronDown class="h-4 w-4"/>
+							<span class="text-sm font-medium">{selectedChild?.name || 'Select child'}</span>
+							<ChevronDown class="h-4 w-4" />
 						</Button>
 					</DropdownMenu.Trigger>
 					<DropdownMenu.Content class="w-56">

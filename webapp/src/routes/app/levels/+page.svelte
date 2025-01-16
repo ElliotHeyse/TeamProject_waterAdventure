@@ -1,10 +1,10 @@
 <script lang="ts">
-	import g10 from "$lib/img/g10.svg";
-	import medalGold from "$lib/img/medail-gold.svg";
-	import medalSilver from "$lib/img/medail-silver.svg";
-	import medalBronze from "$lib/img/medail-bronze.svg";
-	import { goto } from "$app/navigation";
-	import { CircleAlert } from "lucide-svelte";
+	import g10 from '$lib/img/g10.svg';
+	import medalGold from '$lib/img/medail-gold.svg';
+	import medalSilver from '$lib/img/medail-silver.svg';
+	import medalBronze from '$lib/img/medail-bronze.svg';
+	import { goto } from '$app/navigation';
+	import { CircleAlert } from 'lucide-svelte';
 	import { isMobileView } from '$lib/stores/viewport';
 
 	interface Level {
@@ -33,16 +33,18 @@
 	] as const;
 
 	// Combine hardcoded positions with dynamic data
-	const levels = $derived(levelPositions.map(pos => {
-		const levelData = data.levels.find(l => l.id === pos.id) || {
-			status: 'locked' as const,
-			medal: null
-		};
-		return {
-			...pos,
-			...levelData
-		};
-	}));
+	const levels = $derived(
+		levelPositions.map((pos) => {
+			const levelData = data.levels.find((l: any) => l.id === pos.id) || {
+				status: 'locked' as const,
+				medal: null
+			};
+			return {
+				...pos,
+				...levelData
+			};
+		})
+	);
 
 	let showAlert = $state(false);
 	let alertMessage = $state('');
@@ -60,12 +62,12 @@
 
 	function handleLevelClick(level: (typeof levels)[0], event: MouseEvent) {
 		if (level.status === 'locked') {
-			const nextLevel = levels.find(l => l.status === 'current');
+			const nextLevel = levels.find((l) => l.status === 'current');
 			if (nextLevel) {
 				const buttonRect = (event.currentTarget as HTMLElement).getBoundingClientRect();
 				const x = buttonRect.right + 20; // 20px offset from the button
 				const y = buttonRect.top;
-				
+
 				alertMessage = `Complete level ${nextLevel.id} first to unlock this level.`;
 				alertPosition = { x, y };
 				clickedLevelId = level.id;
@@ -82,11 +84,7 @@
 	<h1 class="text-center text-4xl font-bold text-foreground pt-4 pb-6">Swimming Levels</h1>
 
 	<div class="w-full overflow-hidden flex items-center justify-center relative">
-		<img
-			src={g10}
-			alt="Level background"
-			class="w-full h-full object-contain"
-		/>
+		<img src={g10} alt="Level background" class="w-full h-full object-contain" />
 		<div class="absolute inset-0 w-full h-full">
 			{#each levels as level}
 				<button
@@ -94,20 +92,30 @@
 					style="left: {level.x}%; top: {level.y}%;"
 					onclick={(e) => handleLevelClick(level, e)}
 				>
-					<div class="relative rounded-full flex items-center justify-center shadow-xl
-						{level.status === 'completed' ? 'bg-green-500 ring-4 ring-green-300' :
-						level.status === 'current' ? 'bg-blue-500 ring-4 ring-blue-300 animate-pulse' :
-						'bg-gray-400'}
+					<div
+						class="relative rounded-full flex items-center justify-center shadow-xl
+						{level.status === 'completed'
+							? 'bg-green-500 ring-4 ring-green-300'
+							: level.status === 'current'
+								? 'bg-blue-500 ring-4 ring-blue-300 animate-pulse'
+								: 'bg-gray-400'}
 						{level.status === 'locked' ? 'opacity-60' : 'opacity-100'}
-						{$isMobileView ? 'w-[min(12vw,12rem)] h-[min(12vw,12rem)]' : 'w-[min(8vw,8rem)] h-[min(8vw,8rem)]'}">
-						<span class="text-white font-bold drop-shadow-md {$isMobileView ? 'text-[min(3vw,3rem)]' : 'text-[min(2vw,2rem)]'}">
+						{$isMobileView ? 'w-[min(12vw,12rem)] h-[min(12vw,12rem)]' : 'w-[min(8vw,8rem)] h-[min(8vw,8rem)]'}"
+					>
+						<span
+							class="text-white font-bold drop-shadow-md {$isMobileView
+								? 'text-[min(3vw,3rem)]'
+								: 'text-[min(2vw,2rem)]'}"
+						>
 							{level.id}
 						</span>
 						{#if level.medal && level.medal in medalImages}
 							<img
 								src={medalImages[level.medal as keyof typeof medalImages]}
 								alt="Medal"
-								class="absolute -top-[30%] -right-[30%] {$isMobileView ? 'w-[min(9vw,9rem)] h-[min(9vw,9rem)]' : 'w-[min(6vw,6rem)] h-[min(6vw,6rem)]'}"
+								class="absolute -top-[30%] -right-[30%] {$isMobileView
+									? 'w-[min(9vw,9rem)] h-[min(9vw,9rem)]'
+									: 'w-[min(6vw,6rem)] h-[min(6vw,6rem)]'}"
 							/>
 						{/if}
 					</div>
