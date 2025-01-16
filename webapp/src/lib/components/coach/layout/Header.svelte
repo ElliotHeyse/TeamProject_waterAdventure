@@ -1,8 +1,8 @@
 <script lang="ts">
 	import { page } from '$app/state';
 	import { BellAlert, UserCircle, Bars3, ChevronRight, Icon, Sun, Moon } from 'svelte-hero-icons';
-	import { onMount } from 'svelte';
 	import * as Breadcrumb from '$lib/components/coach/ui/breadcrumb/index';
+	import { userSettings } from '$lib/stores/userSettings';
 
 	interface User {
 		name: string;
@@ -16,8 +16,6 @@
 	}
 
 	let { isSidebarOpen = $bindable<boolean>() } = $props<{ isSidebarOpen: boolean }>();
-	let isDarkMode = $state(false);
-
 	let notifications = $state<Notification[]>([]);
 
 	// Generate breadcrumb items based on current path
@@ -36,17 +34,10 @@
 
 	let breadcrumbs = $state<Array<{ label: string; href: string }>>([]);
 
-	function toggleDarkMode() {
-		isDarkMode = !isDarkMode;
-		document.documentElement.classList.toggle('dark', isDarkMode);
-		localStorage.setItem('darkMode', isDarkMode.toString());
+	async function toggleDarkMode() {
+		const newMode = $userSettings.themeMode === 'LIGHT' ? 'DARK' : 'LIGHT';
+		await userSettings.updateSettings({ themeMode: newMode });
 	}
-
-	onMount(() => {
-		const savedDarkMode = localStorage.getItem('darkMode') === 'true';
-		isDarkMode = savedDarkMode;
-		document.documentElement.classList.toggle('dark', savedDarkMode);
-	});
 </script>
 
 <header
@@ -83,7 +74,7 @@
 					class="text-muted-foreground hover:bg-muted hover:text-foreground rounded-lg p-2"
 					onclick={toggleDarkMode}
 				>
-					<Icon src={isDarkMode ? Sun : Moon} class="h-5 w-5" />
+					<Icon src={$userSettings.themeMode === 'DARK' ? Sun : Moon} class="h-5 w-5" />
 				</button>
 
 				<button class="hover:bg-muted relative rounded-full p-2">
