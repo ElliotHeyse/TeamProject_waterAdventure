@@ -5,6 +5,7 @@
 	import medalBronze from "$lib/img/medail-bronze.svg";
 	import { goto } from "$app/navigation";
 	import { CircleAlert } from "lucide-svelte";
+	import { isMobileView } from '$lib/stores/viewport';
 
 	interface Level {
 		id: number;
@@ -93,19 +94,20 @@
 					style="left: {level.x}%; top: {level.y}%;"
 					onclick={(e) => handleLevelClick(level, e)}
 				>
-					<div class="relative w-[min(8vw,8rem)] h-[min(8vw,8rem)] rounded-full flex items-center justify-center shadow-xl
+					<div class="relative rounded-full flex items-center justify-center shadow-xl
 						{level.status === 'completed' ? 'bg-green-500 ring-4 ring-green-300' :
 						level.status === 'current' ? 'bg-blue-500 ring-4 ring-blue-300 animate-pulse' :
 						'bg-gray-400'}
-						{level.status === 'locked' ? 'opacity-60' : 'opacity-100'}">
-						<span class="text-white font-bold text-[min(2vw,2rem)] drop-shadow-md">
+						{level.status === 'locked' ? 'opacity-60' : 'opacity-100'}
+						{$isMobileView ? 'w-[min(12vw,12rem)] h-[min(12vw,12rem)]' : 'w-[min(8vw,8rem)] h-[min(8vw,8rem)]'}">
+						<span class="text-white font-bold drop-shadow-md {$isMobileView ? 'text-[min(3vw,3rem)]' : 'text-[min(2vw,2rem)]'}">
 							{level.id}
 						</span>
 						{#if level.medal && level.medal in medalImages}
 							<img
 								src={medalImages[level.medal as keyof typeof medalImages]}
 								alt="Medal"
-								class="absolute -top-[30%] -right-[30%] w-[min(6vw,6rem)] h-[min(6vw,6rem)]"
+								class="absolute -top-[30%] -right-[30%] {$isMobileView ? 'w-[min(9vw,9rem)] h-[min(9vw,9rem)]' : 'w-[min(6vw,6rem)] h-[min(6vw,6rem)]'}"
 							/>
 						{/if}
 					</div>
