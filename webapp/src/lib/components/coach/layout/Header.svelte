@@ -41,9 +41,9 @@
 </script>
 
 <header
-	class="border-border bg-background/95 supports-[backdrop-filter]:bg-background/60 sticky top-0 z-10 border-b backdrop-blur"
+	class="bg-background/95 supports-[backdrop-filter]:bg-background/60 sticky top-0 z-10 backdrop-blur"
 >
-	<div class="h-16">
+	<div class="h-16 border-border border-b">
 		<div class="flex h-full items-center gap-4 px-4">
 			<button
 				class="text-muted-foreground hover:bg-muted hover:text-foreground rounded-lg p-2"
