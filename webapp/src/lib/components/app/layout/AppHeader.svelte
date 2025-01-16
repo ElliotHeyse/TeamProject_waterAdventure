@@ -11,8 +11,17 @@
 	import { isSidebarOpen } from '$lib/stores/sidebar';
 	import { isMobileView } from '$lib/stores/viewport';
 	import { userSettings } from '$lib/stores/userSettings';
+	import { invalidate, goto } from '$app/navigation';
 
-	let selectedOption = $state("Option 1");
+	interface Child {
+		id: string;
+		name: string;
+		currentLevel: string;
+		currentLevelOrder: number;
+	}
+
+	let selectedChild = $state<Child | null>(null);
+	let children = $state<Child[]>([]);
 
 	interface Notification {
 		id: number;
@@ -37,6 +46,27 @@
 	async function toggleDarkMode() {
 		const newMode = $userSettings.themeMode === 'LIGHT' ? 'DARK' : 'LIGHT';
 		await userSettings.updateSettings({ themeMode: newMode });
+	}
+
+	// Get children data from URL
+	$effect(() => {
+		const data = $page.data;
+		if (data && 'children' in data) {
+			children = data.children as Child[];
+			const childId = $page.url.searchParams.get('child');
+			selectedChild = children.find(child => child.id === childId) || children[0] || null;
+		}
+	});
+
+	async function handleChildSelect(childId: string) {
+		const url = new URL(window.location.href);
+		url.searchParams.set('child', childId);
+		// Navigate with invalidation to ensure all pages update
+		await goto(url.toString(), { 
+			replaceState: true, 
+			invalidateAll: true,
+			keepFocus: true // Keep the dropdown focused
+		});
 	}
 </script>
 
@@ -108,20 +138,20 @@
 				</button>
 
 				<DropdownMenu.Root>
-					<DropdownMenu.Trigger asChild>
+					<DropdownMenu.Trigger>
 						<Button variant="ghost" size="sm" class="flex items-center gap-2 px-3 h-8 border">
-							<span class="text-sm font-medium">{selectedOption}</span>
+							<span class="text-sm font-medium">{selectedChild?.name || "Select child"}</span>
 							<ChevronDown class="h-4 w-4"/>
 						</Button>
 					</DropdownMenu.Trigger>
 					<DropdownMenu.Content class="w-56">
-						<DropdownMenu.Label>Options</DropdownMenu.Label>
+						<DropdownMenu.Label>Children</DropdownMenu.Label>
 						<DropdownMenu.Separator />
-						<DropdownMenu.RadioGroup value={selectedOption}>
-							<DropdownMenu.RadioItem value="Option 1">Option 1</DropdownMenu.RadioItem>
-							<DropdownMenu.RadioItem value="Option 2">Option 2</DropdownMenu.RadioItem>
-							<DropdownMenu.RadioItem value="Option 3">Option 3</DropdownMenu.RadioItem>
-						</DropdownMenu.RadioGroup>
+						{#each children as child}
+							<DropdownMenu.Item onclick={() => handleChildSelect(child.id)}>
+								{child.name}
+							</DropdownMenu.Item>
+						{/each}
 					</DropdownMenu.Content>
 				</DropdownMenu.Root>
 			</div>
