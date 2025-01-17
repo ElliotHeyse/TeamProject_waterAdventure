@@ -9,4 +9,4 @@
 	<CardContent>
 		<p>View and edit your profile information here!</p>
 	</CardContent>
-</Card> 
+</Card>

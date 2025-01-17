@@ -80,62 +80,64 @@
 	}
 </script>
 
-<div class="min-h-screen bg-background">
-	<h1 class="text-center text-4xl font-bold text-foreground pt-4 pb-6">Swimming Levels</h1>
+<div class="px-4 py-4">
+	<div class="min-h-screen bg-background">
+		<h1 class="text-center text-4xl font-bold text-foreground pt-4 pb-6">Swimming Levels</h1>
 
-	<div class="w-full overflow-hidden flex items-center justify-center relative">
-		<img src={g10} alt="Level background" class="w-full h-full object-contain" />
-		<div class="absolute inset-0 w-full h-full">
-			{#each levels as level}
-				<button
-					class="absolute transform -translate-x-1/2 -translate-y-1/2 transition-all duration-300 hover:scale-110 focus:outline-none"
-					style="left: {level.x}%; top: {level.y}%;"
-					onclick={(e) => handleLevelClick(level, e)}
-				>
-					<div
-						class="relative rounded-full flex items-center justify-center shadow-xl
-						{level.status === 'completed'
-							? 'bg-green-500 ring-4 ring-green-300'
-							: level.status === 'current'
-								? 'bg-blue-500 ring-4 ring-blue-300 animate-pulse'
-								: 'bg-gray-400'}
-						{level.status === 'locked' ? 'opacity-60' : 'opacity-100'}
-						{$isMobileView ? 'w-[min(12vw,12rem)] h-[min(12vw,12rem)]' : 'w-[min(8vw,8rem)] h-[min(8vw,8rem)]'}"
+		<div class="w-full overflow-hidden flex items-center justify-center relative">
+			<img src={g10} alt="Level background" class="w-full h-full object-contain" />
+			<div class="absolute inset-0 w-full h-full">
+				{#each levels as level}
+					<button
+						class="absolute transform -translate-x-1/2 -translate-y-1/2 transition-all duration-300 hover:scale-110 focus:outline-none"
+						style="left: {level.x}%; top: {level.y}%;"
+						onclick={(e) => handleLevelClick(level, e)}
 					>
-						<span
-							class="text-white font-bold drop-shadow-md {$isMobileView
-								? 'text-[min(3vw,3rem)]'
-								: 'text-[min(2vw,2rem)]'}"
+						<div
+							class="relative rounded-full flex items-center justify-center shadow-xl
+							{level.status === 'completed'
+								? 'bg-green-500 ring-4 ring-green-300'
+								: level.status === 'current'
+									? 'bg-blue-500 ring-4 ring-blue-300 animate-pulse'
+									: 'bg-gray-400'}
+							{level.status === 'locked' ? 'opacity-60' : 'opacity-100'}
+							{$isMobileView ? 'w-[min(12vw,12rem)] h-[min(12vw,12rem)]' : 'w-[min(8vw,8rem)] h-[min(8vw,8rem)]'}"
 						>
-							{level.id}
-						</span>
-						{#if level.medal && level.medal in medalImages}
-							<img
-								src={medalImages[level.medal as keyof typeof medalImages]}
-								alt="Medal"
-								class="absolute -top-[30%] -right-[30%] {$isMobileView
-									? 'w-[min(9vw,9rem)] h-[min(9vw,9rem)]'
-									: 'w-[min(6vw,6rem)] h-[min(6vw,6rem)]'}"
-							/>
-						{/if}
-					</div>
-				</button>
-
-				{#if showAlert && clickedLevelId === level.id}
-					<div
-						class="absolute z-50 w-72 transition-opacity animate-in fade-in-0 duration-300"
-						style="left: {level.x + 5}%; top: {level.y}%; transform: translateY(-50%);"
-					>
-						<div class="bg-background text-foreground rounded-lg border shadow-lg p-4 space-y-2">
-							<div class="flex items-center gap-2 text-primary font-medium">
-								<CircleAlert class="h-4 w-4" />
-								<span>Level Locked</span>
-							</div>
-							<p class="text-sm text-muted-foreground">{alertMessage}</p>
+							<span
+								class="text-white font-bold drop-shadow-md {$isMobileView
+									? 'text-[min(3vw,3rem)]'
+									: 'text-[min(2vw,2rem)]'}"
+							>
+								{level.id}
+							</span>
+							{#if level.medal && level.medal in medalImages}
+								<img
+									src={medalImages[level.medal as keyof typeof medalImages]}
+									alt="Medal"
+									class="absolute -top-[30%] -right-[30%] {$isMobileView
+										? 'w-[min(9vw,9rem)] h-[min(9vw,9rem)]'
+										: 'w-[min(6vw,6rem)] h-[min(6vw,6rem)]'}"
+								/>
+							{/if}
 						</div>
-					</div>
-				{/if}
-			{/each}
+					</button>
+
+					{#if showAlert && clickedLevelId === level.id}
+						<div
+							class="absolute z-50 w-72 transition-opacity animate-in fade-in-0 duration-300"
+							style="left: {level.x + 5}%; top: {level.y}%; transform: translateY(-50%);"
+						>
+							<div class="bg-background text-foreground rounded-lg border shadow-lg p-4 space-y-2">
+								<div class="flex items-center gap-2 text-primary font-medium">
+									<CircleAlert class="h-4 w-4" />
+									<span>Level Locked</span>
+								</div>
+								<p class="text-sm text-muted-foreground">{alertMessage}</p>
+							</div>
+						</div>
+					{/if}
+				{/each}
+			</div>
 		</div>
 	</div>
 </div>

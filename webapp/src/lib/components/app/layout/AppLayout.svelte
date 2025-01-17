@@ -24,7 +24,7 @@
 	</div>
 
 	<!-- Mobile Sidebar -->
-	<Sheet>
+	<!-- <Sheet>
 		<SheetTrigger asChild>
 			<Button variant="ghost" class="lg:hidden absolute left-4 top-4 p-0 w-10 h-10">
 				<Menu class="h-6 w-6" />
@@ -33,12 +33,12 @@
 		<SheetContent side="left" class="p-0 w-64">
 			<AppSidebar />
 		</SheetContent>
-	</Sheet>
+	</Sheet> -->
 
 	<div class="flex-1 flex flex-col">
 		<AppHeader />
 		<!-- Main Content -->
-		<main class="flex-1 px-4 py-4 lg:px-8">
+		<main class="flex-1 lg:px-8">
 			{@render children()}
 		</main>
 	</div>
