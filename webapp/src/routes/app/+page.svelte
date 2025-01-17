@@ -5,6 +5,7 @@
 	import {isMobileView} from '$lib/stores/viewport';
 	import { cn } from '$lib/components/coach/utils';
 	import badge from '$lib/img/badge-placeholder.svg';
+	import { notifications } from '$lib/paraglide/messages';
 
 	interface Child {
 		id: string;
@@ -108,14 +109,38 @@
 
 		<!-- Notifications -->
 		<div class="flex flex-col gap-3">
-			<div class="flex gap-3">
-				<h2 class="text-[20px] leading-[150%] text-main font-semibold">Notifications</h2>
-				<span class="w-full border-b-2 border-gray-300 h-4 "></span>
+			<div>
+				<div class="flex gap-3">
+					<h2 class="text-[20px] leading-[150%] text-main font-semibold">Notifications</h2>
+					<span class="w-full border-b-2 border-gray-300 h-4 "></span>
+				</div>
+				<span class="text-[14px] leading-[140%] text-gray-500">You have 2 unread messages.</span>
 			</div>
-			<div>Notifications body</div>
+			<!-- {#if notifications.count() != 0} -->
+			<div class="flex flex-col gap-3">
+				<!-- per notification -->
+				<button
+				class="cursor-pointer w-full rounded hover:bg-blue-100"
+				onclick={() => goto("#")}
+				type="button">
+				<div class="flex gap-4 px-2 py-[6px]">
+					<div class="mt-2 h-2 w-2 bg-blue-500 rounded-full"></div>
+					<div class="w-full flex flex-col items-start gap-1">
+						<span class="text-[14px] leading-[150%] font-medium text-main">New feedback: Level 3</span>
+						<span class="text-[14px] leading-[150%] text-gray-500">1 hour ago</span>
+					</div>
+				</div>
+				</button>
+			</div>
+			<!-- {:else} -->
+			<!-- no notifications message -->
+			<!-- {/if} -->
 		</div>
 	</div>
 
+	<div class="bg-red-600">temp</div>
+
+	<!-- previous markup, discard when done -->
 	<!-- <div>
 		<h2 class={cn("text-2xl font-bold",
 			$isMobileView ? 'hidden' : "")}>
