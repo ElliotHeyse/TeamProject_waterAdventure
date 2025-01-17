@@ -38,7 +38,7 @@
 	<div class="flex-1 flex flex-col">
 		<AppHeader />
 		<!-- Main Content -->
-		<main class="flex-1">
+		<main class="flex-1 mb-14">
 			{@render children()}
 		</main>
 	</div>
