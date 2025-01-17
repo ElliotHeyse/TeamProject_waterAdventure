@@ -80,7 +80,7 @@
 	}
 </script>
 
-<div class="px-4 py-4">
+<div class="px-4 py-4 lg:px-8">
 	<div class="min-h-screen bg-background">
 		<h1 class="text-center text-4xl font-bold text-foreground pt-4 pb-6">Swimming Levels</h1>
 

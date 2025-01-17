@@ -100,7 +100,7 @@
 	}
 </script>
 
-<div class="px-4 py-4">
+<div class="px-4 py-4 lg:px-8">
 	<div class="mx-auto space-y-6">
 		<h1 class="text-3xl font-bold mb-8">Settings</h1>
 

@@ -2,7 +2,7 @@
 	import { Card, CardContent, CardHeader, CardTitle } from "$lib/components/coach/ui/card";
 </script>
 
-<div class="px-4 py-4">
+<div class="px-4 py-4 lg:px-8">
 	<Card>
 		<CardHeader>
 			<CardTitle>Schedule</CardTitle>

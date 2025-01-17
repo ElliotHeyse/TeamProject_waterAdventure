@@ -36,7 +36,7 @@
 	}
 </script>
 
-<div class="px-4 py-4">
+<div class="px-4 py-4 lg:px-8">
 	<div class="mx-auto max-w-2xl space-y-8 p-4">
 		<div class="text-center">
 			<h1 class="text-2xl font-bold text-gray-900">{m.submit_swimming_video()}</h1>

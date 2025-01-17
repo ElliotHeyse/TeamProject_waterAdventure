@@ -75,7 +75,7 @@
 	}
 </script>
 
-<div class="px-4 py-4">
+<div class="px-4 py-4 lg:px-8">
 	<Card class="h-[calc(100vh-2rem)]">
 		<CardHeader>
 			<CardTitle class="flex items-center gap-4">
