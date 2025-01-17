@@ -38,23 +38,24 @@
 	}
 
 	const TOTAL_LEVELS = 7;
+	console.log(selectedChild);
 </script>
 
-<div class="mx-auto space-y-6">
+<div class="mx-auto">
 	{#if selectedChild}
 
+	<!-- Progress banner -->
 	<button
-		class="cursor-pointer w-full "
-		onclick={() => goto("/app/levels")}
-		type="button"
-	>
+	class="cursor-pointer w-full "
+	onclick={() => goto("/app/levels")}
+	type="button">
 		<div class="bg-blue-100 flex flex-col gap-4 p-6 items-center">
 			<div class="flex flex-col gap-2 items-center">
 				<div>
 					<img src={badge} alt="Progress badge">
 				</div>
 				<div>
-					<h1 class="text-[28px] leading-[120%] text-main">BEGINNER</h1>
+					<h1 class="text-[28px] leading-[120%] text-main">{selectedChild.currentLevel}</h1>
 				</div>
 			</div>
 			<div class="w-full flex flex-col gap-[4px]">
@@ -63,8 +64,8 @@
 						<span class="text-sm text-gray-500">Level</span>
 					</div>
 					<div class="flex gap-0">
-						<span class="text-sm text-main font-bold">3</span>
-						<span class="text-sm text-gray-500">/7</span>
+						<span class="text-sm text-main font-bold">{selectedChild.currentLevelOrder}</span>
+						<span class="text-sm text-gray-500">/{TOTAL_LEVELS}</span>
 					</div>
 				</div>
 				<div class="h-2 w-full rounded-full bg-muted">
@@ -77,9 +78,42 @@
 		</div>
 	</button>
 
-	<div class="flex flex-col gap-6 py-6 px-4">
-		<div>Next level content</div>
-		<div>Notifications content</div>
+	<div class="flex flex-col gap-6 py-6 px-4 m-0">
+
+		<!-- Next level -->
+		{#if selectedChild.currentLevelOrder < TOTAL_LEVELS}
+		<div class="flex flex-col gap-3">
+			<div class="flex gap-3">
+				<h2 class="text-[20px] leading-[150%] text-main font-semibold">Next</h2>
+				<span class="w-full border-b-2 border-gray-300 h-4 "></span>
+			</div>
+			<div class="flex flex-col align-center">
+				<div class="mb-[-12.5px] z-10">
+					<span class="ml-6 px-3 py-[2px] border border-white bg-blue-200 rounded-lg text-[14px] leading-[150%] text-blue-950 font-medium">Level {selectedChild.currentLevelOrder+1}</span>
+				</div>
+				<div class="w-full flex justify-center pt-6 pb-8 bg-blue-950 rounded-[20px]">
+					<span class="text-[36px] leading-[150%] text-blue-500">Level title</span>
+				</div>
+				<div class="mt-[-26.4px] flex justify-center">
+					<button
+					class="cursor-pointer bg-green-500 px-4 py-2 text-[28px] leading-[120%] font-extrabold text-green-100 border-2 border-white rounded-[20px]"
+					onclick={() => goto(`/app/levels/${selectedChild.currentLevelOrder + 1}`)}
+					type="button">
+						START
+					</button>
+				</div>
+			</div>
+		</div>
+		{/if}
+
+		<!-- Notifications -->
+		<div class="flex flex-col gap-3">
+			<div class="flex gap-3">
+				<h2 class="text-[20px] leading-[150%] text-main font-semibold">Notifications</h2>
+				<span class="w-full border-b-2 border-gray-300 h-4 "></span>
+			</div>
+			<div>Notifications body</div>
+		</div>
 	</div>
 
 	<!-- <div>
