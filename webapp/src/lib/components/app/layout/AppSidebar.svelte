@@ -37,7 +37,6 @@
 
 	const navItems = [
 		{ href: '/app', icon: Home, label: 'Overview' },
-		{ href: '/app/profile', icon: User, label: 'Profile' },
 		{ href: '/app/levels', icon: Trophy, label: 'Levels' },
 		{ href: '/app/chat', icon: MessageSquare, label: 'Chat' },
 		{ href: '/app/settings', icon: Settings, label: 'Settings' }

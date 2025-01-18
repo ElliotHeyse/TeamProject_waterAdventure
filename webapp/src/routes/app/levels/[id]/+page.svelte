@@ -31,16 +31,18 @@
 		completedAt: Date | null;
 	}
 
-	const { data } = $props<{ data: { 
-		lesson: { 
-			id: string;
-			title: string;
-			objective: string;
-			exercises: Exercise[];
+	const { data } = $props<{
+		data: {
+			lesson: {
+				id: string;
+				title: string;
+				objective: string;
+				exercises: Exercise[];
+			};
+			progress: LevelProgress[];
+			submissions: any[];
 		};
-		progress: LevelProgress[];
-		submissions: any[];
-	} }>();
+	}>();
 
 	let exercises = $state(data.lesson.exercises);
 	let videoUrl = $state('');
@@ -54,17 +56,15 @@
 			body: JSON.stringify({
 				lessonId: data.lesson.id,
 				part: exercise.part,
-				completed: !exercise.completed,
-			}),
+				completed: !exercise.completed
+			})
 		});
 
 		if (response.ok) {
 			const result = await response.json();
 			// Update the exercise's completion status
-			exercises = exercises.map((ex: Exercise) => 
-				ex.part === exercise.part 
-					? { ...ex, completed: result.completed }
-					: ex
+			exercises = exercises.map((ex: Exercise) =>
+				ex.part === exercise.part ? { ...ex, completed: result.completed } : ex
 			);
 		}
 	}
@@ -110,8 +110,10 @@
 			<div class="flex justify-between items-center mb-4">
 				<h3 class="text-2xl font-semibold text-foreground">{exercise.title}</h3>
 				<button
-					class="px-4 py-2 rounded-md {exercise.completed ? 'bg-green-500 hover:bg-green-600' : 'bg-blue-500 hover:bg-blue-600'} text-white transition-colors"
-					on:click={() => toggleCompletion(exercise)}
+					class="px-4 py-2 rounded-md {exercise.completed
+						? 'bg-green-500 hover:bg-green-600'
+						: 'bg-blue-500 hover:bg-blue-600'} text-white transition-colors"
+					onclick={() => toggleCompletion(exercise)}
 				>
 					{exercise.completed ? 'Voltooid' : 'Markeer als voltooid'}
 				</button>
@@ -125,12 +127,13 @@
 						<div class="w-full md:w-1/2">
 							<h5 class="text-lg font-semibold mb-2 text-foreground">{video.description}</h5>
 							<video controls class="w-full rounded-lg border border-border">
-								<source src={video.url} type="video/mp4">
+								<source src={video.url} type="video/mp4" />
 								Your browser does not support the video tag.
+								<track kind="captions" />
 							</video>
 						</div>
 						<div class="w-full md:w-1/2 text-muted-foreground md:mt-10">
-							{#if video.description === "Tokkelen op het water"}
+							{#if video.description === 'Tokkelen op het water'}
 								<ul class="list-disc pl-4 space-y-2">
 									<li>Zittend op de trap met de handen golven maken</li>
 									<li>Drijvend voorwaarts voortduwen</li>
@@ -139,7 +142,7 @@
 									<li>Vingers sturen</li>
 									<li>Voorwerpen niet omstoten</li>
 								</ul>
-							{:else if video.description === "Golven maken"}
+							{:else if video.description === 'Golven maken'}
 								<ul class="list-disc pl-4 space-y-2">
 									<li>Zittend op de trap met de benen</li>
 									<li>Vriesvluchtige voorbij of omrijdende</li>
@@ -147,7 +150,7 @@
 									<li>Been-beweging zonder hulp</li>
 									<li>Been-verplaatsing</li>
 								</ul>
-							{:else if video.description === "Op het water slaan"}
+							{:else if video.description === 'Op het water slaan'}
 								<ul class="list-disc pl-4 space-y-2">
 									<li>Carwash</li>
 									<li>Plezier door de voorwaarts lopen</li>
@@ -173,7 +176,12 @@
 						<h2 class="text-2xl font-semibold">Jouw Inzending</h2>
 						<div class="space-y-2">
 							<p class="text-sm text-muted-foreground">Video URL:</p>
-							<a href={data.submission.videoUrl} target="_blank" rel="noopener noreferrer" class="text-blue-600 hover:underline">
+							<a
+								href={data.submission.videoUrl}
+								target="_blank"
+								rel="noopener noreferrer"
+								class="text-blue-600 hover:underline"
+							>
 								{data.submission.videoUrl}
 							</a>
 						</div>
@@ -182,7 +190,9 @@
 								<h3 class="text-lg font-semibold">Feedback van je coach</h3>
 								<div class="space-y-2">
 									<p class="text-sm text-muted-foreground">
-										Beoordeeld door {data.submission.reviewInfo.teacherName} op {new Date(data.submission.reviewInfo.reviewedAt).toLocaleDateString('nl-BE', { 
+										Beoordeeld door {data.submission.reviewInfo.teacherName} op {new Date(
+											data.submission.reviewInfo.reviewedAt
+										).toLocaleDateString('nl-BE', {
 											year: 'numeric',
 											month: 'long',
 											day: 'numeric',
@@ -211,9 +221,10 @@
 					</div>
 				{:else}
 					<h2 class="text-2xl font-semibold mb-4">Video Inzending</h2>
-					<form on:submit={handleSubmit} class="space-y-4">
+					<form onsubmit={handleSubmit} class="space-y-4">
 						<div>
-							<label for="videoUrl" class="block text-sm font-medium text-gray-700">Video URL</label>
+							<label for="videoUrl" class="block text-sm font-medium text-gray-700">Video URL</label
+							>
 							<input
 								type="url"
 								id="videoUrl"
@@ -239,7 +250,7 @@
 				{/if}
 			{:else}
 				<h2 class="text-2xl font-semibold mb-4">Video Inzending</h2>
-				<form on:submit={handleSubmit} class="space-y-4">
+				<form onsubmit={handleSubmit} class="space-y-4">
 					<div>
 						<label for="videoUrl" class="block text-sm font-medium text-gray-700">Video URL</label>
 						<input
@@ -267,7 +278,11 @@
 			{/if}
 
 			{#if message}
-				<div class="mt-4 p-4 rounded-md {success ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}">
+				<div
+					class="mt-4 p-4 rounded-md {success
+						? 'bg-green-100 text-green-700'
+						: 'bg-red-100 text-red-700'}"
+				>
 					{message}
 				</div>
 			{/if}
