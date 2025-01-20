@@ -1,11 +1,27 @@
 # Changelog
 All notable changes to WaterAdventure will be documented in this file.
 
-## [0.1] - 2025-01-13
+## [0.2.0] - 2025-01-20
+### Added
+- Parent & Child App
+  - Progress tracking in overview
+  - Level progression system
+- Submission review system with medal awards (Gold, Silver, Bronze)
+  - Real-time status badges for submission tracking
+  - Video submission capabilities for swimming exercises
+- Parent-Coach messaging system
+
+### Changed
+- Upgraded Coach dashboard
+  - Exercise management with video demonstrations
+  - Enhanced progress tracking system with medal-based achievements
+
+## [0.1.0] - 2025-01-13
 ### Added
 - Initial release
 - Coach dashboard
 - Multi-language support
 - Progress tracking system
 
-[0.1]: https://github.com/username/wateradventure/releases/tag/v0.1
+[0.2.0]: https://github.com/username/wateradventure/releases/tag/v0.2.0
+[0.1.0]: https://github.com/username/wateradventure/releases/tag/v0.1
