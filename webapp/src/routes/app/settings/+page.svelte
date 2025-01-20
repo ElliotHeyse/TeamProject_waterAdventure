@@ -64,7 +64,7 @@
 	}
 
 	async function handleNotificationChange(type: 'push' | 'email', enabled: boolean) {
-		const update = type === 'push' 
+		const update = type === 'push'
 			? { pushNotifications: enabled }
 			: { emailNotifications: enabled };
 
@@ -100,186 +100,188 @@
 	}
 </script>
 
-<div class="mx-auto space-y-6">
-	<h1 class="text-3xl font-bold mb-8">Settings</h1>
+<div class="px-4 py-4 lg:px-8">
+	<div class="mx-auto space-y-6">
+		<h1 class="text-3xl font-bold mb-8">Settings</h1>
 
-	<!-- Profile Settings -->
-	<div class="bg-card text-card-foreground rounded-lg border shadow-sm">
-		<div class="flex flex-col space-y-1.5 p-6">
-			<h3 class="text-2xl font-semibold leading-none tracking-tight">{m.profile_settings()}</h3>
-			<p class="text-muted-foreground text-sm">{m.manage_personal_info()}</p>
-		</div>
-		<Separator />
-		<form method="POST" action="?/updateProfile" class="p-6 space-y-4" onsubmit={handleSubmit}>
-			{#if formError}
-				<div class="alert-wrapper">
-					<Alert variant="destructive">
-						<AlertTitle>{m.error()}</AlertTitle>
-						<AlertDescription>{formError}</AlertDescription>
-					</Alert>
-				</div>
-			{/if}
-
-			<div class="space-y-2">
-				<Label for="name">{m.name()}</Label>
-				<Input id="name" value={data.parent.user.name} disabled />
-			</div>
-			<div class="space-y-2">
-				<Label for="email">{m.email()}</Label>
-				<Input id="email" type="email" value={data.parent.user.email} disabled />
-			</div>
-			<div class="space-y-2">
-				<Label for="bio">{m.phone()}</Label>
-				<Input
-					id="phone"
-					name="phone"
-					bind:value={phone}
-					placeholder="phone placeholder (static => update paraglide)"
-				/>
-			</div>
-			<div class="flex justify-end">
-				<Button type="submit">{m.save_profile()}</Button>
-			</div>
-		</form>
-	</div>
-
-	<!-- Appearance Settings -->
-	<div class="bg-card text-card-foreground rounded-lg border shadow-sm">
-		<div class="flex flex-col space-y-1.5 p-6">
-			<h3 class="text-2xl font-semibold leading-none tracking-tight">{m.appearance()}</h3>
-			<p class="text-muted-foreground text-sm">Customize appearance (static => update paraglide)</p>
-		</div>
-		<Separator />
-		<div class="p-6">
-			<div class="flex items-center justify-between">
-				<div class="space-y-0.5">
-					<Label>{m.dark_mode()}</Label>
-					<div class="text-sm text-muted-foreground">{m.dark_mode_description()}</div>
-				</div>
-				<Button variant="outline" size="icon" onclick={toggleDarkMode}>
-					<Icon src={$userSettings.themeMode === 'DARK' ? Sun : Moon} class="h-5 w-5" />
-				</Button>
-			</div>
-		</div>
-	</div>
-
-	<!-- Notification Settings -->
-	<div class="bg-card text-card-foreground rounded-lg border shadow-sm">
-		<div class="flex flex-col space-y-1.5 p-6">
-			<h3 class="text-2xl font-semibold leading-none tracking-tight">{m.notifications()}</h3>
-			<p class="text-muted-foreground text-sm">{m.manage_notifications()}</p>
-		</div>
-		<Separator />
-		<div class="p-6 space-y-4">
-			<div class="flex items-center justify-between">
-				<div class="space-y-0.5">
-					<div class="flex items-center gap-2">
-						<Label>{m.email_notifications()}</Label>
-						<Badge variant="secondary" class="text-xs">Soon</Badge>
-					</div>
-					<div class="text-sm text-muted-foreground">
-						{m.email_notifications_description()}
-					</div>
-				</div>
-				<Switch
-					checked={$userSettings.emailNotifications}
-					onCheckedChange={(checked) => handleNotificationChange('email', checked)}
-					disabled
-				/>
+		<!-- Profile Settings -->
+		<div class="bg-card text-card-foreground rounded-lg border shadow-sm">
+			<div class="flex flex-col space-y-1.5 p-6">
+				<h3 class="text-2xl font-semibold leading-none tracking-tight">{m.profile_settings()}</h3>
+				<p class="text-muted-foreground text-sm">{m.manage_personal_info()}</p>
 			</div>
 			<Separator />
-			<div class="flex items-center justify-between">
-				<div class="space-y-0.5">
-					<div class="flex items-center gap-2">
-						<Label>{m.push_notifications()}</Label>
-						<Badge variant="secondary" class="text-xs">Soon</Badge>
+			<form method="POST" action="?/updateProfile" class="p-6 space-y-4" onsubmit={handleSubmit}>
+				{#if formError}
+					<div class="alert-wrapper">
+						<Alert variant="destructive">
+							<AlertTitle>{m.error()}</AlertTitle>
+							<AlertDescription>{formError}</AlertDescription>
+						</Alert>
 					</div>
-					<div class="text-sm text-muted-foreground">
-						{m.push_notifications_description()}
-					</div>
+				{/if}
+
+				<div class="space-y-2">
+					<Label for="name">{m.name()}</Label>
+					<Input id="name" value={data.parent.user.name} disabled />
 				</div>
-				<Switch
-					checked={$userSettings.pushNotifications}
-					onCheckedChange={(checked) => handleNotificationChange('push', checked)}
-					disabled
-				/>
+				<div class="space-y-2">
+					<Label for="email">{m.email()}</Label>
+					<Input id="email" type="email" value={data.parent.user.email} disabled />
+				</div>
+				<div class="space-y-2">
+					<Label for="bio">{m.phone()}</Label>
+					<Input
+						id="phone"
+						name="phone"
+						bind:value={phone}
+						placeholder="phone placeholder (static => update paraglide)"
+					/>
+				</div>
+				<div class="flex justify-end">
+					<Button type="submit">{m.save_profile()}</Button>
+				</div>
+			</form>
+		</div>
+
+		<!-- Appearance Settings -->
+		<div class="bg-card text-card-foreground rounded-lg border shadow-sm">
+			<div class="flex flex-col space-y-1.5 p-6">
+				<h3 class="text-2xl font-semibold leading-none tracking-tight">{m.appearance()}</h3>
+				<p class="text-muted-foreground text-sm">Customize appearance (static => update paraglide)</p>
+			</div>
+			<Separator />
+			<div class="p-6">
+				<div class="flex items-center justify-between">
+					<div class="space-y-0.5">
+						<Label>{m.dark_mode()}</Label>
+						<div class="text-sm text-muted-foreground">{m.dark_mode_description()}</div>
+					</div>
+					<Button variant="outline" size="icon" onclick={toggleDarkMode}>
+						<Icon src={$userSettings.themeMode === 'DARK' ? Sun : Moon} class="h-5 w-5" />
+					</Button>
+				</div>
 			</div>
 		</div>
-	</div>
 
-	<!-- Account Settings -->
-	<div class="bg-card text-card-foreground rounded-lg border shadow-sm">
-		<div class="flex flex-col space-y-1.5 p-6">
-			<h3 class="text-2xl font-semibold leading-none tracking-tight">{m.account_settings()}</h3>
-			<p class="text-muted-foreground text-sm">{m.manage_account()}</p>
-		</div>
-		<Separator />
-		<div class="p-6 space-y-4">
-			<div class="space-y-2">
-				<Label>{m.language()}</Label>
-				<Select.Root
-					type="single"
-					value={$userSettings.language}
-					onValueChange={(value: string) => handleLanguageChange(value as AvailableLanguageTag)}
-				>
-					<Select.Trigger class="w-[180px]">
+		<!-- Notification Settings -->
+		<div class="bg-card text-card-foreground rounded-lg border shadow-sm">
+			<div class="flex flex-col space-y-1.5 p-6">
+				<h3 class="text-2xl font-semibold leading-none tracking-tight">{m.notifications()}</h3>
+				<p class="text-muted-foreground text-sm">{m.manage_notifications()}</p>
+			</div>
+			<Separator />
+			<div class="p-6 space-y-4">
+				<div class="flex items-center justify-between">
+					<div class="space-y-0.5">
 						<div class="flex items-center gap-2">
-							{#if $userSettings.language === 'en'}
-								<Gb class="w-4 h-4" />
-								<span>English</span>
-							{:else if $userSettings.language === 'nl'}
-								<Nl class="w-4 h-4" />
-								<span>Dutch</span>
-							{:else}
-								<Fr class="w-4 h-4" />
-								<span>French</span>
-							{/if}
+							<Label>{m.email_notifications()}</Label>
+							<Badge variant="secondary" class="text-xs">Soon</Badge>
 						</div>
-					</Select.Trigger>
-					<Select.Content>
-						<Select.Item value="en">
-							<div class="flex items-center gap-2">
-								<Gb class="w-4 h-4" />
-								<span>English</span>
-							</div>
-						</Select.Item>
-						<Select.Item value="nl">
-							<div class="flex items-center gap-2">
-								<Nl class="w-4 h-4" />
-								<span>Dutch</span>
-							</div>
-						</Select.Item>
-						<Select.Item value="fr">
-							<div class="flex items-center gap-2">
-								<Fr class="w-4 h-4" />
-								<span>French</span>
-							</div>
-						</Select.Item>
-					</Select.Content>
-				</Select.Root>
+						<div class="text-sm text-muted-foreground">
+							{m.email_notifications_description()}
+						</div>
+					</div>
+					<Switch
+						checked={$userSettings.emailNotifications}
+						onCheckedChange={(checked) => handleNotificationChange('email', checked)}
+						disabled
+					/>
+				</div>
+				<Separator />
+				<div class="flex items-center justify-between">
+					<div class="space-y-0.5">
+						<div class="flex items-center gap-2">
+							<Label>{m.push_notifications()}</Label>
+							<Badge variant="secondary" class="text-xs">Soon</Badge>
+						</div>
+						<div class="text-sm text-muted-foreground">
+							{m.push_notifications_description()}
+						</div>
+					</div>
+					<Switch
+						checked={$userSettings.pushNotifications}
+						onCheckedChange={(checked) => handleNotificationChange('push', checked)}
+						disabled
+					/>
+				</div>
 			</div>
 		</div>
-	</div>
 
-	<!-- Partners -->
-	<div class="flex flex-col space-y-1.5 p-6">
-		<em>Bij small width (app weergave): partners hier tonen.</em>
-		<em>Bij large width (desktop weergave) partners in bottom zijkant tonen.</em>
-	</div>
+		<!-- Account Settings -->
+		<div class="bg-card text-card-foreground rounded-lg border shadow-sm">
+			<div class="flex flex-col space-y-1.5 p-6">
+				<h3 class="text-2xl font-semibold leading-none tracking-tight">{m.account_settings()}</h3>
+				<p class="text-muted-foreground text-sm">{m.manage_account()}</p>
+			</div>
+			<Separator />
+			<div class="p-6 space-y-4">
+				<div class="space-y-2">
+					<Label>{m.language()}</Label>
+					<Select.Root
+						type="single"
+						value={$userSettings.language}
+						onValueChange={(value: string) => handleLanguageChange(value as AvailableLanguageTag)}
+					>
+						<Select.Trigger class="w-[180px]">
+							<div class="flex items-center gap-2">
+								{#if $userSettings.language === 'en'}
+									<Gb class="w-4 h-4" />
+									<span>English</span>
+								{:else if $userSettings.language === 'nl'}
+									<Nl class="w-4 h-4" />
+									<span>Dutch</span>
+								{:else}
+									<Fr class="w-4 h-4" />
+									<span>French</span>
+								{/if}
+							</div>
+						</Select.Trigger>
+						<Select.Content>
+							<Select.Item value="en">
+								<div class="flex items-center gap-2">
+									<Gb class="w-4 h-4" />
+									<span>English</span>
+								</div>
+							</Select.Item>
+							<Select.Item value="nl">
+								<div class="flex items-center gap-2">
+									<Nl class="w-4 h-4" />
+									<span>Dutch</span>
+								</div>
+							</Select.Item>
+							<Select.Item value="fr">
+								<div class="flex items-center gap-2">
+									<Fr class="w-4 h-4" />
+									<span>French</span>
+								</div>
+							</Select.Item>
+						</Select.Content>
+					</Select.Root>
+				</div>
+			</div>
+		</div>
 
-	<div class="flex gap-6 space-y-1.5 p-6">
-		<a href="https://www.zwemfed.be">
-			<img src={$userSettings.themeMode === 'LIGHT' ? zwemfedLogoLight : zwemfedLogo} alt="WaterAdventure" class="h-8" />
-		</a>
-		<a href="https://www.sportinnovatiecampus.be">
-			<img
-				src={$userSettings.themeMode === 'LIGHT' ? sportinnovatiecampusLogoLight : sportinnovatiecampusLogo}
-				alt="WaterAdventure"
-				class="h-8"
-			/>
-		</a>
-		<a href="https://www.howest.be/en">
-			<img src={$userSettings.themeMode === 'LIGHT' ? howestLogoLight : howestLogo} alt="WaterAdventure" class="h-8" />
-		</a>
+		<!-- Partners -->
+		<div class="flex flex-col space-y-1.5 p-6">
+			<em>Bij small width (app weergave): partners hier tonen.</em>
+			<em>Bij large width (desktop weergave) partners in bottom zijkant tonen.</em>
+		</div>
+
+		<div class="flex gap-6 space-y-1.5 p-6">
+			<a href="https://www.zwemfed.be">
+				<img src={$userSettings.themeMode === 'LIGHT' ? zwemfedLogoLight : zwemfedLogo} alt="WaterAdventure" class="h-8" />
+			</a>
+			<a href="https://www.sportinnovatiecampus.be">
+				<img
+					src={$userSettings.themeMode === 'LIGHT' ? sportinnovatiecampusLogoLight : sportinnovatiecampusLogo}
+					alt="WaterAdventure"
+					class="h-8"
+				/>
+			</a>
+			<a href="https://www.howest.be/en">
+				<img src={$userSettings.themeMode === 'LIGHT' ? howestLogoLight : howestLogo} alt="WaterAdventure" class="h-8" />
+			</a>
+		</div>
 	</div>
 </div>

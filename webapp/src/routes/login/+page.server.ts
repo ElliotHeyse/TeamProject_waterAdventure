@@ -5,7 +5,6 @@ import { randomBytes } from 'crypto';
 import type { Actions, PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async ({ locals }) => {
-	// If user is already logged in, redirect to appropriate page
 	if (locals.user) {
 		if (locals.user.role === 'COACH') {
 			throw redirect(302, '/coach');
@@ -33,7 +32,10 @@ export const actions = {
 			}
 
 			const user = await prisma.user.findUnique({
-				where: { email }
+				where: { email },
+				include: {
+					parent: true
+				}
 			});
 
 			if (!user) {
@@ -53,18 +55,18 @@ export const actions = {
 				});
 			}
 
-				const token = randomBytes(32).toString('hex');
-				const twoDaysFromNow = new Date(Date.now() + 2 * 24 * 60 * 60 * 1000);
+			const token = randomBytes(32).toString('hex');
+			const twoDaysFromNow = new Date(Date.now() + 2 * 24 * 60 * 60 * 1000);
 
-				const session = await prisma.session.create({
-					data: {
-						token,
-						userId: user.id,
-						expiresAt: twoDaysFromNow
-					}
-				});
+			const session = await prisma.session.create({
+				data: {
+					token,
+					userId: user.id,
+					expiresAt: twoDaysFromNow
+				}
+			});
 
-				const sessionToken = session.token;
+			const sessionToken = session.token;
 
 			// Set session cookie
 			cookies.set('session', sessionToken, {
@@ -76,6 +78,9 @@ export const actions = {
 			});
 
 			locals.user = user;
+			if (user.parent) {
+				locals.parent = user.parent;
+			}
 
 			throw redirect(303, user.role === 'COACH' ? '/coach' : '/app');
 		} catch (error) {

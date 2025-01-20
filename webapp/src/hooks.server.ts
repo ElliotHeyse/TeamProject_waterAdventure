@@ -26,12 +26,23 @@ export const handle: Handle = async ({ event, resolve }) => {
 				token: sessionToken,
 				expiresAt: { gt: new Date() }
 			},
-			include: { user: true }
+			include: {
+				user: {
+					include: {
+						parent: true
+					}
+				}
+			}
 		});
 
 		if (session?.user) {
 			// Add the user to the event.locals
 			event.locals.user = session.user;
+
+			// Add parent data if user is a parent
+			if (session.user.role === 'PARENT') {
+				event.locals.parent = session.user.parent;
+			}
 
 			// Handle role-based access
 			if (session.user.role !== 'COACH' && path.startsWith('/coach')) {

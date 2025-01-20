@@ -239,14 +239,14 @@ enum ThemeMode {
 }
 
 model UserSettings {
-  id                String    @id @default(cuid())
-  userId           String    @unique
-  pushNotifications Boolean   @default(true)
-  emailNotifications Boolean  @default(true)
-  themeMode        ThemeMode @default(LIGHT)
-  language         String    @default("en")
-  createdAt        DateTime  @default(now())
-  updatedAt        DateTime  @updatedAt
+  id                 String    @id @default(cuid())
+  userId             String    @unique
+  pushNotifications  Boolean   @default(true)
+  emailNotifications Boolean   @default(true)
+  themeMode          ThemeMode @default(LIGHT)
+  language           String    @default("en")
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
 
   // Relations
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
