@@ -4,6 +4,7 @@ import { defineConfig } from 'vite';
 import type { ViteDevServer } from 'vite';
 import { Server } from 'socket.io';
 import { prisma } from './src/lib/server/db';
+import webpush from 'web-push';
 
 const webSocketServer = {
 	name: 'webSocketServer',
@@ -37,6 +38,34 @@ const webSocketServer = {
 							}
 						}
 					});
+
+					if (process.env.VAPID_EMAIL && process.env.VAPID_PUBLIC_KEY && process.env.VAPID_PRIVATE_KEY) {
+						const subscriptions = await prisma.pushSubscription.findMany({
+							where: {
+								userId: savedMessage.coach.user.id
+							}
+						});
+
+						for (const subscription of subscriptions) {
+							// webpush.setGCMAPIKey("");
+							webpush.setVapidDetails(`mailto:${process.env.VAPID_EMAIL}`, process.env.VAPID_PUBLIC_KEY, process.env.VAPID_PRIVATE_KEY);
+
+							await webpush.sendNotification(
+								{
+									endpoint: subscription.endpoint,
+									keys: {
+										p256dh: subscription.p256dh,
+										auth: subscription.auth
+									}
+								},
+								JSON.stringify({
+									title: `New message from ${savedMessage.parent.user.name}`,
+									body: savedMessage.content,
+									url: `${process.env.APP_URL}/app/chat/${savedMessage.parentId}`
+								})
+							);
+						}
+					}
 
 					// Broadcast message to all clients
 					io.emit('message', savedMessage);

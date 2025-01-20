@@ -23,10 +23,11 @@ model User {
   updatedAt DateTime @updatedAt
 
   // Relations
-  coach    Coach?
-  parent   Parent?
-  sessions Session[]
-  settings UserSettings?
+  coach            Coach?
+  parent           Parent?
+  sessions         Session[]
+  settings         UserSettings?
+  PushSubscription PushSubscription[]
 }
 
 enum UserRole {
@@ -250,4 +251,19 @@ model UserSettings {
 
   // Relations
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model PushSubscription {
+  id        String   @id @default(cuid())
+  userId    String
+  endpoint  String   @unique
+  auth      String
+  p256dh    String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
 }
