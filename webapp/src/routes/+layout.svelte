@@ -24,7 +24,7 @@
 			// Handle language path
 			const currentPath = window.location.pathname;
 			const currentLang = i18n.strategy.getLanguageFromLocalisedPath(currentPath) || 'en';
-			
+
 			// Only redirect if the current path language doesn't match the user's preferred language
 			if (currentLang !== settings.language && settings.language !== 'en') {
 				const canonicalPath = i18n.strategy.getCanonicalPath(currentPath, currentLang as Language);
