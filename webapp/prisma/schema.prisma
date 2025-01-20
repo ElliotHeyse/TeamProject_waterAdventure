@@ -22,13 +22,13 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  // Incoming relations
   coach         Coach[]
   parent        Parent[]
   sessions      Session[]
-  settings      UserSettings   @relation(onDelete: Cascade) // 1-to-1 relation
+  settings      UserSettings?  @relation("UserSettings")
   notifications Notification[]
 }
+
 enum UserRole {
   COACH
   PARENT
@@ -129,15 +129,15 @@ model Exercise {
 }
 
 model ExerciseLanguageContent {
-  id             String   @id @default(cuid())
-  language       String   @default("nl")
-  location       String[]
-  title          String
-  description    String[]
-  important      String[]
-  tips           String[]
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
+  id          String   @id @default(cuid())
+  language    String   @default("nl")
+  location    String[]
+  title       String
+  description String[]
+  important   String[]
+  tips        String[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
   // Outgoing relations
   exerciseId String
@@ -187,10 +187,12 @@ model Submission {
   pupilId String
   pupil   Pupil  @relation(fields: [pupilId], references: [id])
 }
+
 enum SubmissionStatus {
   PENDING
   REVIEWED
 }
+
 enum Medal {
   NONE
   BRONZE
@@ -223,8 +225,9 @@ model UserSettings {
 
   // Outgoing relations
   userId String @unique
-  user   User   @relation(fields: [userId], references: [id]) // TODO
+  user   User   @relation("UserSettings", fields: [userId], references: [id])
 }
+
 enum Theme {
   LIGHT
   DARK
@@ -261,6 +264,7 @@ model Notification {
   levelId String? // necessary for href to feedback from notifications
   level   Level?  @relation(fields: [levelId], references: [id])
 }
+
 enum NotificationType {
   META
   MESSAGE
