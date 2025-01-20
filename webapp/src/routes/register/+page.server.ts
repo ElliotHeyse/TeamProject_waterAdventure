@@ -3,6 +3,8 @@ import { prisma } from '$lib/server/db';
 import bcrypt from 'bcrypt';
 import { randomBytes } from 'crypto';
 import type { Actions, PageServerLoad } from './$types';
+//import { PrismaClient } from '@prisma/client';
+//import type { Level } from '@prisma/client';
 
 // Registration state map: userId -> timestamp
 const registrationState = new Map<string, number>();
@@ -73,18 +75,18 @@ export const actions = {
 				});
 			}
 
-			// Find coach with least number of pupils
+			// Get the demo coach
 			const coach = await prisma.coach.findFirst({
-				orderBy: {
-					pupils: {
-						_count: 'asc'
+				where: {
+					user: {
+						email: 'demo@demo.com'
 					}
 				}
 			});
 
 			if (!coach) {
 				return fail(500, {
-					error: 'No coaches available. Please try again later.',
+					error: 'Demo coach not found. Please contact support.',
 					name,
 					email,
 					phone
@@ -169,13 +171,28 @@ export const actions = {
 		}
 
 		try {
+			// Get fresh parent data to ensure we have the latest
+			const parent = await prisma.parent.findUnique({
+				where: { userId: locals.user.id }
+			});
+
+			if (!parent) {
+				console.log('Parent not found in database');
+				return fail(500, { error: 'Parent not found' });
+			}
+
+			if (!parent.coachId) {
+				console.log('No coach assigned to parent. Parent data:', parent);
+				return fail(500, { error: 'No coach assigned to parent. Please try registering again.' });
+			}
+
 			console.log('Processing form data');
 			const formData = await request.formData();
 			console.log('Raw form data:', Object.fromEntries(formData.entries()));
 
 			const name = formData.get('childName')?.toString().trim();
 			const dateOfBirth = formData.get('dateOfBirth')?.toString();
-			const level = formData.get('level')?.toString() as 'BEGINNER' | 'INTERMEDIATE' | 'ADVANCED';
+			const level = formData.get('level')?.toString() as Level;
 
 			console.log('Form data received:', { name, dateOfBirth, level });
 
@@ -189,17 +206,12 @@ export const actions = {
 				});
 			}
 
-			if (!locals.parent.coachId) {
-				console.log('No coach assigned to parent');
-				return fail(500, { error: 'No coach assigned to parent' });
-			}
-
 			console.log('Creating pupil with data:', {
 				name,
 				dateOfBirth,
 				level,
-				parentId: locals.parent.id,
-				coachId: locals.parent.coachId
+				parentId: parent.id,
+				coachId: parent.coachId
 			});
 
 			const pupil = await prisma.pupil.create({
@@ -207,8 +219,8 @@ export const actions = {
 					name,
 					dateOfBirth: new Date(dateOfBirth),
 					level,
-					parentId: locals.parent.id,
-					coachId: locals.parent.coachId,
+					parentId: parent.id,
+					coachId: parent.coachId,
 					notes: ''
 				}
 			});

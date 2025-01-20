@@ -2,15 +2,32 @@ import { prisma } from '$lib/server/db';
 import type { PageServerLoad } from './$types';
 import type { DashboardData } from './types';
 
-export const load = (async () => {
+export const load = (async ({ locals }) => {
+	if (!locals.user) {
+		throw new Error('Not authenticated');
+	}
+
+	const coach = await prisma.coach.findUnique({
+		where: { userId: locals.user.id }
+	});
+
+	if (!coach) {
+		throw new Error('Coach not found');
+	}
+
 	const [totalPupils, activeLessons, pendingSubmissions, unreadMessages, recentActivity] =
 		await Promise.all([
 			// Get total pupils count
-			prisma.pupil.count(),
+			prisma.pupil.count({
+				where: {
+					coachId: coach.id
+				}
+			}),
 
 			// Get active lessons (future lessons)
 			prisma.lesson.count({
 				where: {
+					coachId: coach.id,
 					date: {
 						gte: new Date()
 					}
@@ -20,13 +37,17 @@ export const load = (async () => {
 			// Get pending submissions count
 			prisma.submission.count({
 				where: {
-					status: 'PENDING'
+					status: 'PENDING',
+					pupil: {
+						coachId: coach.id
+					}
 				}
 			}),
 
 			// Get unread messages count
 			prisma.message.count({
 				where: {
+					coachId: coach.id,
 					read: false
 				}
 			}),
@@ -35,6 +56,11 @@ export const load = (async () => {
 			Promise.all([
 				// Recent submissions
 				prisma.submission.findMany({
+					where: {
+						pupil: {
+							coachId: coach.id
+						}
+					},
 					take: 3,
 					orderBy: { createdAt: 'desc' },
 					include: {
@@ -44,6 +70,9 @@ export const load = (async () => {
 				}),
 				// Recent messages
 				prisma.message.findMany({
+					where: {
+						coachId: coach.id
+					},
 					take: 3,
 					orderBy: { createdAt: 'desc' },
 					include: {
@@ -56,6 +85,9 @@ export const load = (async () => {
 				}),
 				// Recent lessons
 				prisma.lesson.findMany({
+					where: {
+						coachId: coach.id
+					},
 					take: 3,
 					orderBy: { createdAt: 'desc' }
 				})
