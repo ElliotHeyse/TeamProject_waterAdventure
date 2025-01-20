@@ -42,14 +42,14 @@
 	);
 	let selectedSubmission = $state<Submission | null>(null);
 
-	async function submitReview(feedback: string) {
+	async function submitReview(feedback: string, medal: string) {
 		if (selectedSubmission) {
 			const response = await fetch(`/api/submissions/${selectedSubmission.id}/review`, {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json'
 				},
-				body: JSON.stringify({ feedback })
+				body: JSON.stringify({ feedback, medal })
 			});
 
 			if (response.ok) {

@@ -150,5 +150,12 @@
     "submissions_total": "{count} soumission(s) au total.",
     "review_submitted": "Évaluation soumise avec succès",
     "error_submitting_review": "Erreur lors de la soumission de l'évaluation",
-    "submitting": "Soumission en cours..."
+    "submitting": "Soumission en cours...",
+    "parents": "Parents",
+    "manage_parents": "Voir et gérer tous les parents",
+    "details": "Détails",
+    "changes_saved": "Modifications enregistrées avec succès",
+    "edit_parent_info": "Modifier les informations du Parent",
+    "assigned_coach": "Coach Assigné",
+    "select_coach": "Sélectionner un coach"
 }

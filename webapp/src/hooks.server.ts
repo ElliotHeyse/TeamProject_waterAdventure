@@ -22,16 +22,27 @@ export const handle: Handle = async ({ event, resolve }) => {
 	if (sessionToken) {
 		// Get the session and related user
 		const session = await prisma.session.findUnique({
-			where: { 
+			where: {
 				token: sessionToken,
 				expiresAt: { gt: new Date() }
 			},
-			include: { user: true }
+			include: {
+				user: {
+					include: {
+						parent: true
+					}
+				}
+			}
 		});
 
 		if (session?.user) {
 			// Add the user to the event.locals
 			event.locals.user = session.user;
+
+			// Add parent data if user is a parent
+			if (session.user.role === 'PARENT') {
+				event.locals.parent = session.user.parent;
+			}
 
 			// Handle role-based access
 			if (session.user.role !== 'COACH' && path.startsWith('/coach')) {
@@ -48,7 +59,7 @@ export const handle: Handle = async ({ event, resolve }) => {
 		} else {
 			// Invalid or expired session, clean it up
 			event.cookies.delete('session', { path: '/' });
-			
+
 			// Clean up expired sessions for this token
 			if (sessionToken) {
 				console.log('Cleaning up expired session:', sessionToken);

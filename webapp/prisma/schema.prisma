@@ -26,6 +26,7 @@ model User {
   coach    Coach?
   parent   Parent?
   sessions Session[]
+  settings UserSettings?
 }
 
 enum UserRole {
@@ -42,24 +43,50 @@ model Coach {
 
   // Relations
   pupils    Pupil[]
-  lessons   Lesson[]
   reviews   Review[]
   messages  Message[] @relation("CoachMessages")
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
+  parents   Parent[]
+  Lesson    Lesson[]
 }
 
 model Parent {
-  id     String  @id @default(cuid())
-  userId String  @unique
-  user   User    @relation(fields: [userId], references: [id], onDelete: Cascade)
-  phone  String?
+  id      String  @id @default(cuid())
+  userId  String  @unique
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  phone   String?
+  coachId String?
 
   // Relations
   pupils    Pupil[]
   messages  Message[] @relation("ParentMessages")
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
+  Coach     Coach?    @relation(fields: [coachId], references: [id])
+}
+
+enum Part {
+  A
+  B
+}
+
+model LevelProgress {
+  id          String    @id @default(cuid())
+  pupilId     String
+  lessonId    String
+  part        Part
+  completed   Boolean   @default(false)
+  completedAt DateTime?
+  medal       Medal     @default(NONE)
+
+  // Relations
+  pupil     Pupil    @relation(fields: [pupilId], references: [id])
+  lesson    Lesson   @relation(fields: [lessonId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([pupilId, lessonId, part])
 }
 
 model Pupil {
@@ -72,11 +99,12 @@ model Pupil {
   notes       String?
 
   // Relations
-  parent      Parent       @relation(fields: [parentId], references: [id])
-  coach       Coach        @relation(fields: [coachId], references: [id])
-  submissions Submission[]
-  createdAt   DateTime     @default(now())
-  updatedAt   DateTime     @updatedAt
+  parent        Parent          @relation(fields: [parentId], references: [id])
+  coach         Coach           @relation(fields: [coachId], references: [id])
+  submissions   Submission[]
+  levelProgress LevelProgress[]
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
 }
 
 enum Level {
@@ -95,11 +123,49 @@ model Lesson {
   date        DateTime
   order       Int      @default(autoincrement())
 
+  // Swimming lesson specific fields
+  isSwimmingLesson Boolean    @default(false)
+  objective        String?
+  exercises        Exercise[]
+
   // Relations
-  coach       Coach        @relation(fields: [coachId], references: [id])
-  submissions Submission[]
-  createdAt   DateTime     @default(now())
-  updatedAt   DateTime     @updatedAt
+  coach         Coach           @relation(fields: [coachId], references: [id])
+  submissions   Submission[]
+  levelProgress LevelProgress[]
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+}
+
+model Exercise {
+  id          String   @id @default(cuid())
+  part        String
+  location    String
+  name        String
+  description String
+  important   String?
+  tip         String?
+  videos      Video[]
+  lessonId    String
+  lesson      Lesson   @relation(fields: [lessonId], references: [id])
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Video {
+  id          String   @id @default(cuid())
+  url         String
+  description String
+  exerciseId  String
+  exercise    Exercise @relation(fields: [exerciseId], references: [id])
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+enum Medal {
+  GOLD
+  SILVER
+  BRONZE
+  NONE
 }
 
 model Submission {
@@ -109,6 +175,7 @@ model Submission {
   videoUrl String
   status   SubmissionStatus @default(PENDING)
   feedback String?
+  medal    Medal            @default(NONE)
 
   // Relations
   lesson    Lesson   @relation(fields: [lessonId], references: [id])
@@ -138,11 +205,12 @@ model Review {
 }
 
 model Message {
-  id       String  @id @default(cuid())
-  content  String
-  coachId  String
-  parentId String
-  read     Boolean @default(false)
+  id           String  @id @default(cuid())
+  content      String
+  coachId      String
+  parentId     String
+  read         Boolean @default(false)
+  isFromParent Boolean @default(false)
 
   // Relations
   coach     Coach    @relation("CoachMessages", fields: [coachId], references: [id])
@@ -163,4 +231,23 @@ model Session {
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([token])
+}
+
+enum ThemeMode {
+  LIGHT
+  DARK
+}
+
+model UserSettings {
+  id                 String    @id @default(cuid())
+  userId             String    @unique
+  pushNotifications  Boolean   @default(true)
+  emailNotifications Boolean   @default(true)
+  themeMode          ThemeMode @default(LIGHT)
+  language           String    @default("en")
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }

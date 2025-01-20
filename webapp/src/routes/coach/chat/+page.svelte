@@ -1,105 +1,119 @@
 <script lang="ts">
 	import Button from '$lib/components/coach/ui/button/button.svelte';
 	import * as m from '$lib/paraglide/messages.js';
+	import { io, type Socket } from 'socket.io-client';
+	import type { PageData } from './$types';
+	import type { Parent, Pupil, User } from '@prisma/client';
+	import { onMount } from 'svelte';
 
-	interface Conversation {
-		id: number;
-		parent: string;
-		pupil: string;
-		lastMessage: string;
-		timestamp: string;
-		unread: boolean;
-		email?: string;
-		avatar?: string;
-		pupils?: { id: string; name: string }[];
-	}
+	const { data } = $props<{ data: PageData }>();
+	let parents: (Parent & { user: User; pupils: Pupil[] })[] = $state(data.parents);
 
-	interface Message {
-		id: number;
-		sender: string;
-		content: string;
-		timestamp: string;
-		isParent: boolean;
-	}
-
-	let conversations = $state<Conversation[]>([
+	let messages = $state<
 		{
-			id: 1,
-			parent: 'Sarah Johnson',
-			pupil: 'Alice Johnson',
-			lastMessage: 'Thank you for the feedback!',
-			timestamp: '10:30 AM',
-			unread: true,
-			email: 'sarah.johnson@example.com',
-			pupils: [
-				{ id: 'cm5m4l7l0000ilxo0lg0ra1nf', name: 'Alice Johnson' },
-				{ id: 'cm5m4l7l0000ilxo0lg0ra1nf', name: 'Tom Johnson' }
-			],
-			avatar: 'SJ'
-		},
-		{
-			id: 2,
-			parent: 'Mike Smith',
-			pupil: 'Bob Smith',
-			lastMessage: 'When is the next lesson?',
-			timestamp: 'Yesterday',
-			unread: false,
-			email: 'mike.smith@example.com',
-			pupils: [{ id: 'cm5m4l7l0000ilxo0lg0ra1nf', name: 'Bob Smith' }],
-			avatar: 'MS'
-		}
-	]);
+			id: string;
+			content: string;
+			createdAt: string;
+			parentId: string;
+			coachId: string;
+			parent: { user: { name: string } };
+			coach: { user: { name: string } };
+			isFromParent: boolean;
+		}[]
+	>([]);
 
-	let selectedConversation = $state<Conversation | null>(null);
+	let selectedParent: (Parent & { user: User; pupils: Pupil[] }) | null = $state(null);
+
 	let newMessage = $state('');
+	let socket: Socket;
+	let scrollContainer: HTMLDivElement | null = $state(null);
 
-	let messages = $state<Message[]>([
-		{
-			id: 1,
-			sender: 'Sarah Johnson',
-			content: 'Hi, how is Alice progressing with her freestyle?',
-			timestamp: '10:15 AM',
-			isParent: true
-		},
-		{
-			id: 2,
-			sender: 'Coach',
-			content: 'Alice is doing great! Her form has improved significantly in the last few weeks.',
-			timestamp: '10:20 AM',
-			isParent: false
-		},
-		{
-			id: 3,
-			sender: 'Sarah Johnson',
-			content: 'Thank you for the feedback!',
-			timestamp: '10:30 AM',
-			isParent: true
+	$effect(() => {
+		if (scrollContainer) {
+			scrollContainer.scrollTop = scrollContainer.scrollHeight;
 		}
-	]);
+	});
 
-	function sendMessage(e: Event) {
-		e.preventDefault();
-		if (newMessage.trim() && selectedConversation) {
-			messages = [
-				...messages,
-				{
-					id: messages.length + 1,
-					sender: 'Coach',
-					content: newMessage,
-					timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-					isParent: false
-				}
-			];
-			newMessage = '';
+	function getInitials(name: string) {
+		return name
+			.split(' ')
+			.map((n) => n[0])
+			.join('')
+			.toUpperCase();
+	}
+
+	async function selectParent(parent: Parent & { user: User; pupils: Pupil[] }) {
+		selectedParent = parent;
+		if (!parent) return;
+
+		// Fetch messages for this conversation
+		const response = await fetch(`/api/messages?parentId=${parent.id}&coachId=${data.coach.id}`);
+		if (response.ok) {
+			messages = await response.json();
+			if (scrollContainer) {
+				scrollContainer.scrollTop = scrollContainer.scrollHeight;
+			}
 		}
 	}
 
-	function selectConversation(conversation: Conversation) {
-		selectedConversation = conversation;
-		// Mark as read
-		conversations = conversations.map((c) =>
-			c.id === conversation.id ? { ...c, unread: false } : c
-		);
+	onMount(() => {
+		selectParent(parents[0]);
+	});
+
+	function initSocket() {
+		socket = io({
+			path: '/socket.io'
+		});
+
+		socket.on('message', (message) => {
+			if (
+				selectedParent &&
+				(message.parentId === selectedParent.id || message.coachId === data.coach.id)
+			) {
+				messages = [...messages, message];
+				if (scrollContainer) {
+					scrollContainer.scrollTop = scrollContainer.scrollHeight;
+				}
+			}
+		});
+
+		socket.on('error', (error) => {
+			console.error('Socket error:', error);
+		});
+
+		socket.on('connect', () => {
+			console.log('Connected to chat server');
+		});
+
+		socket.on('disconnect', () => {
+			console.log('Disconnected from chat server');
+		});
+	}
+
+	function cleanup() {
+		if (socket) {
+			socket.disconnect();
+		}
+	}
+
+	$effect.root(() => {
+		initSocket();
+		return cleanup;
+	});
+
+	function handleSubmit(e: SubmitEvent) {
+		e.preventDefault();
+		if (!newMessage.trim() || !socket || !selectedParent) return;
+
+		const message = {
+			content: newMessage,
+			coachId: data.coach.id,
+			parentId: selectedParent.id,
+			isFromParent: false
+		};
+
+		socket.emit('message', message);
+		newMessage = '';
 	}
 </script>
 
@@ -110,33 +124,28 @@
 			<h2 class="text-foreground text-lg font-semibold">{m.messages()}</h2>
 		</div>
 		<div class="flex-1 overflow-y-auto">
-			{#each conversations as conversation}
+			{#each parents as parent}
 				<button
 					class={{
 						'w-full p-4 text-left transition-colors hover:bg-muted/50 focus:outline-none': true,
-						'bg-muted/80': selectedConversation?.id === conversation.id
+						'bg-muted/80': selectedParent?.id === parent.id
 					}}
-					onclick={() => selectConversation(conversation)}
+					onclick={() => selectParent(parent)}
 				>
 					<div class="flex items-start gap-3">
 						<div
 							class="bg-primary/10 text-primary flex h-10 w-10 items-center justify-center rounded-full text-sm font-medium"
 						>
-							{conversation.avatar}
+							{getInitials(parent.user.name)}
 						</div>
 						<div class="min-w-0 flex-1">
 							<div class="flex items-center justify-between">
-								<p class="text-foreground font-medium">{conversation.parent}</p>
-								<span class="text-muted-foreground text-xs">{conversation.timestamp}</span>
+								<p class="text-foreground font-medium">{parent.user.name}</p>
 							</div>
-							<p class="text-muted-foreground text-sm">Re: {conversation.pupil}</p>
-							<p class="text-muted-foreground mt-1 line-clamp-1 text-sm">
-								{conversation.lastMessage}
+							<p class="text-muted-foreground text-sm">
+								{parent.pupils.map((p: { id: string; name: string }) => p.name).join(', ')}
 							</p>
 						</div>
-						{#if conversation.unread}
-							<span class="bg-primary mt-1.5 h-2 w-2 rounded-full"></span>
-						{/if}
 					</div>
 				</button>
 			{/each}
@@ -145,46 +154,44 @@
 
 	<!-- Chat Area -->
 	<div class="bg-background flex flex-1 flex-col">
-		{#if selectedConversation}
+		{#if selectedParent}
 			<div class="border-border flex h-14 items-center justify-between border-b px-4">
 				<div>
-					<h3 class="text-foreground font-semibold">{selectedConversation.parent}</h3>
-					<p class="text-muted-foreground text-sm">Re: {selectedConversation.pupil}</p>
+					<h3 class="text-foreground font-semibold">{selectedParent.user.name}</h3>
+					<p class="text-muted-foreground text-sm">{selectedParent.user.email}</p>
 				</div>
 			</div>
 
-			<div class="flex-1 space-y-4 overflow-y-auto p-4">
+			<div bind:this={scrollContainer} class="flex-1 space-y-4 overflow-y-auto p-4">
 				{#each messages as message}
-					<div class="flex" class:justify-end={!message.isParent}>
+					<div class="flex" class:justify-end={message.isFromParent}>
 						<div
 							class="max-w-[70%] rounded-lg p-3 shadow-sm"
-							class:bg-muted={message.isParent}
-							class:bg-primary={!message.isParent}
-							class:text-primary-foreground={!message.isParent}
+							class:bg-muted={!message.isFromParent}
+							class:bg-primary={message.isFromParent}
+							class:text-primary-foreground={message.isFromParent}
 						>
-							<p class="text-sm font-medium">{message.sender}</p>
+							<p class="text-sm font-medium">
+								{message.isFromParent ? message.parent.user.name : message.coach.user.name}
+							</p>
 							<p class="mt-1">{message.content}</p>
-							<p class="text-muted-foreground mt-1 text-xs">{message.timestamp}</p>
+							<p class="text-muted-foreground mt-1 text-xs">
+								{new Date(message.createdAt).toLocaleTimeString()}
+							</p>
 						</div>
 					</div>
 				{/each}
 			</div>
 
 			<div class="border-border border-t bg-background p-4">
-				<form class="flex gap-4" onsubmit={sendMessage}>
+				<form onsubmit={handleSubmit} class="flex gap-4">
 					<input
 						type="text"
 						bind:value={newMessage}
 						class="border-input ring-offset-background focus:ring-ring flex-1 rounded-md border bg-transparent px-3 py-2 text-sm shadow-sm transition-colors placeholder:text-muted-foreground focus:outline-none focus:ring-1 disabled:cursor-not-allowed disabled:opacity-50"
 						placeholder={m.type_message()}
 					/>
-					<button
-						type="submit"
-						class="bg-primary text-primary-foreground hover:bg-primary/90 rounded-md px-4 py-2 text-sm font-medium transition-colors disabled:pointer-events-none disabled:opacity-50"
-						disabled={!newMessage.trim()}
-					>
-						{m.send()}
-					</button>
+					<Button type="submit" disabled={!newMessage.trim()}>{m.send()}</Button>
 				</form>
 			</div>
 		{:else}
@@ -193,39 +200,4 @@
 			</div>
 		{/if}
 	</div>
-
-	<!-- Right Sidebar - Parent Information -->
-	{#if selectedConversation}
-		<div class="border-border bg-background/50 flex w-80 flex-col border-l">
-			<div class="border-border flex h-14 items-center border-b px-4">
-				<h2 class="text-foreground text-lg font-semibold">{m.parent_info()}</h2>
-			</div>
-			<div class="p-4">
-				<div class="flex items-center gap-4">
-					<div
-						class="bg-primary/10 text-primary flex h-16 w-16 items-center justify-center rounded-full text-xl font-medium"
-					>
-						{selectedConversation.avatar}
-					</div>
-					<div>
-						<h3 class="text-foreground text-lg font-semibold">{selectedConversation.parent}</h3>
-						<p class="text-muted-foreground text-sm">{selectedConversation.email}</p>
-					</div>
-				</div>
-
-				<div class="mt-6">
-					<h4 class="text-foreground mb-2 font-medium">{m.pupils()}</h4>
-					<div class="space-y-2">
-						<hr />
-						{#each selectedConversation.pupils || [] as pupil}
-							<Button variant="link" href={`/coach/pupils/${pupil.id}`}>
-								{pupil.name}
-							</Button>
-							<hr />
-						{/each}
-					</div>
-				</div>
-			</div>
-		</div>
-	{/if}
 </div>

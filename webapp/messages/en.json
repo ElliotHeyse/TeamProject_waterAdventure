@@ -150,5 +150,12 @@
     "submissions_total": "{count} submission(s) total.",
     "review_submitted": "Review submitted successfully",
     "error_submitting_review": "Error submitting review",
-    "submitting": "Submitting..."
+    "submitting": "Submitting...",
+    "parents": "Parents",
+    "manage_parents": "View and manage all parents",
+    "details": "Details",
+    "changes_saved": "Changes saved successfully",
+    "edit_parent_info": "Edit Parent Information",
+    "assigned_coach": "Assigned Coach",
+    "select_coach": "Select a coach"
 }

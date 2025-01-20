@@ -45,6 +45,7 @@
 		{ href: '/coach', label: m.nav_overview(), icon: ChartBar },
 		{ href: '/coach/lessons', label: m.nav_lessons(), icon: AcademicCap },
 		{ href: '/coach/pupils', label: m.nav_pupils(), icon: UserGroup },
+		{ href: '/coach/parents', label: m.parents(), icon: UserGroup },
 		{ href: '/coach/submissions', label: m.nav_submissions(), icon: ClipboardDocumentCheck },
 		{ href: '/coach/chat', label: m.nav_chat(), icon: ChatBubbleLeftRight },
 		{ href: '/coach/settings', label: m.nav_settings(), icon: Cog6Tooth }

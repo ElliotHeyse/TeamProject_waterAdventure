@@ -150,5 +150,12 @@
     "submissions_total": "{count} inzending(en) totaal.",
     "review_submitted": "Beoordeling succesvol ingediend",
     "error_submitting_review": "Fout bij het indienen van de beoordeling",
-    "submitting": "Bezig met indienen..."
+    "submitting": "Bezig met indienen...",
+    "parents": "Ouders",
+    "manage_parents": "Bekijk en beheer alle ouders",
+    "details": "Details",
+    "changes_saved": "Modificaties opgeslagen",
+    "edit_parent_info": "Bewerk Ouder Informatie",
+    "assigned_coach": "Toegewezen Coach",
+    "select_coach": "Selecteer een coach"
 }

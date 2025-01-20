@@ -1,7 +1,6 @@
 # WaterAdventure - Early Water Confidence Platform
 
-[![Version](https://img.shields.io/badge/version-0.1-blue)](CHANGELOG.md)
-[![Age Group](https://img.shields.io/badge/Age%20Group-2--6%20years-pink)](README.md)
+[![Version](https://img.shields.io/badge/version-0.2.0-blue)](CHANGELOG.md)
 [![Languages](https://img.shields.io/badge/Languages-EN%20NL%20FR-blue)](README.md)
 
 A specialized platform connecting coaches and parents to help toddlers (2-6 years) develop water confidence through playful activities. Focus on early water familiarization and overcoming initial water fears through structured guidance and parent involvement.
@@ -9,14 +8,22 @@ A specialized platform connecting coaches and parents to help toddlers (2-6 year
 ## Features
 
 - Coach Dashboard
-
   - Activity planning for water familiarization
   - Age-appropriate exercise management
   - Progress tracking with developmental milestones
-  - Parent communication tools
+  - Parent communication tools: chat
+  - Exercise management with video demonstrations
+  - Medal-based achievement review system (Gold, Silver, Bronze)
+  - Submission status tracking
+
+- Parent & Child App
+  - Progress tracking
+  - Level progression system
+  - Coach communication tools: chat
+  - Video submission capabilities for exercises
 
 - Other Platform Features
-  - Multi-language support (🇺🇸 🇳🇱 🇫🇷)
+  - Multi-language support (🇬🇧 🇳🇱 🇫🇷)
 
 ## Tech Stack
 
@@ -41,6 +48,7 @@ A specialized platform connecting coaches and parents to help toddlers (2-6 year
 3. Configure environment variables
 4. Initialize the database
 5. Start development server
+*Update on release 1.0.0*
 
 ## Team & Partners
 
