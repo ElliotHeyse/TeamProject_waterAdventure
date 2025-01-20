@@ -29,14 +29,7 @@ export const load = async ({ url }) => {
             );
         } catch (error) {
             // If subscription is invalid, remove it from the database
-            if (error.statusCode === 410 || error.statusCode === 404) {
-                await prisma.pushSubscription.delete({
-                    where: { endpoint: subscription.endpoint }
-                });
-                errors.push(`Removed invalid subscription: ${subscription.endpoint}`);
-            } else {
-                errors.push(`Failed to send notification: ${error.message}`);
-            }
+            console.error(error);
         }
     }
 
