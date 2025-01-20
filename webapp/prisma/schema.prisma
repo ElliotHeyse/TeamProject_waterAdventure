@@ -63,8 +63,9 @@ model Parent {
   Coach   Coach?  @relation(fields: [coachId], references: [id])
 
   // Incoming relations
-  pupils   Pupil[]
-  messages Message[] @relation("ParentMessages")
+  pupils        Pupil[]
+  messages      Message[] @relation("ParentMessages")
+  notifications Notification[]
 }
 
 model Pupil {
@@ -72,23 +73,23 @@ model Pupil {
   name        String
   dateOfBirth DateTime
   progress    Int      @default(0)
-  notes       String?
+  notes       String?  @default("New pupil.")
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
   // Outgoing relations
-  parentId String @unique
+  parentId String
   parent   Parent @relation(fields: [parentId], references: [id])
 
   // Incoming relations
-  submissions   Submission[]
   levelProgress LevelProgress[]
+  submissions   Submission[]
 }
 
 model Level {
   id          String   @id @default(cuid())
   duration    Int // in minutes
-  levelNumber Int
+  levelNumber Int      @unique
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
@@ -147,7 +148,7 @@ model ExerciseLanguageContent {
 model Video {
   id        String   @id @default(cuid())
   path      String
-  title     String
+  title     String[] // title in different languages
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -159,17 +160,18 @@ model Video {
 model LevelProgress {
   id                 String    @id @default(cuid())
   firstPartCompleted Boolean   @default(false)
+  fullyCompleted     Boolean   @default(false)
   completedAt        DateTime?
   createdAt          DateTime  @default(now())
   updatedAt          DateTime  @updatedAt
 
   // Outgoing relations
-  pupilId String
-  pupil   Pupil  @relation(fields: [pupilId], references: [id])
-  levelId String
-  level   Level  @relation(fields: [levelId], references: [id])
+  pupilId     String
+  pupil       Pupil  @relation(fields: [pupilId], references: [id])
+  levelNumber Int
+  level       Level  @relation(fields: [levelNumber], references: [levelNumber])
 
-  @@unique([pupilId, levelId])
+  @@unique([pupilId, levelNumber])
 }
 
 model Submission {
@@ -182,10 +184,10 @@ model Submission {
   updatedAt DateTime         @updatedAt
 
   // Outgoing relations
-  levelId String
-  level   Level  @relation(fields: [levelId], references: [id])
-  pupilId String
-  pupil   Pupil  @relation(fields: [pupilId], references: [id])
+  levelNumber Int
+  level       Level  @relation(fields: [levelNumber], references: [levelNumber])
+  pupilId     String
+  pupil       Pupil  @relation(fields: [pupilId], references: [id])
 }
 
 enum SubmissionStatus {
@@ -237,7 +239,7 @@ model Message {
   id           String   @id @default(cuid())
   content      String
   isRead       Boolean  @default(false)
-  isFromParent Boolean  @default(false)
+  sender       UserRole
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 
@@ -259,10 +261,12 @@ model Notification {
   updatedAt DateTime         @updatedAt
 
   // Outgoing relations
-  userId  String
-  user    User    @relation(fields: [userId], references: [id])
-  levelId String? // necessary for href to feedback from notifications
-  level   Level?  @relation(fields: [levelId], references: [id])
+  userId      String
+  user        User    @relation(fields: [userId], references: [id])
+  levelNumber Int?    // necessary for href to feedback from notifications (parent app)
+  level       Level?  @relation(fields: [levelNumber], references: [levelNumber])
+  parentId    String? // necessary for href to correct chat (coach dashboard)
+  parent      Parent? @relation(fields: [parentId], references: [id])
 }
 
 enum NotificationType {
