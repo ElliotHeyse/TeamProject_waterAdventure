@@ -13,7 +13,7 @@ export const load = (async ({ url }) => {
 					navigator.serviceWorker.ready.then(async (registration) => {
 						// First check if we already have a subscription
 						let subscription = await registration.pushManager.getSubscription();
-						
+
 						// If we have an existing subscription, try to use it
 						if (subscription) {
 							try {

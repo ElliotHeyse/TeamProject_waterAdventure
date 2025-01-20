@@ -47,23 +47,31 @@ const webSocketServer = {
 						});
 
 						for (const subscription of subscriptions) {
-							// webpush.setGCMAPIKey("");
-							webpush.setVapidDetails(`mailto:${process.env.VAPID_EMAIL}`, process.env.VAPID_PUBLIC_KEY, process.env.VAPID_PRIVATE_KEY);
+							try {
+								webpush.setVapidDetails(
+									`mailto:${process.env.VAPID_EMAIL}`,
+									process.env.VAPID_PUBLIC_KEY,
+									process.env.VAPID_PRIVATE_KEY
+								);
 
-							await webpush.sendNotification(
-								{
-									endpoint: subscription.endpoint,
-									keys: {
-										p256dh: subscription.p256dh,
-										auth: subscription.auth
-									}
-								},
-								JSON.stringify({
-									title: `New message from ${savedMessage.parent.user.name}`,
-									body: savedMessage.content,
-									url: `${process.env.APP_URL}/app/chat/${savedMessage.parentId}`
-								})
-							);
+								await webpush.sendNotification(
+									{
+										endpoint: subscription.endpoint,
+										keys: {
+											p256dh: subscription.p256dh,
+											auth: subscription.auth
+										}
+									},
+									JSON.stringify({
+										title: `New message from ${savedMessage.parent.user.name}`,
+										body: savedMessage.content,
+										url: `${process.env.APP_URL}/app/chat/${savedMessage.parentId}`
+									})
+								);
+							} catch (error) {
+								// If subscription is invalid, remove it from the database
+								console.error('Error sending notification:', error);
+							}
 						}
 					}
 
