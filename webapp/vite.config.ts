@@ -58,7 +58,11 @@ const webSocketServer = {
 										auth: subscription.auth
 									}
 								},
-								JSON.stringify({ title: `New message from ${savedMessage.parent.user.name}`, body: savedMessage.content, url: `/app/chat/${savedMessage.parentId}` })
+								JSON.stringify({
+									title: `New message from ${savedMessage.parent.user.name}`,
+									body: savedMessage.content,
+									url: `${process.env.APP_URL}/app/chat/${savedMessage.parentId}`
+								})
 							);
 						}
 					}
