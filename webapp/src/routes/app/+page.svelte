@@ -67,7 +67,7 @@
 		isBodyHidden: Boolean
 	}
 
-	// region Data logic
+	// region Child logic
 
 	const { data } = $props<{
 		data: {
@@ -154,7 +154,15 @@
 					<img src={badge} alt="Progress badge">
 				</div>
 				<div>
-					<h1 class="text-[28px] leading-[120%] text-main">{selectedChild.currentLevel}</h1>
+					<h1 class="text-[28px] leading-[120%] text-main">
+						{#if [0, 1, 2].includes(selectedChild.progress)}
+							BEGINNER
+						{:else if [3, 4, 5].includes(selectedChild.progress)}
+							INTERMEDIATE
+						{:else}
+							ADVANCED
+						{/if}
+					</h1>
 				</div>
 			</div>
 			<div class="w-full flex flex-col gap-[4px]">
@@ -163,14 +171,14 @@
 						<span class="text-sm text-gray-500">Level</span>
 					</div>
 					<div class="flex gap-0">
-						<span class="text-sm text-main font-bold">{selectedChild.currentLevelOrder}</span>
+						<span class="text-sm text-main font-bold">{selectedChild.progress}</span>
 						<span class="text-sm text-gray-500">/{TOTAL_LEVELS}</span>
 					</div>
 				</div>
 				<div class="h-2 w-full rounded-full bg-muted">
 					<div
 						class="h-full rounded-full bg-blue-500 transition-all"
-						style="width: {(selectedChild.currentLevelOrder / TOTAL_LEVELS) * 100}%"
+						style="width: {(selectedChild.progress / TOTAL_LEVELS) * 100}%"
 					></div>
 				</div>
 			</div>
@@ -179,7 +187,7 @@
 
 	<div class="flex flex-col gap-6 py-6 px-4 m-0">
 		<!-- Next level -->
-		{#if selectedChild.currentLevelOrder < TOTAL_LEVELS}
+		{#if selectedChild.progress < TOTAL_LEVELS}
 		<div class="flex flex-col gap-3">
 			<div class="flex gap-3">
 				<h2 class="text-[20px] leading-[150%] text-main font-semibold">Next</h2>
@@ -187,15 +195,17 @@
 			</div>
 			<div class="flex flex-col align-center">
 				<div class="mb-[-12.5px] z-10">
-					<span class="ml-6 px-3 py-[2px] border border-white bg-blue-200 rounded-lg text-[14px] leading-[150%] text-blue-950 font-medium">Level {selectedChild.currentLevelOrder+1}</span>
+					<span class="ml-6 px-3 py-[2px] border border-white bg-blue-200 rounded-lg text-[14px] leading-[150%] text-blue-950 font-medium">Level {selectedChild.progress+1}</span>
 				</div>
 				<div class="w-full flex justify-center pt-6 pb-8 bg-blue-950 rounded-[20px]">
-					<span class="text-[36px] leading-[150%] text-blue-500">Level title</span>
+					<span class="text-[36px] leading-[150%] text-blue-500">
+						{data.levels[selectedChild.progress].languageContents[0].title}
+					</span>
 				</div>
 				<div class="mt-[-26.4px] flex justify-center">
 					<button
 					class="cursor-pointer bg-green-500 px-4 py-2 text-[28px] leading-[120%] font-extrabold text-green-100 border-2 border-white rounded-[20px]"
-					onclick={() => goto(`/app/levels/${selectedChild.currentLevelOrder + 1}`)}
+					onclick={() => goto(`/app/levels/${selectedChild.progress + 1}`)}
 					type="button">
 						START
 					</button>
@@ -221,7 +231,7 @@
 							<button
 							class="cursor-pointer w-full rounded hover:bg-blue-100"
 							onclick={() => {
-								resetOtherNotificationBodies();
+								resetOtherNotificationBodies(notification.id);
 								markNotificationAsRead(notification.id);
 								goto("/app/chat");
 							}}
@@ -260,13 +270,13 @@
 										<div class={cn("mt-2 h-2 w-2 bg-blue-500 rounded-full",
 											notification.isRead ? "opacity-0" : "opacity-100")}></div>
 										<div class="w-full flex flex-col items-start gap-1">
-											<span class="text-[14px] leading-[150%] font-medium text-main">New feedback: Level {notification.level}</span>
+											<span class="text-[14px] leading-[150%] font-medium text-main">New feedback: Level {notification.levelNumber}</span>
 											<span class="text-[14px] leading-[150%] text-gray-500">
 												{formatTimeAgo(notification.timestamp)}
 											</span>
 										</div>
 									</div>
-									<a href="/app/levels/{notification.level}#feedback">
+									<a href="/app/levels/{notification.levelNumber}#feedback">
 										<div class={cn("flex justify-start ml-6 px-2 py-1 mr-1 bg-blue-50 rounded border border-solid border-opacity-0 hover:border-opacity-100 hover:border-blue-500 transition-all duration-300",
 											notification.isBodyHidden ? "hidden" : "block"
 										)}>
@@ -283,7 +293,7 @@
 							)}
 							onclick={() => {
 								markNotificationAsRead(notification.id);
-								resetOtherNotificationBodies();
+								resetOtherNotificationBodies(notification.id);
 								if (notification.isBodyHidden) {
 									notification.isBodyHidden = false;
 								} else {
