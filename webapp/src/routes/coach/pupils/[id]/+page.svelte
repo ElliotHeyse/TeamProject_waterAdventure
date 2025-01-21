@@ -112,25 +112,6 @@
 									<Input id="name" name="name" value={data.pupil.name} required />
 								</div>
 								<div class="space-y-2">
-									<Label for="level">{m.level()}</Label>
-									<Select.Root
-										type="single"
-										value={selectedLevel}
-										onValueChange={(value) => (selectedLevel = value)}
-									>
-										<Select.Trigger class="w-[180px]">
-											{selectedLevel.charAt(0) + selectedLevel.slice(1).toLowerCase()}
-										</Select.Trigger>
-										<Select.Content>
-											{#each levels as level}
-												<Select.Item value={level}>
-													{level.charAt(0) + level.slice(1).toLowerCase()}
-												</Select.Item>
-											{/each}
-										</Select.Content>
-									</Select.Root>
-								</div>
-								<div class="space-y-2">
 									<Label for="notes">{m.notes()}</Label>
 									<Textarea
 										id="notes"
