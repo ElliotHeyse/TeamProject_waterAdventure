@@ -4,60 +4,73 @@
 	import { writable } from 'svelte/store';
 	import * as m from '$lib/paraglide/messages.js';
 	import { goto } from '$app/navigation';
+	import { page } from '$app/state';
+	import { selectedChildIdStore } from '$lib/stores/child.store';
+	import type {ParentUser, Level, Exercise, Pupil, LevelProgress} from '../../types';
+	import { TrendingUpDown } from 'lucide-svelte';
 
-	interface Exercise {
-		id: string;
-		part: string;
-		name: string;
-		title: string;
-		description: string;
-		completed: boolean;
-		videos: {
-			id: string;
-			description: string;
-			url: string;
-			exerciseId: string;
-			createdAt: Date;
-			updatedAt: Date;
-		}[];
-	}
+	// interface Exercise {
+	// 	id: string;
+	// 	part: string;
+	// 	name: string;
+	// 	title: string;
+	// 	description: string;
+	// 	completed: boolean;
+	// 	videos: {
+	// 		id: string;
+	// 		description: string;
+	// 		url: string;
+	// 		exerciseId: string;
+	// 		createdAt: Date;
+	// 		updatedAt: Date;
+	// 	}[];
+	// }
 
-	interface LevelProgress {
-		id: string;
-		pupilId: string;
-		lessonId: string;
-		part: string;
-		completed: boolean;
-		completedAt: Date | null;
-	}
+	// interface LevelProgress {
+	// 	id: string;
+	// 	pupilId: string;
+	// 	lessonId: string;
+	// 	part: string;
+	// 	completed: boolean;
+	// 	completedAt: Date | null;
+	// }
 
 	const { data } = $props<{
 		data: {
-			lesson: {
-				id: string;
-				title: string;
-				objective: string;
-				exercises: Exercise[];
-			};
-			progress: LevelProgress[];
-			submissions: any[];
+			parentUser: ParentUser;
+			level: Level;
 		};
 	}>();
 
-	let exercises = $state(data.lesson.exercises);
+	const selectedChild = $derived(
+		data.parentUser.parent.pupils.find((pupil: Pupil) => pupil.id === $selectedChildIdStore) || data.parentUser.parent.pupils[0]
+	);
+
+	// get exercises from the selected level
+	let exercises = $state(data.level.exercises);
+
+	// get level progress from the selected child on this level
+	let levelProgress = $derived(selectedChild.levelProgress[0]);
+
 	let videoUrl = $state('');
 	let message = $state<string | null>(null);
 	let success = $state(false);
 
+	// hardcoded completion state, requires database refactor
+	let levelProgress_completed = false;
+
 	async function toggleCompletion(exercise: Exercise) {
+		let content: LevelProgress = levelProgress;
+		if (exercise.exerciseNumber === 1) {
+			content.firstPartCompleted = true;
+		} else if (exercise.exerciseNumber === 2) {
+			content.fullyCompleted = true;
+		}
+
 		const response = await fetch('/api/level-progress', {
-			method: 'PATCH',
+			method: 'PUT',
 			headers: { 'Content-Type': 'application/json' },
-			body: JSON.stringify({
-				lessonId: data.lesson.id,
-				part: exercise.part,
-				completed: !exercise.completed
-			})
+			body: JSON.stringify(content)
 		});
 
 		if (response.ok) {
@@ -70,70 +83,144 @@
 	}
 
 	async function handleSubmit(event: SubmitEvent) {
-		event.preventDefault();
-		success = false;
-		message = '';
+		// event.preventDefault();
+		// success = false;
+		// message = '';
 
-		const formData = new FormData();
-		formData.append('lessonId', data.lesson.id);
-		formData.append('videoUrl', videoUrl);
+		// const formData = new FormData();
+		// formData.append('lessonId', data.lesson.id);
+		// formData.append('videoUrl', videoUrl);
 
-		const response = await fetch('/api/submission', {
-			method: 'POST',
-			body: formData
-		});
+		// const response = await fetch('/api/submission', {
+		// 	method: 'POST',
+		// 	body: formData
+		// });
 
-		const result = await response.json();
+		// const result = await response.json();
 
-		if (result.success) {
-			success = true;
-			message = m.video_submitted();
-			videoUrl = '';
-			// After successful submission, redirect to levels page
-			setTimeout(() => {
-				goto('/app/levels');
-			}, 1500);
-		} else {
-			message = result.message || m.submission_failed();
-		}
+		// if (result.success) {
+		// 	success = true;
+		// 	message = m.video_submitted();
+		// 	videoUrl = '';
+		// 	// After successful submission, redirect to levels page
+		// 	setTimeout(() => {
+		// 		goto('/app/levels');
+		// 	}, 1500);
+		// } else {
+		// 	message = result.message || m.submission_failed();
+		// }
 	}
 
-	const isCompleted = $derived(exercises.every((ex: Exercise) => ex.completed));
+	// const isCompleted = $derived(exercises.every((ex: Exercise) => ex.completed));
 </script>
 
 <div class="container mx-auto px-4 py-8">
-	<h1 class="text-3xl font-bold mb-4 text-foreground">{data.lesson.title}</h1>
-	<p class="text-xl mb-8 text-orange-500">{data.lesson.objective}</p>
+	<div class="mb-6">
+		<h1 class="text-3xl font-bold mb-4 text-foreground">Level {page.url.pathname.split('/').pop()} - {data.level.languageContents[0].title}
+		</h1>
+		<ul class="flex gap-4">
+			{#each data.level.languageContents[0].objectives as objective}
+			<li class="px-3 pt-1 pb-[6px] rounded-full bg-blue-200">
+				<span class="text-blue-700">{objective}</span>
+			</li>
+			{/each}
+		</ul>
+	</div>
 
 	{#each exercises as exercise}
 		<div class="mb-12 bg-card rounded-lg p-6 shadow-md">
+			<!-- header -->
 			<div class="flex justify-between items-center mb-4">
-				<h3 class="text-2xl font-semibold text-foreground">{exercise.title}</h3>
+				<div class="flex gap-8 items-end">
+					<h3 class="text-2xl font-bold text-blue-950">{exercise.languageContents[0].title}</h3>
+					<ul class="flex mb-[2px]">
+						{#each exercise.languageContents[0].location as location}
+							<li>
+								<span class=" px-2 pb-[3px] pt-[2px] rounded bg-gray-200 text-muted-foreground">{location}</span>
+							</li>
+						{/each}
+					</ul>
+				</div>
+				<!-- TODO completion button -->
 				<button
-					class="px-4 py-2 rounded-md {exercise.completed
-						? 'bg-green-500 hover:bg-green-600'
+					class="px-4 py-2 rounded-md {levelProgress_completed
+						? 'bg-gray-500 hover:bg-green-600'
 						: 'bg-blue-500 hover:bg-blue-600'} text-white transition-colors"
 					onclick={() => toggleCompletion(exercise)}
 				>
-					{exercise.completed ? 'Voltooid' : 'Markeer als voltooid'}
+					{levelProgress_completed ? 'Voltooid' : 'Markeer als voltooid'}
 				</button>
 			</div>
 
-			<p class="text-muted-foreground mb-6">{exercise.description}</p>
+			<!-- description(s) -->
+			<div class="mb-6 text-blue-950 text-lg">
+				{#if exercise.languageContents[0].description.length > 1}
+					<ul class="flex flex-col gap-0 list-disc pl-4 space-y-2">
+						{#each exercise.languageContents[0].description as description}
+							<li>
+								<span>{description}</span>
+							</li>
+						{/each}
+					</ul>
+				{:else}
+					<p>{exercise.languageContents[0].description[0]}</p>
+				{/if}
+			</div>
 
+			<!-- importants note(s) -->
+			{#if exercise.languageContents[0].important.length > 0}
+				<div class="mb-6">
+					<h4 class="text-lg font-semibold text-foreground">Important</h4>
+					{#if exercise.languageContents[0].important.length > 1}
+						<ul class="list-disc pl-4 space-y-2">
+							{#each exercise.languageContents[0].important as note}
+								<li class="text-foreground">{note}</li>
+							{/each}
+						</ul>
+					{:else}
+						<p class="text-foreground">{exercise.languageContents[0].important[0]}</p>
+					{/if}
+				</div>
+			{/if}
+
+			<!-- tip(s) -->
+			{#if exercise.languageContents[0].tips.length > 0}
+				<div class="mb-6">
+					<h4 class="text-lg font-semibold text-foreground">Tips</h4>
+					{#if exercise.languageContents[0].tips.length > 1}
+						<ul class="list-disc pl-4 space-y-2">
+							{#each exercise.languageContents[0].tips as tip}
+								<li class="text-foreground">{tip}</li>
+							{/each}
+						</ul>
+					{:else}
+						<p class="text-foreground">{exercise.languageContents[0].tips[0]}</p>
+					{/if}
+				</div>
+			{/if}
+
+			<!-- video(s) -->
 			<div class="mt-6 space-y-6">
 				{#each exercise.videos as video}
 					<div class="flex flex-col md:flex-row gap-6">
 						<div class="w-full md:w-1/2">
-							<h5 class="text-lg font-semibold mb-2 text-foreground">{video.description}</h5>
+							{#if data.parentUser.settings.language === 'nl'}
+								<h5 class="text-lg font-semibold mb-2 text-foreground">{video.title[0]}</h5>
+							{:else if data.parentUser.settings.language === 'en'}
+								<h5 class="text-lg font-semibold mb-2 text-foreground">{video.title[1]}</h5>
+							{:else if data.parentUser.settings.language === 'fr'}
+								<h5 class="text-lg font-semibold mb-2 text-foreground">{video.title[2]}</h5>
+							{/if}
 							<video controls class="w-full rounded-lg border border-border">
-								<source src={video.url} type="video/mp4" />
+								<source src={video.path} type="video/mp4" />
 								Your browser does not support the video tag.
 								<track kind="captions" />
 							</video>
 						</div>
-						<div class="w-full md:w-1/2 text-muted-foreground md:mt-10">
-							{#if video.description === 'Tokkelen op het water'}
+						<span>{video.path}</span>
+						<!-- video notes, skip for now -->
+						<!-- <div class="w-full md:w-1/2 text-muted-foreground md:mt-10">
+							{#if true}
 								<ul class="list-disc pl-4 space-y-2">
 									<li>Zittend op de trap met de handen golven maken</li>
 									<li>Drijvend voorwaarts voortduwen</li>
@@ -161,14 +248,16 @@
 									<li>Met vingers samengeknepen sturen</li>
 								</ul>
 							{/if}
-						</div>
+						</div> -->
 					</div>
 				{/each}
 			</div>
 		</div>
 	{/each}
 
-	{#if isCompleted}
+	<p>SEPARATOR</p>
+
+	<!-- {#if isCompleted}
 		<div class="mt-8 bg-card rounded-lg p-6 shadow-md">
 			{#if data.submission}
 				{#if data.submission.status === 'REVIEWED'}
@@ -287,5 +376,5 @@
 				</div>
 			{/if}
 		</div>
-	{/if}
+	{/if} -->
 </div>
