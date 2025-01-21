@@ -1,28 +1,35 @@
 <script lang="ts">
 	import { enhance } from '$app/forms';
-	import { goto, invalidateAll } from '$app/navigation';
-	import type { ActionResult } from '@sveltejs/kit';
+	import { goto } from '$app/navigation';
+	import type { SubmitFunction } from '@sveltejs/kit';
 	import { Icon, UserCircle } from 'svelte-hero-icons';
 	import { Button } from '$lib/components/coach/ui/button';
 	import { cn } from '$lib/utils';
 	import * as m from '$lib/paraglide/messages.js';
 
+	// Login form state
 	let email = $state('');
 	let password = $state('');
+	let error = $state('');
 	let formData = $state<{ error?: string } | undefined>(undefined);
 
 	const inputStyles =
 		'mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#FF5555] focus:ring-[#FF5555]';
 
-	function handleSubmit() {
-		return async ({ result }: { result: ActionResult }) => {
+	const handleSubmit: SubmitFunction = () => {
+		return async ({ result }) => {
+			console.log('Form submission result:', result);
+
 			if (result.type === 'failure') {
-				formData = result.data as { error: string };
+				error = result.data?.error || 'An unknown error occurred';
+				console.error('Form submission failed:', error);
+				formData = result.data;
 			} else if (result.type === 'redirect') {
+				console.log('Login successful, following redirect');
 				goto(result.location);
 			}
 		};
-	}
+	};
 </script>
 
 <div class="relative flex min-h-screen flex-col items-center justify-center">
@@ -50,7 +57,7 @@
 				<p class="text-center text-sm text-gray-500">Demo credentials: demo@demo.com / demo</p>
 			</div>
 
-			<form method="POST" use:enhance={handleSubmit} class="space-y-6">
+			<form method="POST" action="?/login" use:enhance={handleSubmit} class="space-y-6">
 				{#if formData?.error}
 					<div class="rounded-md bg-red-50 p-4 text-sm text-red-700">
 						<p class="font-medium">{m.auth_failed()}</p>
@@ -88,15 +95,21 @@
 					</div>
 				</div>
 
-				<Button
-					type="submit"
-					class={cn(
-						'w-full bg-[#FF5555] text-white hover:bg-[#FF5555]/90',
-						'focus-visible:ring-[#FF5555]'
-					)}
-				>
-					{m.sign_in_button()}
-				</Button>
+				<div class="flex flex-col space-y-4">
+					<Button
+						type="submit"
+						class={cn(
+							'w-full bg-[#FF5555] text-white hover:bg-[#FF5555]/90',
+							'focus-visible:ring-[#FF5555]'
+						)}
+					>
+						{m.sign_in_button()}
+					</Button>
+
+					<a href="/register" class="text-center text-sm text-[#FF5555] hover:underline">
+						Don't have an account yet? Register here
+					</a>
+				</div>
 			</form>
 		</div>
 	</div>
