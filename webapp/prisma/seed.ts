@@ -1951,7 +1951,7 @@ async function main() {
 					parent: {
 					  	create: {
 							phone: parent.phone,
-							coachId: coachUser.coach![0].id, // Link to existing coach
+							coachId: coachUser.coach!.id, // Link to existing coach
 							pupils: {
 								create: parent.pupils.map((pupil) => ({
 								  	name: pupil.name,
@@ -2038,37 +2038,37 @@ async function main() {
 				content: 'Welkom bij Zwemfed! Stel me gerust een vraag als je hulp of tips nodig hebt bij de oefeningen.',
 				isRead: true,
 				sender: UserRole.COACH,
-				parentId: parentUser.parent[0].id
+				parentId: parentUser.parent.id
 			},
 			{
 				content: `Hi, ik ben ${parentUser.name}. Ik heb een vraag over de oefeningen.`,
 				isRead: true,
 				sender: UserRole.PARENT,
-				parentId: parentUser.parent[0].id
+				parentId: parentUser.parent.id
 			},
 			{
 				content: `Hi ${parentUser.name}, zeker! Waarmee kan ik je helpen?`,
 				isRead: true,
 				sender: UserRole.COACH,
-				parentId: parentUser.parent[0].id
+				parentId: parentUser.parent.id
 			},
 			{
 				content: 'Ik vind de uitleg bij level 3, oefening 2 niet zo duidelijk. Kan je dit wat beter toelichten?',
 				isRead: true,
 				sender: UserRole.PARENT,
-				parentId: parentUser.parent[0].id
+				parentId: parentUser.parent.id
 			},
 			{
 				content: 'Is het de bedoeling dat ik mijn kind keihard het water in gooi en zo ver mogelijk laat stuiteren op het wateroppervlak?',
 				isRead: true,
 				sender: UserRole.PARENT,
-				parentId: parentUser.parent[0].id
+				parentId: parentUser.parent.id
 			},
 			{
 				content: 'LMAO no balls',
 				isRead: true,
 				sender: UserRole.COACH,
-				parentId: parentUser.parent[0].id
+				parentId: parentUser.parent.id
 			}
 		];
 		messageData = messageData.concat(messageArray);
@@ -2089,7 +2089,7 @@ async function main() {
 					},
 					coach: {
 						connect: {
-							id: coachUser.coach![0].id
+							id: coachUser?.coach?.id
 						}
 					}
 				}

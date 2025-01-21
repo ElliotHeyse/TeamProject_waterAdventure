@@ -26,7 +26,8 @@ model User {
   coach            Coach?
   parent           Parent?
   sessions         Session[]
-  settings         UserSettings?
+  settings         UserSettings? @relation("UserSettings")
+  notifications    Notification[]
   PushSubscription PushSubscription[]
 }
 
@@ -278,7 +279,6 @@ enum NotificationType {
 
 model PushSubscription {
   id        String   @id @default(cuid())
-  userId    String
   endpoint  String   @unique
   auth      String
   p256dh    String
@@ -286,6 +286,7 @@ model PushSubscription {
   updatedAt DateTime @updatedAt
 
   // Relations
+  userId    String
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
