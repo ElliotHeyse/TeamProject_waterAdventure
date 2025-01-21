@@ -2033,6 +2033,7 @@ async function main() {
 
 	await parentUsers.forEach((parentUser) => {
 		// Construct message data per parent
+		if (!parentUser.parent) return;
 		const messageArray: SeedMessage[] = [
 			{
 				content: 'Welkom bij Zwemfed! Stel me gerust een vraag als je hulp of tips nodig hebt bij de oefeningen.',
