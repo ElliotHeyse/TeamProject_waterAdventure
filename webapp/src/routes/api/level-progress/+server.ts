@@ -1,57 +1,60 @@
 import { prisma } from '$lib/server/db';
 import { json, error } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
+import type { Pupil, LevelProgress } from '../../app/types';
 
-export const PATCH: RequestHandler = async ({ request, locals }) => {
+export const PUT: RequestHandler = async ({ request, locals }) => {
   if (!locals.user) {
     throw error(401, 'Unauthorized');
   }
 
-  const { lessonId, part, completed } = await request.json();
-
-  if (!lessonId || !part || completed === undefined) {
+  const {pupil, levelProgress} = await request.json();
+  if (!pupil || !levelProgress) {
     throw error(400, 'Missing required fields');
+  } else {
+    console.log("API: request received")
+    console.log(pupil.name);
+    console.log(levelProgress);
   }
 
-  // Get the pupil ID from the parent relationship
-  const parent = await prisma.parent.findUnique({
+  // update the levelProgress entry in the Database
+  const updatedLevelProgress = await prisma.levelProgress.update({
     where: {
-      userId: locals.user.id
+      id: levelProgress.id
     },
-    include: {
-      pupils: {
-        take: 1
-      }
+    data: {
+      firstPartCompleted: Boolean(levelProgress.firstPartCompleted),
+      fullyCompleted: Boolean(levelProgress.fullyCompleted)
     }
   });
 
-  if (!parent || !parent.pupils[0]) {
-    throw error(404, 'No pupil found');
+  if (!updatedLevelProgress) {
+    throw error(500, 'Failed to update level progress');
   }
 
-  const pupilId = parent.pupils[0].id;
-
-  // Find or create the progress entry
-  const progress = await prisma.levelProgress.upsert({
-    where: {
-      pupilId_lessonId_part: {
-        pupilId,
-        lessonId,
-        part,
+  if (updatedLevelProgress.firstPartCompleted && updatedLevelProgress.fullyCompleted) {
+    console.log("Level fully completed");
+    const updatedPupil = await prisma.pupil.update({
+      where: {
+        id: pupil.id
       },
-    },
-    create: {
-      pupilId,
-      lessonId,
-      part,
-      completed,
-      completedAt: completed ? new Date() : null,
-    },
-    update: {
-      completed,
-      completedAt: completed ? new Date() : null,
-    },
-  });
+      data: {
+        progress: levelProgress.levelNumber
+      }
+    });
 
-  return json(progress);
-}; 
+    if (!updatedPupil) {
+      throw error(500, 'Failed to update pupil progress');
+    }
+
+    return json({
+      pupil: updatedPupil,
+      levelProgress: updatedLevelProgress
+    });
+  } else {
+    return json({
+      pupil: pupil,
+      levelProgress: updatedLevelProgress
+    });
+  }
+};

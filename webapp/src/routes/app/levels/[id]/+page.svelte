@@ -48,9 +48,13 @@
 
 	// get exercises from the selected level
 	let exercises = $state(data.level.exercises);
+	if (exercises.length === 1) {
+
+	}
 
 	// get level progress from the selected child on this level
-	let levelProgress = $derived(selectedChild.levelProgress[0]);
+	let levelProgress = $state(selectedChild.levelProgress[0]);
+	console.log(levelProgress);
 
 	let videoUrl = $state('');
 	let message = $state<string | null>(null);
@@ -60,25 +64,39 @@
 	let levelProgress_completed = false;
 
 	async function toggleCompletion(exercise: Exercise) {
-		let content: LevelProgress = levelProgress;
-		if (exercise.exerciseNumber === 1) {
-			content.firstPartCompleted = true;
-		} else if (exercise.exerciseNumber === 2) {
-			content.fullyCompleted = true;
+		if (exercises.length === 1) {
+			// if there is only one exercise in the level,
+			// toggle the completion of both completion states in sync
+			levelProgress.firstPartCompleted = !levelProgress.firstPartCompleted;
+			levelProgress.fullyCompleted = levelProgress.firstPartCompleted;
+		} else if (exercises.length === 2) {
+			// else if there are two exercises in the level
+			if (exercise.exerciseNumber === 1) {
+				// toggle the first part completion state if the first exercise is clicked
+				levelProgress.firstPartCompleted = !levelProgress.firstPartCompleted;
+			} else if (exercise.exerciseNumber === 2) {
+				// toggle the fully completed state if the second exercise is clicked
+				// the fully completed state serves as a secondPartCompletionstate,
+				// only when both are true, the level will be marked as fully completed (in api)
+				levelProgress.fullyCompleted = !levelProgress.fullyCompleted;
+			}
 		}
-
 		const response = await fetch('/api/level-progress', {
 			method: 'PUT',
 			headers: { 'Content-Type': 'application/json' },
-			body: JSON.stringify(content)
+			body: JSON.stringify(
+				{
+					pupil: selectedChild,
+					levelProgress: levelProgress
+				}
+			)
 		});
 
 		if (response.ok) {
 			const result = await response.json();
-			// Update the exercise's completion status
-			exercises = exercises.map((ex: Exercise) =>
-				ex.part === exercise.part ? { ...ex, completed: result.completed } : ex
-			);
+			// console.log(result);
+			selectedChild.levelProgress[0] = result;
+			console.log(levelProgress);
 		}
 	}
 
@@ -141,14 +159,13 @@
 						{/each}
 					</ul>
 				</div>
-				<!-- TODO completion button -->
 				<button
-					class="px-4 py-2 rounded-md {levelProgress_completed
-						? 'bg-gray-500 hover:bg-green-600'
+					class="px-4 py-2 rounded-md {(exercise.exerciseNumber === 1 && levelProgress.firstPartCompleted) || (exercise.exerciseNumber === 2 && levelProgress.fullyCompleted)
+						? 'bg-green-500 hover:bg-green-600'
 						: 'bg-blue-500 hover:bg-blue-600'} text-white transition-colors"
 					onclick={() => toggleCompletion(exercise)}
 				>
-					{levelProgress_completed ? 'Voltooid' : 'Markeer als voltooid'}
+					{(exercise.exerciseNumber === 1 && levelProgress.firstPartCompleted) || (exercise.exerciseNumber === 2 && levelProgress.fullyCompleted) ? 'Voltooid' : 'Markeer als voltooid'}
 				</button>
 			</div>
 
