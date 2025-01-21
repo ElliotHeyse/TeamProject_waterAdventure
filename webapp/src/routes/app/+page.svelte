@@ -6,55 +6,7 @@
 	import { cn } from '$lib/components/coach/utils';
 	import badge from '$lib/img/badge-placeholder.svg';
 	// import { notifications } from '$lib/paraglide/messages';
-
-	// region Types
-
-	interface Pupil {
-		id: string,
-		name: string,
-		progress: Number
-	}
-
-	interface UserNotification {
-		id: string,
-		timestamp: Date,
-		isRead: Boolean,
-		type: string,
-		title: string,
-		body: string,
-		levelNumber: Number
-	}
-
-	interface ParentUser {
-  		id: string,
-  		email: string,
-  		name: string,
-  		parent: {
-			id: string,
-			phone: string,
-			coachId: string,
-			pupils: Pupil[]
-  		},
-  		settings: {
-			pushNotifications: Boolean,
-			emailNotifications: Boolean,
-			theme: string,
-			language: string
-  		},
-  		notifications: UserNotification[]
-	};
-
-	interface LanguageContent {
-		language: string,
-		title: string,
-		objectives: string[]
-	}
-
-	interface Level {
-		duration: Number,
-		levelNumber: Number,
-		languageContents: LanguageContent[]
-	}
+	import type { ParentUser, Level, Pupil, UserNotification } from './types';
 
 	interface FrontendNotification {
 		id: string,
@@ -63,7 +15,7 @@
 		type: string,
 		title: string,
 		body: string,
-		levelNumber: Number,
+		levelNumber: number,
 		isBodyHidden: Boolean
 	}
 

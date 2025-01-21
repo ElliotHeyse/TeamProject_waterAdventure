@@ -2,22 +2,20 @@ import { error } from '@sveltejs/kit';
 import type { PageServerLoad } from './$types';
 import { prisma } from '$lib/server/db';
 import { userInfo } from 'os';
-import { duration, language, pupils } from '$lib/paraglide/messages';
+import { description, duration, feedback, language, pupils } from '$lib/paraglide/messages';
+import { id } from 'date-fns/locale';
+import path from 'path';
+import { title } from 'process';
 
 export const load: PageServerLoad = async ({ locals }) => {
 	// region AUTHENTICATION
 	if (!locals.user) {
 		throw error(401, 'Unauthorized');
-	// } else {
-	// 	console.info(locals.user); // dev flag
 	}
-
-	// parent is already loaded in the user object, but this code gives an error
-	// const parent = locals.user.parent;
 
 	// region DATA ACCESS
 
-	// Get the parent user, with their notifications, settings and pupils (not with their levelProgress and submissions)
+	// Get the parent user, with their notifications, settings, messages and pupils, with their levelProgress and submissions
 	const parentUser = await prisma.user.findUnique({
 		where: {
 			id: locals.user.id
@@ -25,7 +23,13 @@ export const load: PageServerLoad = async ({ locals }) => {
 		include: {
 			parent: {
 				include: {
-					pupils: true
+					pupils: {
+						include: {
+							levelProgress: true,
+							submissions: true
+						}
+					},
+					messages: true
 				}
 			},
 			settings: true,
@@ -34,24 +38,25 @@ export const load: PageServerLoad = async ({ locals }) => {
 	});
 
 	if (!parentUser || !parentUser.parent) {
-		console.warn('No parent found', locals.user.id); // dev flag
+		console.warn('No parent found', locals.user.id);
 		throw error(404, 'No parent found');
 	} else if (!parentUser.parent.pupils || parentUser.parent.pupils.length === 0) {
-		console.warn('No pupils found for parent', locals.user.id); // dev flag
+		console.warn('No pupils found for parent', locals.user.id);
 		throw error(404, 'No pupils found');
-	} else {
+	} else { // dev flag
 		console.info('Parent found'); // dev flag
-		// console.log(parentUser); // dev flag
-		// console.log(parentUser.parent); // dev flag
-		// console.log(parentUser.parent.pupils); // dev flag
-		// console.log(parentUser.settings); // dev flag
-		// console.log(parentUser.notifications); // dev flag
 	}
 
-	// Get all levels, with their textual content (not with their exercises)
+	// Get all levels, with their languageContents and exercises, with their videos and languageContents
 	const levels = await prisma.level.findMany({
 		include: {
-			languageContents: true
+			languageContents: true,
+			exercises: {
+				include: {
+					videos: true,
+					languageContents: true
+				}
+			}
 		},
 		orderBy: {
 			levelNumber: 'asc'
@@ -59,12 +64,10 @@ export const load: PageServerLoad = async ({ locals }) => {
 	});
 
 	if (!levels || levels.length === 0) {
-		console.warn('No levels found'); // dev flag
+		console.warn('No levels found');
 		throw error(404, 'No levels found');
-	} else {
+	} else { //	dev flag
 		console.info('Levels found'); // dev flag
-		// console.log(levels[0]); // dev flag
-		// console.log(levels[0].languageContents); // dev flag
 	}
 
 	// region DATA PROCESSING
@@ -81,7 +84,30 @@ export const load: PageServerLoad = async ({ locals }) => {
 			pupils: parentUser.parent.pupils.map(pupil => ({
 				id: pupil.id,
 				name: pupil.name,
-				progress: pupil.progress
+				progress: pupil.progress,
+				levelProgress: pupil.levelProgress.map(levelProgress => ({
+					id: levelProgress.id,
+					firstPartCompleted: levelProgress.firstPartCompleted,
+					fullyCompleted: levelProgress.fullyCompleted,
+					levelNumber: levelProgress.levelNumber
+				})),
+				submissions: pupil.submissions.map(submission => ({
+					id: submission.id,
+					videoUrl: submission.videoUrl,
+					status: submission.status,
+					feedback: submission.feedback,
+					medal: submission.medal,
+					updatedAt: submission.updatedAt,
+					levelNumber: submission.levelNumber
+				}))
+			})),
+			messages: parentUser.parent.messages.map(message => ({
+				id: message.id,
+				content: message.content,
+				isRead: message.isRead,
+				sender: message.sender,
+				createdAt: message.createdAt,
+				coachId: message.coachId
 			}))
 		},
 		settings: {
@@ -103,15 +129,34 @@ export const load: PageServerLoad = async ({ locals }) => {
 
 	// Trim the levels object to only include the necessary data
 	const levelsTrimmed = levels.map(level => ({
+		id: level.id,
 		duration: level.duration,
 		levelNumber: level.levelNumber,
+		exercises: level.exercises.map(exercise => ({
+			id: exercise.id,
+			exerciseNumber: exercise.exerciseNumber,
+			videos: exercise.videos.map(video => ({
+				id: video.id,
+				path: video.path,
+				title: video.title
+			})),
+			languageContents: exercise.languageContents.map(languageContent => ({
+				id: languageContent.id,
+				language: languageContent.language,
+				location: languageContent.location,
+				title: languageContent.title,
+				description: languageContent.description,
+				important: languageContent.important,
+				tips: languageContent.tips
+			}))
+		})),
 		languageContents: level.languageContents.map(languageContent => ({
+			id: languageContent.id,
 			language: languageContent.language,
 			title: languageContent.title,
 			objectives: languageContent.objectives,
 		}))
 	}));
-
 
 	// region DATA RETURN
 
