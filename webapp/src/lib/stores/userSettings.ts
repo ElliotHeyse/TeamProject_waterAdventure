@@ -1,19 +1,19 @@
 import { writable } from 'svelte/store';
 
-export type ThemeMode = 'LIGHT' | 'DARK';
+export type Theme = 'LIGHT' | 'DARK';
 export type Language = 'en' | 'nl' | 'fr';
 
 export interface UserSettings {
     pushNotifications: boolean;
     emailNotifications: boolean;
-    themeMode: ThemeMode;
+    theme: Theme;
     language: Language;
 }
 
 const defaultSettings: UserSettings = {
-    pushNotifications: true,
-    emailNotifications: true,
-    themeMode: 'LIGHT',
+    pushNotifications: false,
+    emailNotifications: false,
+    theme: 'LIGHT',
     language: 'en'
 };
 
@@ -30,7 +30,7 @@ function createUserSettingsStore() {
                     const settings = await response.json();
                     set(settings);
                     // Apply theme
-                    document.documentElement.classList.toggle('dark', settings.themeMode === 'DARK');
+                    document.documentElement.classList.toggle('dark', settings.theme === 'DARK');
                 }
             } catch (err) {
                 console.error('Failed to load user settings:', err);
@@ -48,8 +48,8 @@ function createUserSettingsStore() {
                     const settings = await response.json();
                     set(settings);
                     // Apply theme if it was updated
-                    if ('themeMode' in updates) {
-                        document.documentElement.classList.toggle('dark', settings.themeMode === 'DARK');
+                    if ('theme' in updates) {
+                        document.documentElement.classList.toggle('dark', settings.theme === 'DARK');
                     }
                     return true;
                 }

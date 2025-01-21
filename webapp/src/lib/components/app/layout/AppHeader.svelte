@@ -40,8 +40,8 @@
 	let breadcrumbs = $state<Array<{ label: string; href: string }>>([]);
 
 	async function toggleDarkMode() {
-		const newMode = $userSettings.themeMode === 'LIGHT' ? 'DARK' : 'LIGHT';
-		await userSettings.updateSettings({ themeMode: newMode });
+		const newMode = $userSettings.theme === 'LIGHT' ? 'DARK' : 'LIGHT';
+		await userSettings.updateSettings({ theme: newMode });
 	}
 
 	const data = $state(page.data);
@@ -66,7 +66,7 @@
 		<div class="flex h-full items-center gap-4 px-4">
 			<div class={cn($isMobileView ? 'block' : 'hidden')}>
 				<img
-					src={$userSettings.themeMode === 'DARK' ? logoLight : logo}
+					src={$userSettings.theme === 'DARK' ? logoLight : logo}
 					alt="WaterAdventure"
 					class="h-8"
 				/>
@@ -111,7 +111,7 @@
 					)}
 					onclick={toggleDarkMode}
 				>
-					{#if $userSettings.themeMode === 'DARK'}
+					{#if $userSettings.theme === 'DARK'}
 						<Sun class="h-5 w-5" />
 					{:else}
 						<Moon class="h-5 w-5" />
