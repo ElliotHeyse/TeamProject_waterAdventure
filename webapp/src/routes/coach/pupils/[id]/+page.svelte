@@ -76,7 +76,7 @@
 					<h2 class="text-3xl font-bold tracking-tight">{data.pupil.name}'s {m.profile()}</h2>
 					<Dialog bind:open={isEditing}>
 						<DialogTrigger>
-							<Button variant="outline" size="sm">{m.edit_profile()}</Button>
+							<Button variant="secondary" size="sm">{m.edit_profile()}</Button>
 						</DialogTrigger>
 						<DialogContent>
 							<DialogHeader>

@@ -6,6 +6,7 @@
 	import { browser } from '$app/environment';
 	import { goto } from '$app/navigation';
 	import type { Language } from '$lib/stores/userSettings';
+	import { page } from '$app/stores';
 
 	import '../lib/styles/app.css';
 
@@ -19,7 +20,14 @@
 				language: data.settings.language as Language
 			};
 			userSettings.set(settings);
-			document.documentElement.classList.toggle('dark', settings.themeMode === 'DARK');
+
+			// Check for preserved theme in navigation state
+			const preservedTheme = $page.state.preservedTheme;
+			if (preservedTheme) {
+				document.documentElement.classList.toggle('dark', preservedTheme === 'DARK');
+			} else {
+				document.documentElement.classList.toggle('dark', settings.theme === 'DARK');
+			}
 
 			// Handle language path
 			const currentPath = window.location.pathname;
