@@ -73,8 +73,8 @@
 				<span class="text-sm font-medium">{m.feedback()}</span>
 				<textarea
 					bind:value={feedback}
-					class="bg-background focus:border-ring focus:ring-ring mt-1 block w-full rounded-md border shadow-sm"
-					rows="4"
+					class="bg-background focus:border-ring focus:ring-ring mt-1 block w-full rounded-lg border shadow-sm text-base p-4"
+					rows="6"
 					placeholder={m.enter_feedback()}
 				></textarea>
 			</label>
