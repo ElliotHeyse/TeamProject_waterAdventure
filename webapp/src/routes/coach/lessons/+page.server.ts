@@ -4,11 +4,19 @@ import type { LessonsPageData } from '$lib/types/lessons';
 import { fail } from '@sveltejs/kit';
 
 export const load = (async () => {
-	const lessons = await prisma.lesson.findMany({
-		orderBy: [{ date: 'asc' }, { title: 'asc' }]
+	const levels = await prisma.level.findMany({
+		orderBy: { levelNumber: 'asc' },
+		include: {
+			languageContents: {
+				where: {
+					language: 'nl'
+				},
+				take: 1
+			}
+		}
 	});
 
-	return { lessons };
+	return { levels };
 }) satisfies PageServerLoad;
 
 export const actions = {
