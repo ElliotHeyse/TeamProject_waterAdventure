@@ -13,12 +13,50 @@
 	import { invalidateAll } from '$app/navigation';
 	import { selectedChildIdStore } from '$lib/stores/child.store';
 
-	interface Child {
-		id: string;
-		name: string;
-		currentLevel: string;
-		currentLevelOrder: number;
+	// region Types
+
+	interface Pupil {
+		id: string,
+		name: string,
+		progress: Number
 	}
+	interface UserNotification {
+		timestamp: Date,
+		isRead: Boolean,
+		type: string,
+		title: string,
+		body: string,
+		levelNumber: Number
+	}
+	interface ParentUser {
+  		id: string,
+  		email: string,
+  		name: string,
+  		parent: {
+			id: string,
+			phone: string,
+			coachId: string,
+			pupils: Pupil[]
+  		},
+  		settings: {
+			pushNotifications: Boolean,
+			emailNotifications: Boolean,
+			theme: string,
+			language: string
+  		},
+  		notifications: UserNotification[]
+	}
+	interface LanguageContent {
+		language: string,
+		title: string,
+		objectives: string[]
+	}
+	interface Level {
+		duration: Number,
+		levelNumber: Number,
+		languageContents: LanguageContent[]
+	}
+
 	interface Notification {
 		id: number;
 		message: string;
@@ -26,6 +64,8 @@
 	}
 
 	let notifications = $state<Notification[]>([]);
+
+	// region Breadcrumb
 
 	// Generate breadcrumb items based on current path
 	$effect(() => {
@@ -39,13 +79,18 @@
 
 	let breadcrumbs = $state<Array<{ label: string; href: string }>>([]);
 
+	// region Light/Dark mode
+
 	async function toggleDarkMode() {
 		const newMode = $userSettings.theme === 'LIGHT' ? 'DARK' : 'LIGHT';
 		await userSettings.updateSettings({ theme: newMode });
 	}
 
+	// region Children
+
+	// Get children from the current page data
 	const data = $state(page.data);
-	const children = $state<Child[]>(data.children);
+	const children = $state<Pupil[]>(data.parentUser.parent.pupils);
 	let selectedChildId = $state($selectedChildIdStore);
 	let selectedChild = $state(
 		children.find((child) => child.id === selectedChildId) || children[0] || null
