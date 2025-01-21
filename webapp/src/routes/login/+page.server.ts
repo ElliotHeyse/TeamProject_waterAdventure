@@ -56,8 +56,16 @@ export const actions = {
 			const token = randomBytes(32).toString('hex');
 			const twoDaysFromNow = new Date(Date.now() + 2 * 24 * 60 * 60 * 1000);
 
-			const session = await prisma.session.create({
-				data: {
+			// Use upsert to handle the unique constraint
+			const session = await prisma.session.upsert({
+				where: {
+					userId: user.id
+				},
+				update: {
+					token,
+					expiresAt: twoDaysFromNow
+				},
+				create: {
 					token,
 					userId: user.id,
 					expiresAt: twoDaysFromNow
@@ -79,6 +87,7 @@ export const actions = {
 
 			throw redirect(303, '/app');
 		} catch (error) {
+			console.error('Login error:', error);
 			if (error instanceof Error && !(error instanceof Response)) {
 				return fail(500, {
 					error: 'An error occurred while processing your request. Please try again.'

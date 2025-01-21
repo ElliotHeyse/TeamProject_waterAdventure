@@ -1,10 +1,7 @@
-import type { Level } from '@prisma/client';
-
 export interface PupilData {
 	id: string;
 	name: string;
 	dateOfBirth: Date;
-	level: Level;
 	parent: {
 		user: {
 			name: string;
@@ -17,7 +14,6 @@ export interface PupilData {
 export interface NewPupilData {
 	name: string;
 	dateOfBirth: string;
-	level: Level;
 	parentId: string;
 	notes?: string;
 }

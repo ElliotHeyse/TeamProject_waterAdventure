@@ -112,25 +112,6 @@
 									<Input id="name" name="name" value={data.pupil.name} required />
 								</div>
 								<div class="space-y-2">
-									<Label for="level">{m.level()}</Label>
-									<Select.Root
-										type="single"
-										value={selectedLevel}
-										onValueChange={(value) => (selectedLevel = value)}
-									>
-										<Select.Trigger class="w-[180px]">
-											{selectedLevel.charAt(0) + selectedLevel.slice(1).toLowerCase()}
-										</Select.Trigger>
-										<Select.Content>
-											{#each levels as level}
-												<Select.Item value={level}>
-													{level.charAt(0) + level.slice(1).toLowerCase()}
-												</Select.Item>
-											{/each}
-										</Select.Content>
-									</Select.Root>
-								</div>
-								<div class="space-y-2">
 									<Label for="notes">{m.notes()}</Label>
 									<Textarea
 										id="notes"
@@ -169,12 +150,6 @@
 				<div>
 					<dt class="text-sm text-muted-foreground">{m.member_since()}</dt>
 					<dd class="text-sm font-medium">{formatDate(data.pupil.createdAt)}</dd>
-				</div>
-				<div>
-					<dt class="text-sm text-muted-foreground">{m.current_level()}</dt>
-					<dd class="text-sm font-medium">
-						{data.pupil.level.charAt(0) + data.pupil.level.slice(1).toLowerCase()}
-					</dd>
 				</div>
 				{#if data.pupil.notes}
 					<div>
@@ -240,7 +215,7 @@
 											{#each data.submissions.slice(0, 5) as submission}
 												<div class="flex items-center justify-between rounded-md bg-muted p-4">
 													<div class="space-y-1">
-														<p class="font-medium">{submission.lesson.title}</p>
+														<p class="font-medium">{submission.level.languageContents[0].title}</p>
 														<p class="text-sm text-muted-foreground">
 															{m.submitted()}
 															{formatDistance(new Date(submission.createdAt), new Date(), {
@@ -302,7 +277,9 @@
 							<div class="flex flex-col space-y-3">
 								<div class="flex items-start justify-between gap-4">
 									<div class="space-y-1">
-										<h4 class="font-medium leading-none">{submission.lesson.title}</h4>
+										<h4 class="font-medium leading-none">
+											{submission.level.languageContents[0].title}
+										</h4>
 										<p class="text-sm text-muted-foreground">
 											{m.submitted()}
 											{formatDistance(new Date(submission.createdAt), new Date(), {

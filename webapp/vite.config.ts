@@ -23,7 +23,7 @@ const webSocketServer = {
 							content: message.content,
 							coachId: message.coachId,
 							parentId: message.parentId,
-							isFromParent: message.isFromParent
+							sender: message.isFromParent ? 'PARENT' : 'COACH'
 						},
 						include: {
 							coach: {
@@ -39,7 +39,12 @@ const webSocketServer = {
 						}
 					});
 
-					if (process.env.VAPID_EMAIL && process.env.VAPID_PUBLIC_KEY && process.env.VAPID_PRIVATE_KEY) {
+					if (
+						process.env.VAPID_EMAIL &&
+						process.env.VAPID_PUBLIC_KEY &&
+						process.env.VAPID_PRIVATE_KEY &&
+						savedMessage.sender === 'PARENT'
+					) {
 						const subscriptions = await prisma.pushSubscription.findMany({
 							where: {
 								userId: savedMessage.coach.user.id

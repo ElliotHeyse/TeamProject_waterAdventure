@@ -32,8 +32,8 @@
 	let specialties = $state(data.coach.specialties?.join(', ') || '');
 
 	async function toggleDarkMode() {
-		const newMode = $userSettings.themeMode === 'LIGHT' ? 'DARK' : 'LIGHT';
-		const success = await userSettings.updateSettings({ themeMode: newMode });
+		const newMode = $userSettings.theme === 'LIGHT' ? 'DARK' : 'LIGHT';
+		const success = await userSettings.updateSettings({ theme: newMode });
 		if (success) {
 			toast.success(m.changes_saved());
 		} else {
@@ -154,7 +154,7 @@
 					<div class="text-sm text-muted-foreground">{m.dark_mode_description()}</div>
 				</div>
 				<Button variant="outline" size="icon" onclick={toggleDarkMode}>
-					<Icon src={$userSettings.themeMode === 'DARK' ? Sun : Moon} class="h-5 w-5" />
+					<Icon src={$userSettings.theme === 'DARK' ? Sun : Moon} class="h-5 w-5" />
 				</Button>
 			</div>
 		</div>

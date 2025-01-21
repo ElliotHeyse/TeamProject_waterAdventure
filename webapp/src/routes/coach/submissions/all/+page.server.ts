@@ -1,10 +1,12 @@
 import { prisma } from '$lib/server/db';
 import type { PageServerLoad } from './$types';
-import type { Submission as PrismaSubmission, Pupil, Lesson } from '@prisma/client';
+import type { Submission as PrismaSubmission, Pupil, Level, LevelLanguageContent } from '@prisma/client';
 
 type SubmissionWithRelations = PrismaSubmission & {
 	pupil: Pupil;
-	lesson: Lesson;
+	level: Level & {
+		languageContents: LevelLanguageContent[];
+	};
 };
 
 export const load: PageServerLoad = async ({ locals, url }) => {
@@ -12,11 +14,17 @@ export const load: PageServerLoad = async ({ locals, url }) => {
 
 	const submissions = await prisma.submission.findMany({
 		where: lessonId ? {
-			lessonId: lessonId
+			level: {
+				id: lessonId
+			}
 		} : undefined,
 		include: {
 			pupil: true,
-			lesson: true
+			level: {
+				include: {
+					languageContents: true
+				}
+			}
 		},
 		orderBy: {
 			createdAt: 'desc'
@@ -24,13 +32,14 @@ export const load: PageServerLoad = async ({ locals, url }) => {
 	});
 
 	// Get all unique lessons for the filter dropdown
-	const lessons = await prisma.lesson.findMany({
+	const levels = await prisma.level.findMany({
 		select: {
 			id: true,
-			title: true
-		},
-		orderBy: {
-			title: 'asc'
+			languageContents: {
+				select: {
+					title: true
+				}
+			}
 		}
 	});
 
@@ -38,14 +47,14 @@ export const load: PageServerLoad = async ({ locals, url }) => {
 		submissions: submissions.map((submission: SubmissionWithRelations) => ({
 			id: submission.id,
 			pupilName: submission.pupil.name,
-			lessonTitle: submission.lesson.title,
+			lessonTitle: submission.level.languageContents[0].title,
 			date: submission.createdAt.toISOString().split('T')[0],
 			status: submission.status.toLowerCase(),
 			videoUrl: submission.videoUrl,
 			feedback: submission.feedback || '',
 			medal: submission.medal,
-			lesson: submission.lesson
+			level: submission.level
 		})),
-		lessons
+		levels
 	};
 };

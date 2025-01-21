@@ -22,6 +22,7 @@
 	import { Button } from '$lib/components/coach/ui/button/index';
 	import * as DropdownMenu from '$lib/components/coach/ui/dropdown-menu/index';
 	import { Input } from '$lib/components/coach/ui/input/index';
+	import { Checkbox } from '$lib/components/coach/ui/checkbox/index';
 	import {
 		FlexRender,
 		createSvelteTable,
@@ -41,33 +42,44 @@
 		pupilName: string;
 		lessonTitle: string;
 		date: string;
-		status: 'pending' | 'reviewed';
+		status: any;
 		videoUrl: string;
 		feedback: string;
+		medal: 'GOLD' | 'SILVER' | 'BRONZE' | 'NONE';
+		level: {
+			id: string;
+			duration: number;
+			levelNumber: number;
+			createdAt: Date;
+			updatedAt: Date;
+			languageContents: { title: string }[];
+		};
 	}
 
 	let {
 		submissions,
 		data
-	}: { submissions: Submission[]; data: { lessons: Array<{ id: string; title: string }> } } =
-		$props();
+	}: {
+		submissions: Submission[];
+		data: { levels: Array<{ id: string; languageContents: { title: string }[] }> };
+	} = $props();
 	let table: TableType<Submission> | undefined = $state();
 
 	// Get the current URL parameters
 	const url = new URL(window.location.href);
 
-	let currentLesson = $state(
-		data.lessons.find((l) => l.id === url.searchParams.get('lessonId')) ?? null
+	let currentLevel = $state(
+		data.levels.find((l) => l.id === url.searchParams.get('levelId')) ?? null
 	);
 
 	async function handleLessonFilter(lessonId: string) {
 		const newUrl = new URL(window.location.href);
 		if (lessonId) {
-			newUrl.searchParams.set('lessonId', lessonId);
-			currentLesson = data.lessons.find((l) => l.id === lessonId) ?? null;
+			newUrl.searchParams.set('levelId', lessonId);
+			currentLevel = data.levels.find((l) => l.id === lessonId) ?? null;
 		} else {
-			newUrl.searchParams.delete('lessonId');
-			currentLesson = null;
+			newUrl.searchParams.delete('levelId');
+			currentLevel = null;
 		}
 		await goto(newUrl.pathname + newUrl.search, { replaceState: true });
 	}
@@ -76,17 +88,17 @@
 		{
 			id: 'select',
 			header: ({ table }) => {
-				return renderComponent(Table.Checkbox, {
+				return renderComponent(Checkbox, {
 					checked: table.getIsAllPageRowsSelected(),
 					'aria-label': 'Select all',
-					onCheckedChange: (value) => table.toggleAllPageRowsSelected(!!value)
+					onCheckedChange: (value: boolean) => table.toggleAllPageRowsSelected(!!value)
 				});
 			},
 			cell: ({ row }) => {
-				return renderComponent(Table.Checkbox, {
+				return renderComponent(Checkbox, {
 					checked: row.getIsSelected(),
 					'aria-label': 'Select row',
-					onCheckedChange: (value) => row.toggleSelected(!!value)
+					onCheckedChange: (value: boolean) => row.toggleSelected(!!value)
 				});
 			},
 			enableSorting: false,
@@ -118,7 +130,7 @@
 			accessorKey: 'status',
 			header: m.status(),
 			cell: ({ row }) => {
-				const status = row.getValue<'pending' | 'reviewed'>('status').toUpperCase();
+				const status = row.getValue<string>('status').toUpperCase();
 				return renderComponent(StatusBadge, {
 					status
 				});
@@ -128,25 +140,28 @@
 			accessorKey: 'medal',
 			header: 'Medaille',
 			cell: ({ row }) => {
-				const medal = row.getValue<'GOLD' | 'SILVER' | 'BRONZE' | 'NONE'>('medal');
+				const medal = row.getValue<string>('medal');
 				if (medal === 'NONE') return '-';
 				const medalImages = {
 					GOLD: { src: medalGold, alt: 'Gouden medaille', text: 'Goud' },
 					SILVER: { src: medalSilver, alt: 'Zilveren medaille', text: 'Zilver' },
 					BRONZE: { src: medalBronze, alt: 'Bronzen medaille', text: 'Brons' }
 				};
-				const medalInfo = medalImages[medal];
-				return renderSnippet(createRawSnippet<[typeof medalInfo]>((getMedalInfo) => {
-					const info = getMedalInfo();
-					return {
-						render: () => `
+				const medalInfo = medalImages[medal as keyof typeof medalImages];
+				return renderSnippet(
+					createRawSnippet<[typeof medalInfo]>((getMedalInfo) => {
+						const info = getMedalInfo();
+						return {
+							render: () => `
 							<div class="flex items-center gap-1">
 								<img src="${info.src}" alt="${info.alt}" class="h-5 w-5" />
 								<span class="text-sm">${info.text}</span>
 							</div>
 						`
-					};
-				}), medalInfo);
+						};
+					}),
+					medalInfo
+				);
 			}
 		},
 		{
@@ -242,20 +257,20 @@
 			<SelectPrimitive.Root
 				type="single"
 				onValueChange={handleLessonFilter}
-				value={currentLesson?.id ?? ''}
+				value={currentLevel?.id ?? ''}
 			>
 				<Select.Trigger class="w-[200px]">
 					<span class="line-clamp-1">
-						{currentLesson?.title ?? m.all_lessons()}
+						{currentLevel?.languageContents[0].title ?? m.all_levels()}
 					</span>
 				</Select.Trigger>
 				<Select.Content>
 					<Select.Item value="">
-						{m.all_lessons()}
+						{m.all_levels()}
 					</Select.Item>
-					{#each data.lessons as lesson}
-						<Select.Item value={lesson.id}>
-							{lesson.title}
+					{#each data.levels as level}
+						<Select.Item value={level.id}>
+							{level.languageContents[0].title}
 						</Select.Item>
 					{/each}
 				</Select.Content>

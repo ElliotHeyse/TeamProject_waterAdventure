@@ -1,12 +1,12 @@
 export interface DashboardStats {
 	totalPupils: number;
-	activeLessons: number;
+	activeLevels: number;
 	pendingSubmissions: number;
 	unreadMessages: number;
 }
 
 export interface ActivityItem {
-	type: 'submission' | 'message' | 'lesson';
+	type: 'submission' | 'message';
 	text: string;
 	time: string;
 }
