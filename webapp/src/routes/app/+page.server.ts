@@ -43,8 +43,6 @@ export const load: PageServerLoad = async ({ locals }) => {
 	} else if (!parentUser.parent.pupils || parentUser.parent.pupils.length === 0) {
 		console.warn('No pupils found for parent', locals.user.id);
 		throw error(404, 'No pupils found');
-	} else { // dev flag
-		console.info('Parent found'); // dev flag
 	}
 
 	// Get all levels, with their languageContents and exercises, with their videos and languageContents
@@ -66,8 +64,6 @@ export const load: PageServerLoad = async ({ locals }) => {
 	if (!levels || levels.length === 0) {
 		console.warn('No levels found');
 		throw error(404, 'No levels found');
-	} else { //	dev flag
-		console.info('Levels found'); // dev flag
 	}
 
 	// region DATA PROCESSING
@@ -159,20 +155,6 @@ export const load: PageServerLoad = async ({ locals }) => {
 	}));
 
 	// region DATA RETURN
-
-	const returnObject = { // dev flag
-		parentUser: parentUserTrimmed, // dev flag
-		levels: levelsTrimmed // dev flag
-	} // dev flag
-	// console.info(returnObject); // dev flag
-
-	// console.info(returnObject.parentUser); // dev flag
-	// console.info(returnObject.parentUser.parent.pupils[0]); // dev flag
-	// console.info(returnObject.parentUser.notifications[0]); // dev flag
-
-	// console.info(returnObject.levels); // dev flag
-	// console.info(returnObject.levels[0].languageContents[0]); // dev flag
-
 	return {
 		parentUser: parentUser,
 		levels: levels
