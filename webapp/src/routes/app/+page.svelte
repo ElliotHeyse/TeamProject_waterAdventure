@@ -7,44 +7,47 @@
 	import badge from '$lib/img/badge-placeholder.svg';
 	// import { notifications } from '$lib/paraglide/messages';
 
+	// region Types
+
 	interface Pupil {
-		id: String,
-		name: String,
+		id: string,
+		name: string,
 		progress: Number
 	}
 
-	interface Notification {
+	interface UserNotification {
+		id: string,
 		timestamp: Date,
 		isRead: Boolean,
-		type: String,
-		title: String,
-		body: String,
+		type: string,
+		title: string,
+		body: string,
 		levelNumber: Number
 	}
 
 	interface ParentUser {
-  		id: String,
-  		email: String,
-  		name: String,
+  		id: string,
+  		email: string,
+  		name: string,
   		parent: {
-			id: String,
-			phone: String,
-			coachId: String,
+			id: string,
+			phone: string,
+			coachId: string,
 			pupils: Pupil[]
   		},
   		settings: {
 			pushNotifications: Boolean,
 			emailNotifications: Boolean,
-			theme: String,
-			language: String
+			theme: string,
+			language: string
   		},
-  		notifications: Notification[]
+  		notifications: UserNotification[]
 	};
 
 	interface LanguageContent {
-		language: String,
-		title: String,
-		objectives: String[]
+		language: string,
+		title: string,
+		objectives: string[]
 	}
 
 	interface Level {
@@ -53,6 +56,19 @@
 		languageContents: LanguageContent[]
 	}
 
+	interface FrontendNotification {
+		id: string,
+		timestamp: Date,
+		isRead: Boolean,
+		type: string,
+		title: string,
+		body: string,
+		levelNumber: Number,
+		isBodyHidden: Boolean
+	}
+
+	// region Data logic
+
 	const { data } = $props<{
 		data: {
 			parentUser: ParentUser,
@@ -60,43 +76,19 @@
 		}
 	}>();
 
-	console.log(data.parentUser);
-	console.log(data.levels);
-
-
 	const selectedChild = $derived(
 		data.parentUser.parent.pupils.find((pupil: Pupil) => pupil.id === $selectedChildIdStore) || data.parentUser.parent.pupils[0]
 	);
 
 	const TOTAL_LEVELS = data.levels.length;
-	console.log(selectedChild);
+	console.log(selectedChild); // dev flag
 
-	// Notifications logic
+	// region Notifications logic
 
 	// hardcoded notifications for now, these would be the fetched notifications
-	const notifications_hardcoded = [
-		{ "id": 0, "timestamp": "2025-01-09T08:00:00Z", "isRead": true,	"type": "meta",		"level": null,
-			"title": "Welcome to the First Wateradventure", "body": "We're excited to have you join us! Explore the app to get started and make the most of your experience." },
-		{ "id": 1, "timestamp": "2025-01-10T09:00:00Z", "isRead": true,	"type": "message",	"level": null,
-			"title": null, "body": null},
-		{ "id": 2, "timestamp": "2025-01-11T11:00:00Z", "isRead": true,	"type": "feedback",	"level": 1,
-			"title": null, "body": "Nicely done. Excellent job on your first level!" },
-		{ "id": 3, "timestamp": "2025-01-12T13:00:00Z", "isRead": true,	"type": "message",	"level": null,
-			"title": null, "body": null},
-		{ "id": 4, "timestamp": "2025-01-13T08:00:00Z", "isRead": true,	"type": "feedback",	"level": 2,
-			"title": null, "body": "Great job! You're making progress."},
-		{ "id": 5, "timestamp": "2025-01-14T10:00:00Z", "isRead": true,	"type": "message",	"level": null,
-			"title": null, "body": null},
-		{ "id": 6, "timestamp": "2025-01-15T07:00:00Z", "isRead": false,	"type": "meta",		"level": null,
-			"title": "Scheduled Maintenance Alert", "body": "The app will be down for maintenance on 16th January 2025 from 9:00 AM to 12:00 PM UTC. We apologize in advance for any inconvenience you may experience." },
-		{ "id": 7, "timestamp": "2025-01-16T09:00:00Z", "isRead": false,	"type": "message",	"level": null,
-			"title": null, "body": null},
-		{ "id": 8, "timestamp": "2025-01-17T11:00:00Z", "isRead": false,	"type": "feedback",	"level": 3,
-			"title": null, "body": "Pay attention to the details. Keep your fingers properly closed when pushing the water. Keep up the good work!"}
-	];
-
-	const notifications_sorted = notifications_hardcoded.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
-	const notifications = $state(notifications_sorted.map(notification => ({
+	const notificationData_sorted: UserNotification[] = data.parentUser.notifications.sort((a: UserNotification, b: UserNotification) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
+	const notifications: FrontendNotification[] = $state(
+		notificationData_sorted.map(notification => ({
 		...notification,
 		isBodyHidden: true
 	})));
@@ -104,10 +96,10 @@
 
 	let nowTimestamp = new Date().toISOString();
 
-	const formatTimeAgo = (thenTimestamp: string) => {
+	const formatTimeAgo = (thenTimestamp: Date) => {
 		// AI generated function. Not reviewed, but seems to work. Further testing recommended => update seed data
 		const now = new Date().getTime();
-		const then = new Date(thenTimestamp).getTime();
+		const then = thenTimestamp.getTime();
 		const diffInSeconds = Math.floor((now - then) / 1000);
 
 		const intervals = [
@@ -129,20 +121,23 @@
 		return 'just now';
 	};
 
-	const resetNotificationBodies = function () {
+	const resetOtherNotificationBodies = function (notificationId: string) {
 		notifications.forEach(notification => {
-			notification.isBodyHidden = true;
+			if (notification.id !== notificationId) {
+				notification.isBodyHidden = true;
+			}
 		});
 	}
 
-	const markNotificationAsRead = function (notificationId: number) {
+	const markNotificationAsRead = function (notificationId: string) {
 		// Frontend: update read status, might be obsolete if new fetch is implemented
 		const notification = notifications.find(notification => notification.id === notificationId);
 		if (notification) {
 			notification.isRead = true;
 		}
 
-		// TODO: Backend: update notification read status in database
+		// TODO: update the notification isRead status in the database
+		// using new store and/or API ?
 	}
 </script>
 
@@ -221,12 +216,12 @@
 			{#if notifications.length != 0}
 				<div class="flex flex-col gap-3">
 					{#each notifications as notification}
-						{#if notification.type === "message"}
+						{#if notification.type === "MESSAGE"}
 							<!-- Message notification (link to chat page) -->
 							<button
 							class="cursor-pointer w-full rounded hover:bg-blue-100"
 							onclick={() => {
-								resetNotificationBodies();
+								resetOtherNotificationBodies();
 								markNotificationAsRead(notification.id);
 								goto("/app/chat");
 							}}
@@ -244,15 +239,15 @@
 								</div>
 							</div>
 							</button>
-						{:else if notification.type === "feedback"}
-							<!-- Feedback notification (link to specified feedback)-->
+						{:else if notification.type === "FEEDBACK"}
+							<!-- Feedback notification (link to specified feedback) -->
 							<button
 							class={cn("w-full cursor-default rounded hover:bg-blue-100 transition-all duration-300",
 								notification.isBodyHidden ? "" : "bg-blue-50"
 							)}
 							onclick={() => {
 								markNotificationAsRead(notification.id);
-								resetNotificationBodies();
+								resetOtherNotificationBodies(notification.id);
 								if (notification.isBodyHidden) {
 									notification.isBodyHidden = false;
 								} else {
@@ -288,7 +283,7 @@
 							)}
 							onclick={() => {
 								markNotificationAsRead(notification.id);
-								resetNotificationBodies();
+								resetOtherNotificationBodies();
 								if (notification.isBodyHidden) {
 									notification.isBodyHidden = false;
 								} else {

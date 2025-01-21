@@ -91,6 +91,7 @@ export const load: PageServerLoad = async ({ locals }) => {
 			language: parentUser.settings?.language
 		},
 		notifications: parentUser.notifications.map(notification => ({
+			id: notification.id,
 			timestamp: notification.timestamp,
 			isRead: notification.isRead,
 			type: notification.type,
