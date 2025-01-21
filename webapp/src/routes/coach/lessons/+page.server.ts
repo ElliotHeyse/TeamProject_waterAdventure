@@ -82,8 +82,7 @@ export const actions = {
 					languageContents: {
 						create: {
 							language: 'nl',
-							title,
-							description
+							title
 						}
 					}
 				}
@@ -105,30 +104,47 @@ export const actions = {
 
 		try {
 			// First, delete all reviews associated with submissions of this level
-			await prisma.review.deleteMany({
+			await prisma.submission.deleteMany({
 				where: {
-					submission: {
-						levelId: id
+					level: {
+						id: id
 					}
 				}
 			});
 
-			// Then delete all submissions for this level
+			await prisma.video.deleteMany({
+				where: {
+					exercise: {
+						level: { id: id }
+					}
+				}
+			});
+
+			// Delete exercise language content before exercises
+			await prisma.exerciseLanguageContent.deleteMany({
+				where: {
+					exercise: {
+						level: { id: id }
+					}
+				}
+			});
+
+			await prisma.exercise.deleteMany({
+				where: { level: { id: id } }
+			});
+
 			await prisma.submission.deleteMany({
-				where: { levelId: id }
+				where: { level: { id: id } }
 			});
 
-			// Delete all level progresses
-			await prisma.levelProgress.deleteMany({
-				where: { levelId: id }
-			});
-
-			// Delete all language contents
 			await prisma.levelLanguageContent.deleteMany({
 				where: { levelId: id }
 			});
 
-			// Finally delete the level
+			await prisma.levelProgress.deleteMany({
+				where: { level: { id: id } }
+			});
+
 			await prisma.level.delete({
 				where: { id }
 			});

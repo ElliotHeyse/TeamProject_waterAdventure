@@ -7,7 +7,8 @@
 	import { Label } from '$lib/components/coach/ui/label';
 	import { Textarea } from '$lib/components/coach/ui/textarea';
 
-	let { data } = $props<{ data: PageData }>();
+	const { data }: { data: PageData } = $props<{ data: PageData }>();
+
 	let showNewLevelForm = $state(false);
 	let newLevel = $state({
 		title: '',
@@ -29,13 +30,7 @@
 			<form class="space-y-4" method="POST" action="?/createLevel">
 				<div class="space-y-2">
 					<Label for="title">{m.title()}</Label>
-					<Input
-						type="text"
-						id="title"
-						name="title"
-						bind:value={newLevel.title}
-						required
-					/>
+					<Input type="text" id="title" name="title" bind:value={newLevel.title} required />
 				</div>
 
 				<div class="space-y-2">
@@ -75,10 +70,7 @@
 				</div>
 
 				<div class="flex justify-end space-x-3">
-					<Button
-						variant="outline"
-						onclick={() => (showNewLevelForm = false)}
-					>
+					<Button variant="outline" onclick={() => (showNewLevelForm = false)}>
 						{m.cancel()}
 					</Button>
 					<Button type="submit">

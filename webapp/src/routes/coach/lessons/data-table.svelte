@@ -97,7 +97,7 @@
 			header: m.description(),
 			enableSorting: false,
 			cell: ({ row }) => {
-				const description = row.original.languageContents[0]?.description ?? '';
+				const description = row.original.languageContents[0]?.objectives.join(', ') ?? '';
 				const descriptionSnippet = createRawSnippet<[string]>((getDescription) => {
 					const description = getDescription();
 					return {
@@ -244,8 +244,8 @@
 								{#if !header.isPlaceholder}
 									<div class="flex items-center space-x-2">
 										<FlexRender
-											of={header.column.columnDef.header}
-											{header}
+											content={header.column.columnDef.header}
+											context={header.getContext()}
 										/>
 										{#if header.column.getCanSort()}
 											<Button
@@ -270,17 +270,14 @@
 						<Table.Row data-state={row.getIsSelected() ? 'selected' : undefined}>
 							{#each row.getVisibleCells() as cell}
 								<Table.Cell>
-									<FlexRender of={cell.column.columnDef.cell} {cell} />
+									<FlexRender content={cell.column.columnDef.cell} context={cell.getContext()} />
 								</Table.Cell>
 							{/each}
 						</Table.Row>
 					{/each}
 				{:else}
 					<Table.Row>
-						<Table.Cell
-							colSpan={columns.length}
-							class="h-24 text-center"
-						>
+						<Table.Cell colspan={columns.length} class="h-24 text-center">
 							{m.no_results()}
 						</Table.Cell>
 					</Table.Row>

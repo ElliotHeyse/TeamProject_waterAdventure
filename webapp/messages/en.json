@@ -142,7 +142,7 @@
     "phone": "Phone",
     "manage_student_submissions": "View and manage all student submissions",
     "filter_submissions": "Filter submissions...",
-    "all_lessons": "All Lessons",
+    "all_levels": "All Levels",
     "pupil": "Pupil",
     "lesson": "Lesson",
     "status": "Status",
@@ -166,5 +166,6 @@
     "edit_level": "Edit Level",
     "confirm_delete_level": "Are you sure you want to delete this level?",
     "confirm_delete_level_warning": "This action cannot be undone. All submissions and progress associated with this level will also be permanently deleted.",
-    "selected_rows": "{count} row(s) selected"
+    "selected_rows": "{count} row(s) selected",
+    "pending": "Pending"
 }

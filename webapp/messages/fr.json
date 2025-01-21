@@ -142,7 +142,7 @@
     "phone": "Téléphone",
     "manage_student_submissions": "Voir et gérer toutes les soumissions des élèves",
     "filter_submissions": "Filtrer les soumissions...",
-    "all_lessons": "Toutes les Leçons",
+    "all_levels": "Tous les Niveaux",
     "pupil": "Élève",
     "lesson": "Leçon",
     "status": "Statut",
@@ -166,5 +166,6 @@
     "edit_level": "Modifier le Niveau",
     "confirm_delete_level": "Êtes-vous sûr de vouloir supprimer ce niveau ?",
     "confirm_delete_level_warning": "Cette action ne peut pas être annulée. Toutes les soumissions et progrès associés à ce niveau seront également supprimés définitivement.",
-    "selected_rows": "{count} ligne(s) sélectionnée(s)"
+    "selected_rows": "{count} ligne(s) sélectionnée(s)",
+    "pending": "En attente"
 }

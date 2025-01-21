@@ -45,9 +45,16 @@
 	}>();
 
 	let exercises = $state(data.lesson.exercises);
-	let videoUrl = $state('');
+	let videoFile = $state<File | null>(null);
 	let message = $state<string | null>(null);
 	let success = $state(false);
+
+	function handleFileChange(event: Event) {
+		const input = event.target as HTMLInputElement;
+		if (input.files) {
+			videoFile = input.files[0];
+		}
+	}
 
 	async function toggleCompletion(exercise: Exercise) {
 		const response = await fetch('/api/level-progress', {
@@ -74,9 +81,14 @@
 		success = false;
 		message = '';
 
+		if (!videoFile) {
+			message = 'Please select a video file to upload';
+			return;
+		}
+
 		const formData = new FormData();
 		formData.append('lessonId', data.lesson.id);
-		formData.append('videoUrl', videoUrl);
+		formData.append('video', videoFile);
 
 		const response = await fetch('/api/submission', {
 			method: 'POST',
@@ -88,7 +100,7 @@
 		if (result.success) {
 			success = true;
 			message = m.video_submitted();
-			videoUrl = '';
+			videoFile = null;
 			// After successful submission, redirect to levels page
 			setTimeout(() => {
 				goto('/app/levels');
@@ -175,15 +187,12 @@
 					<div class="space-y-4">
 						<h2 class="text-2xl font-semibold">Jouw Inzending</h2>
 						<div class="space-y-2">
-							<p class="text-sm text-muted-foreground">Video URL:</p>
-							<a
-								href={data.submission.videoUrl}
-								target="_blank"
-								rel="noopener noreferrer"
-								class="text-blue-600 hover:underline"
-							>
-								{data.submission.videoUrl}
-							</a>
+							<p class="text-sm text-muted-foreground">Video:</p>
+							<video controls class="w-full rounded-lg border border-border">
+								<source src="/api/videos/{data.submission.videoUrl}" type="video/mp4" />
+								Your browser does not support the video tag.
+								<track kind="captions" />
+							</video>
 						</div>
 						{#if data.submission.reviewInfo}
 							<div class="mt-6 space-y-4 border-t pt-4">
@@ -208,7 +217,7 @@
 												{#if data.submission.reviewInfo.medal === 'GOLD'}
 													🥇 Goud
 												{:else if data.submission.reviewInfo.medal === 'SILVER'}
-													�� Zilver
+													🥈 Zilver
 												{:else if data.submission.reviewInfo.medal === 'BRONZE'}
 													🥉 Brons
 												{/if}
@@ -223,18 +232,19 @@
 					<h2 class="text-2xl font-semibold mb-4">Video Inzending</h2>
 					<form onsubmit={handleSubmit} class="space-y-4">
 						<div>
-							<label for="videoUrl" class="block text-sm font-medium text-gray-700">Video URL</label
+							<label for="video" class="block text-sm font-medium text-gray-700"
+								>Video Bestand</label
 							>
 							<input
-								type="url"
-								id="videoUrl"
-								bind:value={videoUrl}
+								type="file"
+								id="video"
+								accept="video/*"
+								onchange={handleFileChange}
 								class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-								placeholder="https://example.com/your-video"
 								required
 							/>
 							<p class="mt-1 text-sm text-gray-500">
-								Upload je video naar een platform zoals YouTube of Vimeo en plak de link hier.
+								Upload een video van je zwemles. Ondersteunde formaten: MP4, MOV, AVI.
 							</p>
 						</div>
 
@@ -252,17 +262,17 @@
 				<h2 class="text-2xl font-semibold mb-4">Video Inzending</h2>
 				<form onsubmit={handleSubmit} class="space-y-4">
 					<div>
-						<label for="videoUrl" class="block text-sm font-medium text-gray-700">Video URL</label>
+						<label for="video" class="block text-sm font-medium text-gray-700">Video Bestand</label>
 						<input
-							type="url"
-							id="videoUrl"
-							bind:value={videoUrl}
+							type="file"
+							id="video"
+							accept="video/*"
+							onchange={handleFileChange}
 							class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-							placeholder="https://example.com/your-video"
 							required
 						/>
 						<p class="mt-1 text-sm text-gray-500">
-							Upload je video naar een platform zoals YouTube of Vimeo en plak de link hier.
+							Upload een video van je zwemles. Ondersteunde formaten: MP4, MOV, AVI.
 						</p>
 					</div>
 

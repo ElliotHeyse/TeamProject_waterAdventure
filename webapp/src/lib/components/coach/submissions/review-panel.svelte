@@ -3,7 +3,7 @@
 	import { toast } from 'svelte-sonner';
 	import { Loader2 } from 'lucide-svelte';
 
-	interface Submission {
+	export interface Submission {
 		id: string;
 		pupilName: string;
 		lessonTitle: string;

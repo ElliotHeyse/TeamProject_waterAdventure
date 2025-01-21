@@ -142,7 +142,7 @@
     "phone": "Telefoonnummer",
     "manage_student_submissions": "Bekijk en beheer alle inzendingen van leerlingen",
     "filter_submissions": "Filter inzendingen...",
-    "all_lessons": "Alle Lessen",
+    "all_levels": "Alle Lessen",
     "pupil": "Leerling",
     "lesson": "Les",
     "status": "Status",
@@ -166,5 +166,6 @@
     "edit_level": "Niveau Bewerken",
     "confirm_delete_level": "Weet je zeker dat je dit niveau wilt verwijderen?",
     "confirm_delete_level_warning": "Deze actie kan niet ongedaan worden gemaakt. Alle inzendingen en voortgang die bij dit niveau horen worden ook permanent verwijderd.",
-    "selected_rows": "{count} rij(en) geselecteerd"
+    "selected_rows": "{count} rij(en) geselecteerd",
+    "pending": "In afwachting"
 }
