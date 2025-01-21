@@ -114,13 +114,15 @@ export const load: PageServerLoad = async ({ locals }) => {
 
 	// region DATA RETURN
 
-	// const returnObject = { // dev flag
-	// 	parentUser: parentUserTrimmed, // dev flag
-	// 	levels: levelsTrimmed // dev flag
-	// } // dev flag
+	const returnObject = { // dev flag
+		parentUser: parentUserTrimmed, // dev flag
+		levels: levelsTrimmed // dev flag
+	} // dev flag
 	// console.info(returnObject); // dev flag
+
 	// console.info(returnObject.parentUser); // dev flag
 	// console.info(returnObject.parentUser.parent.pupils[0]); // dev flag
+	// console.info(returnObject.parentUser.notifications[0]); // dev flag
 
 	// console.info(returnObject.levels); // dev flag
 	// console.info(returnObject.levels[0].languageContents[0]); // dev flag

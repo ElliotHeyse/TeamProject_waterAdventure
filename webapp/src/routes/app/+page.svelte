@@ -7,61 +7,91 @@
 	import badge from '$lib/img/badge-placeholder.svg';
 	// import { notifications } from '$lib/paraglide/messages';
 
-	interface Child {
-		id: string;
-		name: string;
-		currentLevel: string;
-		currentLevelOrder: number;
-		latestReview?: {
-			lessonOrder: number;
-			updatedAt: string;
-			review?: {
-				feedback: string;
-				coach?: {
-					user?: {
-						name: string;
-					};
-				};
-			};
-		};
+	interface Pupil {
+		id: String,
+		name: String,
+		progress: Number
 	}
 
-	const { data } = $props<{ data: { children: Child[] } }>();
+	interface Notification {
+		timestamp: Date,
+		isRead: Boolean,
+		type: String,
+		title: String,
+		body: String,
+		levelNumber: Number
+	}
+
+	interface ParentUser {
+  		id: String,
+  		email: String,
+  		name: String,
+  		parent: {
+			id: String,
+			phone: String,
+			coachId: String,
+			pupils: Pupil[]
+  		},
+  		settings: {
+			pushNotifications: Boolean,
+			emailNotifications: Boolean,
+			theme: String,
+			language: String
+  		},
+  		notifications: Notification[]
+	};
+
+	interface LanguageContent {
+		language: String,
+		title: String,
+		objectives: String[]
+	}
+
+	interface Level {
+		duration: Number,
+		levelNumber: Number,
+		languageContents: LanguageContent[]
+	}
+
+	const { data } = $props<{
+		data: {
+			parentUser: ParentUser,
+			levels: Level[]
+		}
+	}>();
+
+	console.log(data.parentUser);
+	console.log(data.levels);
+
 
 	const selectedChild = $derived(
-		data.children.find((child: Child) => child.id === $selectedChildIdStore) || data.children[0]
+		data.parentUser.parent.pupils.find((pupil: Pupil) => pupil.id === $selectedChildIdStore) || data.parentUser.parent.pupils[0]
 	);
 
-	function handleReviewClick(child: Child) {
-		if (child.latestReview?.review) {
-			goto(`/app/levels/${child.latestReview.lessonOrder}#feedback`);
-		}
-	}
-
-	const TOTAL_LEVELS = 7;
+	const TOTAL_LEVELS = data.levels.length;
 	console.log(selectedChild);
 
 	// Notifications logic
 
 	// hardcoded notifications for now, these would be the fetched notifications
 	const notifications_hardcoded = [
-		{ "id": 0, "timestamp": "2025-01-09T08:00:00Z", "read": true,	"type": "meta",		"level": null,
+		{ "id": 0, "timestamp": "2025-01-09T08:00:00Z", "isRead": true,	"type": "meta",		"level": null,
 			"title": "Welcome to the First Wateradventure", "body": "We're excited to have you join us! Explore the app to get started and make the most of your experience." },
-		{ "id": 1, "timestamp": "2025-01-10T09:00:00Z", "read": true,	"type": "message",	"level": null,
+		{ "id": 1, "timestamp": "2025-01-10T09:00:00Z", "isRead": true,	"type": "message",	"level": null,
 			"title": null, "body": null},
-		{ "id": 2, "timestamp": "2025-01-11T11:00:00Z", "read": true,	"type": "feedback",	"level": 1,
+		{ "id": 2, "timestamp": "2025-01-11T11:00:00Z", "isRead": true,	"type": "feedback",	"level": 1,
 			"title": null, "body": "Nicely done. Excellent job on your first level!" },
-		{ "id": 3, "timestamp": "2025-01-12T13:00:00Z", "read": true,	"type": "message",	"level": null,
+		{ "id": 3, "timestamp": "2025-01-12T13:00:00Z", "isRead": true,	"type": "message",	"level": null,
 			"title": null, "body": null},
-		{ "id": 4, "timestamp": "2025-01-13T08:00:00Z", "read": true,	"type": "feedback",	"level": 2,
+		{ "id": 4, "timestamp": "2025-01-13T08:00:00Z", "isRead": true,	"type": "feedback",	"level": 2,
 			"title": null, "body": "Great job! You're making progress."},
-		{ "id": 5, "timestamp": "2025-01-14T10:00:00Z", "read": true,	"type": "message",	"level": null,
+		{ "id": 5, "timestamp": "2025-01-14T10:00:00Z", "isRead": true,	"type": "message",	"level": null,
 			"title": null, "body": null},
-		{ "id": 6, "timestamp": "2025-01-15T07:00:00Z", "read": false,	"type": "meta",		"level": null,
+		{ "id": 6, "timestamp": "2025-01-15T07:00:00Z", "isRead": false,	"type": "meta",		"level": null,
 			"title": "Scheduled Maintenance Alert", "body": "The app will be down for maintenance on 16th January 2025 from 9:00 AM to 12:00 PM UTC. We apologize in advance for any inconvenience you may experience." },
-		{ "id": 7, "timestamp": "2025-01-16T09:00:00Z", "read": false,	"type": "message",	"level": null,
+		{ "id": 7, "timestamp": "2025-01-16T09:00:00Z", "isRead": false,	"type": "message",	"level": null,
 			"title": null, "body": null},
-		{ "id": 8, "timestamp": "2025-01-17T11:00:00Z", "read": false,	"type": "feedback",	"level": 3,
+		{ "id": 8, "timestamp": "2025-01-17T11:00:00Z", "isRead": false,	"type": "feedback",	"level": 3,
 			"title": null, "body": "Pay attention to the details. Keep your fingers properly closed when pushing the water. Keep up the good work!"}
 	];
 
@@ -109,7 +139,7 @@
 		// Frontend: update read status, might be obsolete if new fetch is implemented
 		const notification = notifications.find(notification => notification.id === notificationId);
 		if (notification) {
-			notification.read = true;
+			notification.isRead = true;
 		}
 
 		// TODO: Backend: update notification read status in database
@@ -204,7 +234,7 @@
 							<div>
 								<div class="flex gap-4 px-2 py-[6px]">
 									<div class={cn("mt-2 h-2 w-2 bg-blue-500 rounded-full",
-										notification.read ? "opacity-0" : "opacity-100")}></div>
+										notification.isRead ? "opacity-0" : "opacity-100")}></div>
 									<div class="w-full flex flex-col items-start gap-1">
 										<span class="text-[14px] leading-[150%] font-medium text-main">You have a new message</span>
 										<span class="text-[14px] leading-[150%] text-gray-500">
@@ -233,7 +263,7 @@
 								<div class="pb-1 transition-all duration-300">
 									<div class="flex gap-4 px-2 py-[6px]">
 										<div class={cn("mt-2 h-2 w-2 bg-blue-500 rounded-full",
-											notification.read ? "opacity-0" : "opacity-100")}></div>
+											notification.isRead ? "opacity-0" : "opacity-100")}></div>
 										<div class="w-full flex flex-col items-start gap-1">
 											<span class="text-[14px] leading-[150%] font-medium text-main">New feedback: Level {notification.level}</span>
 											<span class="text-[14px] leading-[150%] text-gray-500">
@@ -269,7 +299,7 @@
 								<div class="pb-1 transition-all duration-300">
 									<div class="flex gap-4 px-2 py-[6px]">
 										<div class={cn("mt-2 h-2 w-2 bg-blue-500 rounded-full",
-											notification.read ? "opacity-0" : "opacity-100")}></div>
+											notification.isRead ? "opacity-0" : "opacity-100")}></div>
 										<div class="w-full flex flex-col items-start gap-1">
 											<span class="text-[14px] leading-[150%] font-medium text-main">{notification.title}</span>
 											<span class="text-[14px] leading-[150%] text-gray-500">
