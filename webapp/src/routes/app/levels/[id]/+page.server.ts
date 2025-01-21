@@ -1,102 +1,281 @@
 import { prisma } from '$lib/server/db';
 import type { PageServerLoad } from './$types';
 import { error } from '@sveltejs/kit';
+import { selectedChildIdStore } from '$lib/stores/child.store';
 
 export const load: PageServerLoad = async ({ params, locals }) => {
 	if (!locals.user) {
 		throw error(401, 'Unauthorized');
 	}
 
-	// Get the pupil ID from the user's relations
-	const parent = await prisma.parent.findUnique({
+	// // temp dev
+	// console.info('params.id (type):', `${params.id} (${typeof params.id})`);
+	// console.info('parseInt(params.id) (type):', `${parseInt(params.id)} (${typeof parseInt(params.id)})`);
+
+	// region DATA ACCESS
+
+	// Get the parent user, with their notifications, settings, messages and pupils, with their levelProgress and submissions for the current level
+	const parentUser = await prisma.user.findUnique({
 		where: {
-			userId: locals.user.id
+			id: locals.user.id
 		},
 		include: {
-			pupils: {
-				take: 1
-			}
-		}
-	});
-
-	if (!parent || !parent.pupils[0]) {
-		throw error(404, 'No pupil found');
-	}
-
-	const pupilId = parent.pupils[0].id;
-
-	// Find the lesson by order number
-	const lesson = await prisma.lesson.findFirst({
-		where: {
-			isSwimmingLesson: true,
-			order: parseInt(params.id)
-		},
-		include: {
-			exercises: {
+			parent: {
 				include: {
-					videos: true
-				}
-			},
-			submissions: {
-				where: {
-					pupilId: pupilId
-				},
-				include: {
-					lesson: {
+					pupils: {
 						include: {
-							coach: {
-								include: {
-									user: true
+							levelProgress: {
+								where: {
+									levelNumber: parseInt(params.id)
+								}
+							},
+							submissions: {
+								where: {
+									levelNumber: parseInt(params.id)
 								}
 							}
 						}
-					}
-				},
-				orderBy: {
-					createdAt: 'desc'
-				},
-				take: 1
+					},
+					messages: true
+				}
 			},
-			levelProgress: {
+			settings: true,
+			notifications: true
+		}
+	});
+
+	if (!parentUser || !parentUser.parent) {
+		console.warn('No parent found', locals.user.id);
+		throw error(404, 'No parent found');
+	} else if (!parentUser.parent.pupils || parentUser.parent.pupils.length === 0) {
+		console.warn('No pupils found for parent', locals.user.id);
+		throw error(404, 'No pupils found');
+	// } else {
+	// 	console.info('parent user found');
+	// 	console.info('linked levelProgress', parentUser.parent.pupils[0].levelProgress);
+	}
+
+	const userLanguage = parentUser.settings?.language || 'nl';
+
+	// Get the current level, with its languageContents (only the set language) and exercises, with their videos and languageContents (only the set language)
+	const level = await prisma.level.findUnique({
+		where: {
+			levelNumber: parseInt(params.id)
+		},
+		include: {
+			languageContents: {
 				where: {
-					pupilId: pupilId
+					language: userLanguage
+				}
+			},
+			exercises: {
+				include: {
+					videos: true,
+					languageContents: {
+						where: {
+							language: userLanguage
+						}
+					}
 				}
 			}
 		}
 	});
 
-	if (!lesson) {
-		throw error(404, 'Lesson not found');
+	if (!level) {
+		console.warn(`Level ${params.id} not found.`);
+		throw error(404, 'Level not found');
+	// } else {
+	// 	console.info('level found', level);
 	}
 
-	// Combine exercises with their progress
-	const exercisesWithProgress = lesson.exercises.map(exercise => ({
-		...exercise,
-		title: exercise.name, // Map name to title for frontend consistency
-		completed: lesson.levelProgress.some(p => p.part === exercise.part && p.completed)
-	}));
+	// region DATA PROCESSING
 
-	const submission = lesson.submissions[0];
-	const reviewInfo = submission?.status === 'REVIEWED' ? {
-		feedback: submission.feedback,
-		medal: submission.medal,
-		reviewedAt: submission.updatedAt,
-		teacherName: submission.lesson.coach.user.name
-	} : null;
-
-	return {
-		lesson: {
-			id: lesson.id,
-			title: lesson.title,
-			objective: lesson.objective || '',
-			exercises: exercisesWithProgress
+	// Trim the parent user object to only include the necessary data
+	const parentUserTrimmed = {
+		id: parentUser.id,
+		email: parentUser.email,
+		name: parentUser.name,
+		parent: {
+			id: parentUser.parent.id,
+			phone: parentUser.parent.phone,
+			coachId: parentUser.parent.coachId,
+			pupils: parentUser.parent.pupils.map(pupil => ({
+				id: pupil.id,
+				name: pupil.name,
+				progress: pupil.progress,
+				levelProgress: pupil.levelProgress.map(levelProgress => ({
+					id: levelProgress.id,
+					firstPartCompleted: levelProgress.firstPartCompleted,
+					fullyCompleted: levelProgress.fullyCompleted,
+					levelNumber: levelProgress.levelNumber
+				})),
+				submissions: pupil.submissions.map(submission => ({
+					id: submission.id,
+					videoUrl: submission.videoUrl,
+					status: submission.status,
+					feedback: submission.feedback,
+					medal: submission.medal,
+					updatedAt: submission.updatedAt,
+					levelNumber: submission.levelNumber
+				}))
+			})),
+			messages: parentUser.parent.messages.map(message => ({
+				id: message.id,
+				content: message.content,
+				isRead: message.isRead,
+				sender: message.sender,
+				createdAt: message.createdAt,
+				coachId: message.coachId
+			}))
 		},
-		progress: lesson.levelProgress,
-		submission: submission ? {
-			id: submission.id,
-			videoUrl: submission.videoUrl,
-			status: submission.status,
-			reviewInfo
-		} : null
+		settings: {
+			pushNotifications: parentUser.settings?.pushNotifications,
+			emailNotifications: parentUser.settings?.emailNotifications,
+			theme: parentUser.settings?.theme,
+			language: parentUser.settings?.language
+		},
+		notifications: parentUser.notifications.map(notification => ({
+			id: notification.id,
+			timestamp: notification.timestamp,
+			isRead: notification.isRead,
+			type: notification.type,
+			title: notification.title,
+			body: notification.body,
+			levelNumber: notification.levelNumber
+		}))
 	};
+
+	// Trim the level object to only include the necessary data
+	const levelTrimmed = {
+		id: level.id,
+		duration: level.duration,
+		levelNumber: level.levelNumber,
+		exercises: level.exercises.map(exercise => ({
+			id: exercise.id,
+			exerciseNumber: exercise.exerciseNumber,
+			videos: exercise.videos.map(video => ({
+				id: video.id,
+				path: video.path,
+				title: video.title
+			})),
+			languageContents: exercise.languageContents.map(languageContent => ({
+				id: languageContent.id,
+				language: languageContent.language,
+				location: languageContent.location,
+				title: languageContent.title,
+				description: languageContent.description,
+				important: languageContent.important,
+				tips: languageContent.tips
+			}))
+		})),
+		languageContents: level.languageContents.map(languageContent => ({
+			id: languageContent.id,
+			language: languageContent.language,
+			title: languageContent.title,
+			objectives: languageContent.objectives,
+		}))
+	}
+
+	// region DATA RETURN
+	return {
+		parentUser: parentUserTrimmed,
+		level: levelTrimmed
+	}
+
+	// let separator;
+
+	// // // Get the pupil ID from the user's relations
+	// // const parent = await prisma.parent.findUnique({
+	// // 	where: {
+	// // 		userId: locals.user.id
+	// // 	},
+	// // 	include: {
+	// // 		pupils: {
+	// // 			take: 1
+	// // 		}
+	// // 	}
+	// // });
+
+	// // if (!parent || !parent.pupils[0]) {
+	// // 	throw error(404, 'No pupil found');
+	// // }
+
+	// // const pupilId = parent.pupils[0].id;
+
+	// // // Find the lesson by order number
+	// // const lesson = await prisma.lesson.findFirst({
+	// // 	where: {
+	// // 		isSwimmingLesson: true,
+	// // 		order: parseInt(params.id)
+	// // 	},
+	// // 	include: {
+	// // 		exercises: {
+	// // 			include: {
+	// // 				videos: true
+	// // 			}
+	// // 		},
+	// // 		submissions: {
+	// // 			where: {
+	// // 				pupilId: pupilId
+	// // 			},
+	// // 			include: {
+	// // 				lesson: {
+	// // 					include: {
+	// // 						coach: {
+	// // 							include: {
+	// // 								user: true
+	// // 							}
+	// // 						}
+	// // 					}
+	// // 				}
+	// // 			},
+	// // 			orderBy: {
+	// // 				createdAt: 'desc'
+	// // 			},
+	// // 			take: 1
+	// // 		},
+	// // 		levelProgress: {
+	// // 			where: {
+	// // 				pupilId: pupilId
+	// // 			}
+	// // 		}
+	// // 	}
+	// // });
+
+	// // if (!lesson) {
+	// // 	throw error(404, 'Lesson not found');
+	// // }
+
+	// // // Combine exercises with their progress
+	// // const exercisesWithProgress = lesson.exercises.map(exercise => ({
+	// // 	...exercise,
+	// // 	title: exercise.name, // Map name to title for frontend consistency
+	// // 	completed: lesson.levelProgress.some(p => p.part === exercise.part && p.completed)
+	// // }));
+
+	// // const submission = lesson.submissions[0];
+	// // const reviewInfo = submission?.status === 'REVIEWED' ? {
+	// // 	feedback: submission.feedback,
+	// // 	medal: submission.medal,
+	// // 	reviewedAt: submission.updatedAt,
+	// // 	teacherName: submission.lesson.coach.user.name
+	// // } : null;
+
+	// // return {
+	// // 	lesson: {
+	// // 		id: lesson.id,
+	// // 		title: lesson.title,
+	// // 		objective: lesson.objective || '',
+	// // 		exercises: exercisesWithProgress
+	// // 	},
+	// // 	progress: lesson.levelProgress,
+	// // 	submission: submission ? {
+	// // 		id: submission.id,
+	// // 		videoUrl: submission.videoUrl,
+	// // 		status: submission.status,
+	// // 		reviewInfo
+	// // 	} : null
+	// // };
+
+	// return null;
 };
