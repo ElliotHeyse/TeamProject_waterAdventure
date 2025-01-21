@@ -35,8 +35,8 @@
 	let breadcrumbs = $state<Array<{ label: string; href: string }>>([]);
 
 	async function toggleDarkMode() {
-		const newMode = $userSettings.themeMode === 'LIGHT' ? 'DARK' : 'LIGHT';
-		await userSettings.updateSettings({ themeMode: newMode });
+		const newMode = $userSettings.theme === 'LIGHT' ? 'DARK' : 'LIGHT';
+		await userSettings.updateSettings({ theme: newMode });
 	}
 </script>
 
@@ -74,7 +74,7 @@
 					class="text-muted-foreground hover:bg-muted hover:text-foreground rounded-lg p-2"
 					onclick={toggleDarkMode}
 				>
-					<Icon src={$userSettings.themeMode === 'DARK' ? Sun : Moon} class="h-5 w-5" />
+					<Icon src={$userSettings.theme === 'DARK' ? Sun : Moon} class="h-5 w-5" />
 				</button>
 
 				<button class="hover:bg-muted relative rounded-full p-2">
