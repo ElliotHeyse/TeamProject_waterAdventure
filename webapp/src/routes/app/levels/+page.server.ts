@@ -150,7 +150,7 @@ export const load: PageServerLoad = async ({ locals, url }) => {
 
 	// region DATA RETURN
 	return {
-		parentUser: parentUser,
-		levels: levels
+		parentUser: parentUserTrimmed,
+		levels: levelsTrimmed
 	}
 };
