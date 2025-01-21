@@ -83,7 +83,7 @@
 				<span class="text-sm font-medium">Medaille</span>
 				<select
 					bind:value={medal}
-					class="bg-background focus:border-ring focus:ring-ring mt-1 block w-full rounded-md border shadow-sm"
+					class="bg-background focus:border-ring focus:ring-ring mt-1 block w-full rounded-lg border shadow-sm text-base p-2"
 				>
 					<option value="NONE">Geen</option>
 					<option value="BRONZE">Brons</option>
