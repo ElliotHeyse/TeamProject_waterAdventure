@@ -2,7 +2,7 @@
 	import { Card, CardContent, CardHeader, CardTitle } from '$lib/components/coach/ui/card';
 	import { goto } from '$app/navigation';
 	import { selectedChildIdStore } from '$lib/stores/child.store';
-	import {isMobileView} from '$lib/stores/viewport';
+	import { isMobileView } from '$lib/stores/viewport';
 	import { cn } from '$lib/components/coach/utils';
 	import badge from '$lib/img/badge-placeholder.svg';
 	// import { notifications } from '$lib/paraglide/messages';

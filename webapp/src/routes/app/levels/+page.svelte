@@ -7,7 +7,7 @@
 	import { CircleAlert } from 'lucide-svelte';
 	import { isMobileView } from '$lib/stores/viewport';
 	import { selectedChildIdStore } from '$lib/stores/child.store';
-	import type { ParentUser, Level, Pupil} from '../types';
+	import type { ParentUser, Level, Pupil, Submission} from '../types';
 
 	interface GameLevel {
 		id: number;
@@ -23,49 +23,49 @@
 	}>();
 
 	// map incoming data to existing model
-	const children = $state<Pupil[]>(data.parentUser.parent.pupils);
-	let selectedChildId = $state($selectedChildIdStore);
-	let selectedChild = $state(
-		children.find((child) => child.id === selectedChildId) || children[0] || null
+	const selectedChild = $derived(
+		data.parentUser.parent.pupils.find((pupil: Pupil) => pupil.id === $selectedChildIdStore) || data.parentUser.parent.pupils[0]
 	);
 	console.info(selectedChild.name);
 
-	let gameLevels: GameLevel[] = [];
-	data.levels.forEach((level: Level) => {
-		const currentLevel: number = level.levelNumber;
-		const currentProgress: number = selectedChild.progress;
-		let currentStatus: 'locked' | 'current' | 'completed';
-		let currentMedal: 'gold' | 'silver' | 'bronze' | null = null;
-		if (currentLevel < currentProgress) {
-			currentStatus = 'completed';
-			const submission = selectedChild.submissions.find(sub => sub.levelNumber === currentLevel);
-			if (submission) {
-				switch (submission.medal){
-					case "GOLD":
-						currentMedal = 'gold';
-						break;
-					case "SILVER":
-						currentMedal = 'silver';
-						break;
-					case "BRONZE":
-						currentMedal = 'bronze';
-						break;
-					default:
-						break;
+	const gameLevels = $derived(() => {
+		const levels: GameLevel[] = [];
+		data.levels.forEach((level: Level) => {
+			const currentLevel: number = level.levelNumber;
+			const currentProgress: number = selectedChild.progress;
+			let currentStatus: 'locked' | 'current' | 'completed';
+			let currentMedal: 'gold' | 'silver' | 'bronze' | null = null;
+			if (currentLevel < currentProgress) {
+				currentStatus = 'completed';
+				const submission = selectedChild.submissions.find((sub: Submission) => sub.levelNumber === currentLevel);
+				if (submission) {
+					switch (submission.medal){
+						case "GOLD":
+							currentMedal = 'gold';
+							break;
+						case "SILVER":
+							currentMedal = 'silver';
+							break;
+						case "BRONZE":
+							currentMedal = 'bronze';
+							break;
+						default:
+							break;
+					}
 				}
+			} else if (currentLevel === currentProgress) {
+				currentStatus = 'current';
+			} else {
+				currentStatus = 'locked';
 			}
-		} else if (currentLevel === currentProgress) {
-			currentStatus = 'current';
-		} else {
-			currentStatus = 'locked';
-		}
 
-		let newGamelevel: GameLevel = {
-			id: currentLevel,
-			status: currentStatus,
-			medal: currentMedal
-		};
-		gameLevels.push(newGamelevel);
+			levels.push({
+				id: currentLevel,
+				status: currentStatus,
+				medal: currentMedal
+			});
+		});
+		return levels;
 	});
 
 	const medalImages = {
@@ -88,7 +88,7 @@
 	// Combine hardcoded positions with dynamic data
 	const pageLevels = $derived(
 		levelPositions.map((pos) => {
-			const levelData = gameLevels.find((l: any) => l.id === pos.id) || {
+			const levelData = gameLevels().find((l: GameLevel) => l.id === pos.id) || {
 				status: 'locked' as const,
 				medal: null
 			};
@@ -98,6 +98,7 @@
 			};
 		})
 	);
+
 	console.log("pageLevels"); // dev flag
 	console.log(pageLevels); // dev flag
 
