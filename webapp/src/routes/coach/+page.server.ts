@@ -36,7 +36,7 @@ export const load = (async ({ locals }) => {
 			// Get active levels count (levels with active pupils)
 			prisma.level.count({
 				where: {
-					submissions: {
+					levelProgresses: {
 						some: {
 							pupil: {
 								parent: {

@@ -1,17 +1,60 @@
 import { prisma } from '$lib/server/db';
 import type { PageServerLoad, Actions } from './$types';
-import type { LessonsPageData } from '$lib/types/lessons';
 import { fail } from '@sveltejs/kit';
 
-export const load = (async () => {
+export const load = (async ({ locals }) => {
+	if (!locals.user) {
+		throw new Error('Not authenticated');
+	}
+
+	const coach = await prisma.coach.findUnique({
+		where: { userId: locals.user.id },
+		include: {
+			parents: true
+		}
+	});
+
+	if (!coach) {
+		throw new Error('Coach not found');
+	}
+
+	const parentIds = coach.parents.map(parent => parent.id);
+
 	const levels = await prisma.level.findMany({
 		orderBy: { levelNumber: 'asc' },
 		include: {
 			languageContents: {
 				where: {
 					language: 'nl'
+				}
+			},
+			levelProgresses: {
+				where: {
+					pupil: {
+						parent: {
+							id: {
+								in: parentIds
+							}
+						}
+					}
 				},
-				take: 1
+				include: {
+					pupil: true
+				}
+			},
+			submissions: {
+				where: {
+					pupil: {
+						parent: {
+							id: {
+								in: parentIds
+							}
+						}
+					}
+				},
+				include: {
+					pupil: true
+				}
 			}
 		}
 	});
@@ -20,74 +63,79 @@ export const load = (async () => {
 }) satisfies PageServerLoad;
 
 export const actions = {
-	createLesson: async ({ request }) => {
+	createLevel: async ({ request }) => {
 		const formData = await request.formData();
 		const title = formData.get('title') as string;
 		const description = formData.get('description') as string;
-		const level = formData.get('level') as 'BEGINNER' | 'INTERMEDIATE' | 'ADVANCED';
 		const duration = parseInt(formData.get('duration') as string);
-		const date = formData.get('date') as string;
-		const maxPupils = parseInt(formData.get('maxPupils') as string);
+		const levelNumber = parseInt(formData.get('levelNumber') as string);
 
-		if (!title || !description || !level || !duration || !date || !maxPupils) {
+		if (!title || !description || !duration || !levelNumber) {
 			return fail(400, { message: 'Missing required fields' });
 		}
 
-		// Get the coach ID (you'll need to implement proper auth later)
-		const coach = await prisma.coach.findFirst();
-		if (!coach) {
-			return fail(500, { message: 'No coach found' });
-		}
-
 		try {
-			await prisma.lesson.create({
+			await prisma.level.create({
 				data: {
-					title,
-					description,
-					level,
 					duration,
-					date: new Date(date),
-					coachId: coach.id
+					levelNumber,
+					languageContents: {
+						create: {
+							language: 'nl',
+							title,
+							description
+						}
+					}
 				}
 			});
 		} catch (error) {
-			console.error('Failed to create lesson:', error);
-			return fail(500, { message: 'Failed to create lesson' });
+			console.error('Failed to create level:', error);
+			return fail(500, { message: 'Failed to create level' });
 		}
 
 		return { success: true };
 	},
-	deleteLesson: async ({ request }) => {
+	deleteLevel: async ({ request }) => {
 		const formData = await request.formData();
 		const id = formData.get('id') as string;
 
 		if (!id) {
-			return fail(400, { message: 'Missing lesson ID' });
+			return fail(400, { message: 'Missing level ID' });
 		}
 
 		try {
-			// First, delete all reviews associated with submissions of this lesson
+			// First, delete all reviews associated with submissions of this level
 			await prisma.review.deleteMany({
 				where: {
 					submission: {
-						lessonId: id
+						levelId: id
 					}
 				}
 			});
 
-			// Then delete all submissions for this lesson
+			// Then delete all submissions for this level
 			await prisma.submission.deleteMany({
-				where: { lessonId: id }
+				where: { levelId: id }
 			});
 
-			// Finally delete the lesson
-			await prisma.lesson.delete({
+			// Delete all level progresses
+			await prisma.levelProgress.deleteMany({
+				where: { levelId: id }
+			});
+
+			// Delete all language contents
+			await prisma.levelLanguageContent.deleteMany({
+				where: { levelId: id }
+			});
+
+			// Finally delete the level
+			await prisma.level.delete({
 				where: { id }
 			});
 			return { success: true };
 		} catch (error) {
-			console.error('Failed to delete lesson:', error);
-			return fail(500, { message: 'Failed to delete lesson' });
+			console.error('Failed to delete level:', error);
+			return fail(500, { message: 'Failed to delete level' });
 		}
 	}
 } satisfies Actions;

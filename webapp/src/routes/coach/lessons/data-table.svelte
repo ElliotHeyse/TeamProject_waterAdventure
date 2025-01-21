@@ -27,29 +27,19 @@
 		renderComponent,
 		renderSnippet
 	} from '$lib/components/coach/ui/data-table/index';
-	import type { $Enums, Level } from '@prisma/client';
-	import LevelBadge from '$lib/components/coach/ui/badge/level-badge.svelte';
+	import type { Level, LevelLanguageContent } from '@prisma/client';
 	import DataTableCheckbox from './data-table-checkbox.svelte';
 	import * as m from '$lib/paraglide/messages.js';
 
-	interface Lesson {
-		id: string;
-		title: string;
-		description: string;
-		level: $Enums.Level;
-		duration: number;
-		date: Date;
-		coachId: string;
-		createdAt: Date;
-		updatedAt: Date;
-		order: number;
+	interface LevelWithLanguageContent extends Level {
+		languageContents: LevelLanguageContent[];
 	}
 
-	let { lessons }: { lessons: Lesson[] } = $props();
+	let { levels }: { levels: LevelWithLanguageContent[] } = $props();
 	let filterValue = $state('');
-	let table: TableType<Lesson> | undefined = $state();
+	let table: TableType<LevelWithLanguageContent> | undefined = $state();
 
-	const columns: ColumnDef<Lesson>[] = [
+	const columns: ColumnDef<LevelWithLanguageContent>[] = [
 		{
 			id: 'select',
 			header: ({ table }) =>
@@ -69,26 +59,26 @@
 			enableHiding: false
 		},
 		{
-			accessorKey: 'order',
-			header: m.order(),
+			accessorKey: 'levelNumber',
+			header: m.level_number(),
 			enableSorting: true,
 			cell: ({ row }) => {
-				const order = row.getValue<number>('order');
-				const orderSnippet = createRawSnippet<[number]>((getOrder) => {
-					const order = getOrder();
+				const levelNumber = row.getValue<number>('levelNumber');
+				const levelNumberSnippet = createRawSnippet<[number]>((getLevelNumber) => {
+					const levelNumber = getLevelNumber();
 					return {
-						render: () => `<div>${order}</div>`
+						render: () => `<div>${levelNumber}</div>`
 					};
 				});
-				return renderSnippet(orderSnippet, order);
+				return renderSnippet(levelNumberSnippet, levelNumber);
 			}
 		},
 		{
-			accessorKey: 'title',
+			id: 'title',
 			header: m.title(),
 			enableSorting: true,
 			cell: ({ row }) => {
-				const title = row.getValue<string>('title');
+				const title = row.original.languageContents[0]?.title ?? '';
 				const titleSnippet = createRawSnippet<[string]>((getTitle) => {
 					const title = getTitle();
 					return {
@@ -98,19 +88,23 @@
 				return renderSnippet(titleSnippet, title);
 			},
 			filterFn: (row, id, value) => {
-				const title = row.getValue<string>(id);
+				const title = row.original.languageContents[0]?.title ?? '';
 				return title.toLowerCase().includes((value as string).toLowerCase());
 			}
 		},
 		{
-			accessorKey: 'level',
-			header: m.level(),
-			enableSorting: true,
+			id: 'description',
+			header: m.description(),
+			enableSorting: false,
 			cell: ({ row }) => {
-				const level = row.getValue<Level>('level');
-				return renderComponent(LevelBadge, {
-					level
+				const description = row.original.languageContents[0]?.description ?? '';
+				const descriptionSnippet = createRawSnippet<[string]>((getDescription) => {
+					const description = getDescription();
+					return {
+						render: () => `<div class="truncate max-w-[500px]">${description}</div>`
+					};
 				});
+				return renderSnippet(descriptionSnippet, description);
 			}
 		},
 		{
@@ -129,21 +123,6 @@
 			}
 		},
 		{
-			accessorKey: 'date',
-			header: m.date(),
-			enableSorting: true,
-			cell: ({ row }) => {
-				const date = row.getValue<Date>('date');
-				const dateSnippet = createRawSnippet<[Date]>((getDate) => {
-					const date = getDate();
-					return {
-						render: () => `<div>${new Date(date).toLocaleDateString()}</div>`
-					};
-				});
-				return renderSnippet(dateSnippet, date);
-			}
-		},
-		{
 			id: 'actions',
 			header: m.actions(),
 			cell: ({ row }) => renderComponent(DataTableActions, { id: row.original.id })
@@ -158,7 +137,7 @@
 
 	table = createSvelteTable({
 		get data() {
-			return lessons;
+			return levels;
 		},
 		columns,
 		state: {
@@ -223,7 +202,7 @@
 <div class="w-full">
 	<div class="flex items-center py-4">
 		<Input
-			placeholder={m.filter_lessons()}
+			placeholder={m.filter_levels()}
 			value={(table.getColumn('title')?.getFilterValue() as string) ?? ''}
 			onchange={(e) => {
 				table.getColumn('title')?.setFilterValue(e.currentTarget.value);
@@ -254,35 +233,30 @@
 			</DropdownMenu.Content>
 		</DropdownMenu.Root>
 	</div>
+
 	<div class="rounded-md border">
 		<Table.Root>
 			<Table.Header>
-				{#each table.getHeaderGroups() as headerGroup (headerGroup.id)}
+				{#each table.getHeaderGroups() as headerGroup}
 					<Table.Row>
-						{#each headerGroup.headers as header (header.id)}
-							<Table.Head class="[&:has([role=checkbox])]:pl-3">
+						{#each headerGroup.headers as header}
+							<Table.Head>
 								{#if !header.isPlaceholder}
 									<div class="flex items-center space-x-2">
-										<button
-											class="flex items-center space-x-2"
-											onclick={() => header.column.toggleSorting()}
-										>
-											<FlexRender
-												content={header.column.columnDef.header}
-												context={header.getContext()}
-											/>
-											{#if header.column.getCanSort()}
-												<span class="ml-2">
-													{#if header.column.getIsSorted() === 'asc'}
-														<ChevronUp class="size-4" />
-													{:else if header.column.getIsSorted() === 'desc'}
-														<ChevronDown class="size-4" />
-													{:else}
-														<ArrowUpDown class="size-4" />
-													{/if}
-												</span>
-											{/if}
-										</button>
+										<FlexRender
+											of={header.column.columnDef.header}
+											{header}
+										/>
+										{#if header.column.getCanSort()}
+											<Button
+												variant="ghost"
+												size="sm"
+												class="-ml-3 h-8 data-[state=open]:bg-accent"
+												onclick={() => header.column.toggleSorting()}
+											>
+												<ArrowUpDown class="size-4" />
+											</Button>
+										{/if}
 									</div>
 								{/if}
 							</Table.Head>
@@ -291,30 +265,35 @@
 				{/each}
 			</Table.Header>
 			<Table.Body>
-				{#each table.getRowModel().rows as row (row.id)}
-					<Table.Row data-state={row.getIsSelected() && 'selected'}>
-						{#each row.getVisibleCells() as cell (cell.id)}
-							<Table.Cell class="[&:has([role=checkbox])]:pl-3">
-								<FlexRender content={cell.column.columnDef.cell} context={cell.getContext()} />
-							</Table.Cell>
-						{/each}
-					</Table.Row>
+				{#if table.getRowModel().rows?.length}
+					{#each table.getRowModel().rows as row}
+						<Table.Row data-state={row.getIsSelected() ? 'selected' : undefined}>
+							{#each row.getVisibleCells() as cell}
+								<Table.Cell>
+									<FlexRender of={cell.column.columnDef.cell} {cell} />
+								</Table.Cell>
+							{/each}
+						</Table.Row>
+					{/each}
 				{:else}
 					<Table.Row>
-						<Table.Cell colspan={columns.length} class="h-24 text-center"
-							>{m.no_results()}</Table.Cell
+						<Table.Cell
+							colSpan={columns.length}
+							class="h-24 text-center"
 						>
+							{m.no_results()}
+						</Table.Cell>
 					</Table.Row>
-				{/each}
+				{/if}
 			</Table.Body>
 		</Table.Root>
 	</div>
-	<div class="flex items-center justify-end space-x-2 pt-4">
+
+	<div class="flex items-center justify-end space-x-2 py-4">
 		<div class="text-muted-foreground flex-1 text-sm">
-			{m.rows_selected({
-				selected: table.getFilteredSelectedRowModel().rows.length,
-				total: table.getFilteredRowModel().rows.length
-			})}
+			{#if table.getFilteredSelectedRowModel().rows.length}
+				{m.selected_rows({ count: table.getFilteredSelectedRowModel().rows.length })}
+			{/if}
 		</div>
 		<div class="space-x-2">
 			<Button
