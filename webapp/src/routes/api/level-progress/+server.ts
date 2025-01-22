@@ -11,11 +11,9 @@ export const PUT: RequestHandler = async ({ request, locals }) => {
   const {pupil, levelProgress} = await request.json();
   if (!pupil || !levelProgress) {
     throw error(400, 'Missing required fields');
-  } else {
-    console.log("API: request received")
-    console.log(pupil.name);
-    console.log(levelProgress);
   }
+
+  console.info("API[level-progress]: request received");
 
   // update the levelProgress entry in the Database
   const updatedLevelProgress = await prisma.levelProgress.update({
@@ -29,11 +27,12 @@ export const PUT: RequestHandler = async ({ request, locals }) => {
   });
 
   if (!updatedLevelProgress) {
+    console.warn("API[level-progress]: Failed to update level progress, throwing 500 error");
     throw error(500, 'Failed to update level progress');
   }
 
   if (updatedLevelProgress.firstPartCompleted && updatedLevelProgress.fullyCompleted) {
-    console.log("Level fully completed, updating. Current progress:", pupil.progress);
+    // Level fully completed, updating pupil progress
     if (levelProgress.levelNumber === pupil.progress + 1) {
       // the new levelnumber is 1 above the current pupil progress (normal situation)
       const updatedPupil = await prisma.pupil.update({
@@ -46,27 +45,32 @@ export const PUT: RequestHandler = async ({ request, locals }) => {
       });
 
       if (!updatedPupil) {
+        console.warn("API[level-progress]: Failed to update pupil progress, throwing 500 error");
         throw error(500, 'Failed to update pupil progress');
-      } else {
-        console.info("Updated progress:", updatedPupil.progress);
       }
 
+      console.info("API[level-progress]: successfully processed request");
       return json({
         pupil: updatedPupil,
         levelProgress: updatedLevelProgress
       });
+
     } else if (levelProgress.levelNumber < pupil.progress + 1) {
       // the new levelnumber is equal to or lower than the current pupil progress (user went back to re-complete level that has been completed before)
-      console.log("Level already completed, no update needed");
+      // no pupil progress update required
+      console.info("API[level-progress]: successfully processed request");
       return json({
         pupil: pupil,
         levelProgress: updatedLevelProgress
       });
+
     } else {
       // the new levelnumber is more than 1 above the current pupil progress (invalid situation)
+      console.warn("API[level-progress]: Invalid level number, throwing 400 error");
       throw error(400, 'Invalid level number');
     }
   } else {
+    console.info("API[level-progress]: successfully processed request");
     return json({
       pupil: pupil,
       levelProgress: updatedLevelProgress

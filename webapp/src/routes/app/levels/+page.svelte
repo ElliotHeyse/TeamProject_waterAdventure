@@ -26,7 +26,6 @@
 	const selectedChild = $derived(
 		data.parentUser.parent.pupils.find((pupil: Pupil) => pupil.id === $selectedChildIdStore) || data.parentUser.parent.pupils[0]
 	);
-	console.info(selectedChild.name);
 
 	const gameLevels = $derived(() => {
 		const levels: GameLevel[] = [];
@@ -98,9 +97,6 @@
 			};
 		})
 	);
-
-	console.log("pageLevels"); // dev flag
-	console.log(pageLevels); // dev flag
 
 	let showAlert = $state(false);
 	let alertMessage = $state('');

@@ -7,23 +7,18 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 		throw error(401, 'Unauthorized');
 	}
 
-	console.info("API: submission request received")
-
 	const formData = await request.formData();
 	const pupilId = formData.get('pupilId') as string;
 	const levelNumber = formData.get('levelNumber') as string;
 	const videoUrl = formData.get('videoUrl') as string;
 
 	if (!pupilId || !levelNumber || !videoUrl) {
-		console.warn("Missing required fields")
 		throw error(400, 'Missing required fields');
 	}
 
-	console.log(videoUrl);
+	console.info("API[submission]: request received");
 
 	try {
-		// Create the submission
-		console.info("Creating submission in DB");
 		const submission = await prisma.submission.create({
 			data: {
 				videoUrl: videoUrl,
@@ -35,14 +30,14 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 		});
 
 		if (!submission) {
-			console.warn("Failed to create submission")
+			console.warn("API[submission]: Failed to create submission, throwing 500 error");
 			throw error(500, 'Failed to create submission');
 		}
 
-		console.info("Submission created:", submission);
+		console.info("API[submission]: successfully processed request");
 		return json({ success: submission });
 	} catch (e) {
-		console.error('Failed to create submission:', e);
+		console.error('API[submission]: Failed to create submission:', e);
 		throw error(500, 'Failed to create submission');
 	}
 };

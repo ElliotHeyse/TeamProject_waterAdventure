@@ -33,18 +33,17 @@
 	);
 
 	const TOTAL_LEVELS = data.levels.length;
-	console.log(selectedChild); // dev flag
 
 	// region Notifications logic
 
-	// hardcoded notifications for now, these would be the fetched notifications
+	// format notifications to frontend model
 	const notificationData_sorted: UserNotification[] = data.parentUser.notifications.sort((a: UserNotification, b: UserNotification) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
 	const notifications: FrontendNotification[] = $state(
 		notificationData_sorted.map(notification => ({
 		...notification,
 		isBodyHidden: true
 	})));
-	// const notifications: typeof notifications_hardcoded = []; // test empty state
+	// const notfications: FrontendNotification[] = []; // test empty state
 
 	let nowTimestamp = new Date().toISOString();
 

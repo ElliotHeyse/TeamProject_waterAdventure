@@ -65,7 +65,7 @@
 
 	let notifications = $state<Notification[]>([]);
 
-	// region Breadcrumb
+	// region Logic
 
 	// Generate breadcrumb items based on current path
 	$effect(() => {
@@ -79,14 +79,11 @@
 
 	let breadcrumbs = $state<Array<{ label: string; href: string }>>([]);
 
-	// region Light/Dark mode
-
+	// configure Light/dark mode
 	async function toggleDarkMode() {
 		const newMode = $userSettings.theme === 'LIGHT' ? 'DARK' : 'LIGHT';
 		await userSettings.updateSettings({ theme: newMode });
 	}
-
-	// region Children
 
 	// Get children from the current page data
 	const data = $state(page.data);

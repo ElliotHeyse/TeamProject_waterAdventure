@@ -9,32 +9,6 @@
 	import type {ParentUser, Level, Exercise, Pupil, LevelProgress} from '../../types';
 	import { TrendingUpDown } from 'lucide-svelte';
 
-	// interface Exercise {
-	// 	id: string;
-	// 	part: string;
-	// 	name: string;
-	// 	title: string;
-	// 	description: string;
-	// 	completed: boolean;
-	// 	videos: {
-	// 		id: string;
-	// 		description: string;
-	// 		url: string;
-	// 		exerciseId: string;
-	// 		createdAt: Date;
-	// 		updatedAt: Date;
-	// 	}[];
-	// }
-
-	// interface LevelProgress {
-	// 	id: string;
-	// 	pupilId: string;
-	// 	lessonId: string;
-	// 	part: string;
-	// 	completed: boolean;
-	// 	completedAt: Date | null;
-	// }
-
 	const { data } = $props<{
 		data: {
 			parentUser: ParentUser;
@@ -54,7 +28,6 @@
 
 	// get level progress from the selected child on this level
 	let levelProgress = $state(selectedChild.levelProgress[0]);
-	console.log(levelProgress);
 
 	let videoUrl = $state('');
 	let message = $state<string | null>(null);
@@ -91,9 +64,8 @@
 
 		if (response.ok) {
 			const result = await response.json();
-			// console.log(result);
 			selectedChild.levelProgress[0] = result;
-			console.log(levelProgress);
+			console.info("level progress updated");
 		}
 	}
 
@@ -368,44 +340,4 @@
 			{/if}
 		</div>
 	{/if}
-
-	<!--		<h2 class="text-2xl font-semibold mb-4">Video Inzending</h2>
-				<form onsubmit={handleSubmit} class="space-y-4">
-					<div>
-						<label for="videoUrl" class="block text-sm font-medium text-gray-700">Video URL</label>
-						<input
-							type="url"
-							id="videoUrl"
-							bind:value={videoUrl}
-							class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-							placeholder="https://example.com/your-video"
-							required
-						/>
-						<p class="mt-1 text-sm text-gray-500">
-							Upload je video naar een platform zoals YouTube of Vimeo en plak de link hier.
-						</p>
-					</div>
-
-					<div class="flex justify-end">
-						<button
-							type="submit"
-							class="rounded-md bg-blue-600 px-4 py-2 text-white transition-colors hover:bg-blue-700"
-						>
-							Video Indienen
-						</button>
-					</div>
-				</form>
-			{/if}
-
-			{#if message}
-				<div
-					class="mt-4 p-4 rounded-md {success
-						? 'bg-green-100 text-green-700'
-						: 'bg-red-100 text-red-700'}"
-				>
-					{message}
-				</div>
-			{/if}
-		</div>
-	{/if} -->
 </div>
