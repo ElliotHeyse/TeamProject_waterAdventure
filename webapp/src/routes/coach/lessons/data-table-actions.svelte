@@ -14,7 +14,7 @@
 		const form = new FormData();
 		form.append('id', id);
 
-		const response = await fetch('?/deleteLesson', {
+		const response = await fetch('?/deleteLevel', {
 			method: 'POST',
 			body: form
 		});
@@ -40,19 +40,19 @@
 			<DropdownMenu.Item onclick={() => (showDeleteDialog = true)}>
 				<span class="flex items-center gap-2 text-red-500">
 					<Icon src={Trash} class="h-4 w-4" />
-					{m.delete_lesson()}
+					{m.delete_level()}
 				</span>
 			</DropdownMenu.Item>
 			<DropdownMenu.Item>
 				<span class="flex items-center gap-2 text-blue-500">
 					<Icon src={Pencil} class="h-4 w-4" />
-					{m.edit_lesson()}
+					{m.edit_level()}
 				</span>
 			</DropdownMenu.Item>
 		</DropdownMenu.Group>
 		<DropdownMenu.Separator />
 		<DropdownMenu.Item>
-			<a href="/coach/submissions/all?lessonId={id}" class="flex items-center gap-2">
+			<a href="/coach/submissions/all?levelId={id}" class="flex items-center gap-2">
 				{m.view_submissions()}
 			</a>
 		</DropdownMenu.Item>
@@ -66,16 +66,16 @@
 				<Icon src={ExclamationTriangle} class="h-6 w-6 text-red-600" />
 			</div>
 			<div class="text-center">
-				<Dialog.Title class="text-lg font-semibold">{m.delete_lesson()}</Dialog.Title>
+				<Dialog.Title class="text-lg font-semibold">{m.delete_level()}</Dialog.Title>
 				<Dialog.Description class="mt-2">
-					<p class="mb-2">{m.confirm_delete_lesson()}</p>
-					<p class="text-sm text-muted-foreground">{m.confirm_delete_lesson_warning()}</p>
+					<p class="mb-2">{m.confirm_delete_level()}</p>
+					<p class="text-sm text-muted-foreground">{m.confirm_delete_level_warning()}</p>
 				</Dialog.Description>
 			</div>
 		</Dialog.Header>
 		<div class="mt-6 flex justify-end space-x-2">
 			<Button variant="outline" onclick={() => (showDeleteDialog = false)}>{m.cancel()}</Button>
-			<Button variant="destructive" onclick={handleDelete}>{m.delete_lesson()}</Button>
+			<Button variant="destructive" onclick={handleDelete}>{m.delete_level()}</Button>
 		</div>
 	</Dialog.Content>
 </Dialog.Root>

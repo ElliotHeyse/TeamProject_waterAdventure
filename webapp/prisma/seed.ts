@@ -97,7 +97,7 @@ async function main() {
 					exerciseNumber: 2,
 					videos: [
 						{
-							path: "/src/lib/beeldmateriaalZwemfed/level1_ex2_1",
+							path: "/src/lib/beeldmateriaalZwemfed/level1_ex2_1.mp4",
 							title: [
 								"Zittend op de trap piano spelen",
 								"Sitting on the stairs playing the piano",
@@ -105,7 +105,7 @@ async function main() {
 							]
 						},
 						{
-							path: "/src/lib/beeldmateriaalZwemfed/level1_ex2_2",
+							path: "/src/lib/beeldmateriaalZwemfed/level1_ex2_2.mp4",
 							title: [
 								"Zittend op trap met de benen kloppen",
 								"Sitting on the stairs beating with the legs",
@@ -113,7 +113,7 @@ async function main() {
 							]
 						},
 						{
-							path: "/src/lib/beeldmateriaalZwemfed/level1_ex2_3",
+							path: "/src/lib/beeldmateriaalZwemfed/level1_ex2_3.mp4",
 							title: [
 								"Carwash",
 								"Carwash",
@@ -304,7 +304,7 @@ async function main() {
 					exerciseNumber: 2,
 					videos: [
 						{
-							path: "/src/lib/beeldmateriaalZwemfed/level2_ex2_1",
+							path: "/src/lib/beeldmateriaalZwemfed/level2_ex2_1.mp4",
 							title: [
 								"Plankje dwars in het water bewegen",
 								"Moving a board across the water",
@@ -312,7 +312,7 @@ async function main() {
 							]
 						},
 						{
-							path: "/src/lib/beeldmateriaalZwemfed/level2_ex2_2",
+							path: "/src/lib/beeldmateriaalZwemfed/level2_ex2_2.mp4",
 							title: [
 								"Drijvend voorwerp wegstuwen",
 								"Driving a floating object away",
@@ -408,7 +408,7 @@ async function main() {
 				}
 			]
 		},
-		{	// level 3 NOT DONE
+		{	// level 3
 			duration: 20,
 			levelNumber: 3,
 			exercises: [
@@ -416,11 +416,11 @@ async function main() {
 					exerciseNumber: 1,
 					videos: [
 						{
-							path: "temp",
+							path: "/src/lib/beeldmateriaalZwemfed/level3_ex1_1.mp4",
 							title: [
-								"temp",
-								"temp",
-								"temp"
+								"Bellenblazen",
+								"Blowing bubbles",
+								"Souffler des bulles"
 							]
 						}
 					],
@@ -428,49 +428,55 @@ async function main() {
 						{
 							language: "nl",
 							location: [
-								"temp"
+								"thuis"
 							],
-							title: "temp",
+							title: "Bellenblazer",
 							description: [
-								"temp"
+								"Je kind laat een beker vol lopen met water. Zorg ervoor dat het water ook over je kind heen loopt.",
+								"Laat het daarna met een rietje bellenblazen in de beker. Hoe harder het blaast, hoe groter de bellen.",
+								"Heb je geen beker? Dan kan je kind met een rietje gewoon ook bellen blazen in het water van het zwembad."
 							],
 							important: [
-								"temp"
+								"Deze oefening lukt het best als je kind diep inademt. Zo kan het ook lang rustig uitblazen."
 							],
 							tips: [
-								"temp"
+								"Doe deze opdracht mee met je kind. Wie blaast de grootste bellen of wie blaast het meeste water uit de beker?"
 							]
 						},
 						{
 							language: "en",
 							location: [
-								"temp"
+								"home"
 							],
-							title: "temp",
+							title: "Bubble Blower",
 							description: [
-								"temp"
+								"Have your child fill a cup with water. Make sure the water flows over your child as well.",
+								"Then let them blow bubbles in the cup with a straw. The harder they blow, the bigger the bubbles.",
+								"Don't have a cup? Then your child can also blow bubbles in the pool water with a straw."
 							],
 							important: [
-								"temp"
+								"This exercise works best when your child takes a deep breath. This way, they can exhale calmly for a longer time."
 							],
 							tips: [
-								"temp"
+								"Do this exercise with your child. Who can blow the biggest bubbles or who can blow the most water out of the cup?"
 							]
 						},
 						{
 							language: "fr",
 							location: [
-								"temp"
+								"maison"
 							],
-							title: "temp",
+							title: "Souffleur de Bulles",
 							description: [
-								"temp"
+								"Faites remplir un verre d'eau à votre enfant. Assurez-vous que l'eau coule aussi sur votre enfant.",
+								"Ensuite, laissez-le souffler des bulles dans le verre avec une paille. Plus il souffle fort, plus les bulles sont grosses.",
+								"Vous n'avez pas de verre ? Votre enfant peut aussi souffler des bulles dans l'eau de la piscine avec une paille."
 							],
 							important: [
-								"temp"
+								"Cet exercice fonctionne mieux lorsque votre enfant prend une profonde respiration. Ainsi, il peut expirer calmement plus longtemps."
 							],
 							tips: [
-								"temp"
+								"Faites cet exercice avec votre enfant. Qui peut souffler les plus grosses bulles ou qui peut souffler le plus d'eau hors du verre ?"
 							]
 						}
 					]
@@ -479,11 +485,19 @@ async function main() {
 					exerciseNumber: 2,
 					videos: [
 						{
-							path: "path",
+							path: "/src/lib/beeldmateriaalZwemfed/level3_ex2_1.mp4",
 							title: [
-								"path",
-								"path",
-								"path"
+								"Bellenblazen onder water",
+								"Blowing bubbles underwater",
+								"Souffler des bulles sous l'eau"
+							]
+						},
+						{
+							path: "/src/lib/beeldmateriaalZwemfed/level3_ex2_2.mp4",
+							title: [
+								"Bellenblazen met neus",
+								"Blowing bubbles with nose",
+								"Souffler des bulles avec le nez"
 							]
 						}
 					],
@@ -491,47 +505,64 @@ async function main() {
 						{
 							language: "nl",
 							location: [
-								"temp"
+								"zwembad"
 							],
-							title: "temp",
+							title: "Bellenblazen",
 							description: [
-								"temp"
+								"Laat je kind een licht balletje (bv. pingpongballetje) vooruit blazen. Dit kan vanuit verschillende posities in het bad:",
+								"op de knieën",
+								"rechtstaand",
+								"rondstappend"
 							],
 							important: [
-								"temp"
+								"Zorg ervoor dat je kind krachtig kan blazen. Zorg dat het hiervoor de lippen goed gebruikt, zoals in de afbeelding."
 							],
 							tips: [
-								"temp"
+								"Motiveer je kind door zelf mee te doen en bedenk leuke spelletjes:",
+								"blaas het balletje naar elkaar",
+								"leg zo snel mogelijk een parcours af met het balletje"
 							]
 						},
 						{
+							language: "en",
 							location: [
-								"temp"
+								"swimming pool"
 							],
-							title: "temp",
+							title: "Blowing Bubbles",
 							description: [
-								"temp"
+								"Have your child blow a light ball (e.g., ping pong ball) forward. This can be done from different positions in the pool:",
+								"on their knees",
+								"standing up",
+								"walking around"
 							],
 							important: [
-								"temp"
+								"Make sure your child can blow forcefully. Ensure they use their lips properly, as shown in the image."
 							],
 							tips: [
-								"temp"
+								"Motivate your child by participating and think of fun games:",
+								"blow the ball to each other",
+								"complete a course with the ball as quickly as possible"
 							]
 						},
 						{
+							language: "fr",
 							location: [
-								"temp"
+								"piscine"
 							],
-							title: "temp",
+							title: "Souffler des Bulles",
 							description: [
-								"temp"
+								"Faites souffler à votre enfant une balle légère (par exemple, une balle de ping-pong) vers l'avant. Cela peut se faire depuis différentes positions dans la piscine :",
+								"à genoux",
+								"debout",
+								"en marchant"
 							],
 							important: [
-								"temp"
+								"Assurez-vous que votre enfant puisse souffler avec force. Veillez à ce qu'il utilise correctement ses lèvres, comme montré sur l'image."
 							],
 							tips: [
-								"temp"
+								"Motivez votre enfant en participant et imaginez des jeux amusants :",
+								"soufflez la balle l'un vers l'autre",
+								"complétez un parcours avec la balle le plus rapidement possible"
 							]
 						}
 					]
@@ -540,28 +571,34 @@ async function main() {
 			languageContents: [
 				{
 					language: "nl",
-					title: "temp",
+					title: "Aquatisch ademen",
 					objectives: [
-						"temp"
+						"aquatisch ademen",
+						"vertrouwen",
+						"waterangst overwinnen"
 					]
 				},
 				{
 					language: "en",
-					title: "temp",
+					title: "Aquatic Breathing",
 					objectives: [
-						"temp"
+						"aquatic breathing",
+						"confidence",
+						"overcoming fear of water"
 					]
 				},
 				{
 					language: "fr",
-					title: "temp",
+					title: "Respiration Aquatique",
 					objectives: [
-						"temp"
+						"respiration aquatique",
+						"confiance",
+						"surmonter la peur de l'eau"
 					]
 				}
 			]
 		},
-		{	// level 4 NOT DONE
+		{	// level 4
 			duration: 20,
 			levelNumber: 4,
 			exercises: [
@@ -569,11 +606,11 @@ async function main() {
 					exerciseNumber: 1,
 					videos: [
 						{
-							path: "temp",
+							path: "/src/lib/beeldmateriaalZwemfed/level4_ex1_1.mp4",
 							title: [
-								"temp",
-								"temp",
-								"temp"
+								"Duiken naar voorwerp",
+								"Diving for object",
+								"Plonger pour un objet"
 							]
 						}
 					],
@@ -581,49 +618,55 @@ async function main() {
 						{
 							language: "nl",
 							location: [
-								"temp"
+								"thuis"
 							],
-							title: "temp",
+							title: "Bellenblazer",
 							description: [
-								"temp"
+								"Je kind laat een beker vol lopen met water. Zorg ervoor dat het water ook over je kind heen loopt.",
+								"Laat het daarna met een rietje bellenblazen in de beker. Hoe harder het blaast, hoe groter de bellen.",
+								"Heb je geen beker? Dan kan je kind met een rietje gewoon ook bellen blazen in het water van het zwembad."
 							],
 							important: [
-								"temp"
+								"Deze oefening lukt het best als je kind diep inademt. Zo kan het ook lang rustig uitblazen."
 							],
 							tips: [
-								"temp"
+								"Doe deze opdracht mee met je kind. Wie blaast de grootste bellen of wie blaast het meeste water uit de beker?"
 							]
 						},
 						{
 							language: "en",
 							location: [
-								"temp"
+								"home"
 							],
-							title: "temp",
+							title: "Bubble Blower",
 							description: [
-								"temp"
+								"Have your child fill a cup with water. Make sure the water flows over your child as well.",
+								"Then let them blow bubbles in the cup with a straw. The harder they blow, the bigger the bubbles.",
+								"Don't have a cup? Then your child can also blow bubbles in the pool water with a straw."
 							],
 							important: [
-								"temp"
+								"This exercise works best when your child takes a deep breath. This way, they can exhale calmly for a longer time."
 							],
 							tips: [
-								"temp"
+								"Do this exercise with your child. Who can blow the biggest bubbles or who can blow the most water out of the cup?"
 							]
 						},
 						{
 							language: "fr",
 							location: [
-								"temp"
+								"maison"
 							],
-							title: "temp",
+							title: "Souffleur de Bulles",
 							description: [
-								"temp"
+								"Faites remplir un verre d'eau à votre enfant. Assurez-vous que l'eau coule aussi sur votre enfant.",
+								"Ensuite, laissez-le souffler des bulles dans le verre avec une paille. Plus il souffle fort, plus les bulles sont grosses.",
+								"Vous n'avez pas de verre ? Votre enfant peut aussi souffler des bulles dans l'eau de la piscine avec une paille."
 							],
 							important: [
-								"temp"
+								"Cet exercice fonctionne mieux lorsque votre enfant prend une profonde respiration. Ainsi, il peut expirer calmement plus longtemps."
 							],
 							tips: [
-								"temp"
+								"Faites cet exercice avec votre enfant. Qui peut souffler les plus grosses bulles ou qui peut souffler le plus d'eau hors du verre ?"
 							]
 						}
 					]
@@ -632,11 +675,19 @@ async function main() {
 					exerciseNumber: 2,
 					videos: [
 						{
-							path: "path",
+							path: "/src/lib/beeldmateriaalZwemfed/level4_ex2_1.mp4",
 							title: [
-								"path",
-								"path",
-								"path"
+								"Duiken door hoepel",
+								"Diving through hoop",
+								"Plonger à travers un cerceau"
+							]
+						},
+						{
+							path: "/src/lib/beeldmateriaalZwemfed/level4_ex2_2.mp4",
+							title: [
+								"Duiken naar bodem",
+								"Diving to bottom",
+								"Plonger vers le fond"
 							]
 						}
 					],
@@ -644,47 +695,55 @@ async function main() {
 						{
 							language: "nl",
 							location: [
-								"temp"
+								"zwembad"
 							],
-							title: "temp",
+							title: "Onder het poortje door",
 							description: [
-								"temp"
+								"Maak met een voorwerp (flexibeam, plank, ballon...) of met je been of arm een 'poortje'. Laat je kind onder het poortje doorlopen."
 							],
 							important: [
-								"temp"
+								"Zorg dat de mond van je kind toe is als het onder het poortje gaat. Variatie: laat je kind bellen blazen door neus en/of mond terwijl het onder het poortje loopt."
 							],
 							tips: [
-								"temp"
+								"Heeft je kind nog weinig vertrouwen in het water? Help het dan door het een hand te geven of een drijvend voorwerp te laten vasthouden.",
+								"Is je kind al een durver? Maak het poortje lager. Zo kan je kind ook de ogen openen terwijl het onder de poort stapt.",
+								"Variatie: laat je kind door jouw benen zwemmen of zelfs omkeren"
 							]
 						},
 						{
+							language: "en",
 							location: [
-								"temp"
+								"swimming pool"
 							],
-							title: "temp",
+							title: "Under the Gateway",
 							description: [
-								"temp"
+								"Create a 'gateway' with an object (flexibeam, board, balloon...) or with your leg or arm. Let your child walk under the gateway."
 							],
 							important: [
-								"temp"
+								"Make sure your child's mouth is closed when going under the gateway. Variation: let your child blow bubbles through nose and/or mouth while walking under the gateway."
 							],
 							tips: [
-								"temp"
+								"Does your child still have little confidence in the water? Help them by holding their hand or letting them hold a floating object.",
+								"Is your child already daring? Make the gateway lower. This way your child can also open their eyes while stepping under the gateway.",
+								"Variation: let your child swim through your legs or even turn around"
 							]
 						},
 						{
+							language: "fr",
 							location: [
-								"temp"
+								"piscine"
 							],
-							title: "temp",
+							title: "Sous la Porte",
 							description: [
-								"temp"
+								"Créez une 'porte' avec un objet (flexibeam, planche, ballon...) ou avec votre jambe ou bras. Laissez votre enfant passer sous la porte."
 							],
 							important: [
-								"temp"
+								"Assurez-vous que la bouche de votre enfant est fermée lorsqu'il passe sous la porte. Variation : laissez votre enfant souffler des bulles par le nez et/ou la bouche en passant sous la porte."
 							],
 							tips: [
-								"temp"
+								"Votre enfant a-t-il encore peu confiance dans l'eau ? Aidez-le en lui tenant la main ou en le laissant tenir un objet flottant.",
+								"Votre enfant est-il déjà audacieux ? Abaissez la porte. Ainsi, votre enfant peut aussi ouvrir les yeux en passant sous la porte.",
+								"Variation : laissez votre enfant nager entre vos jambes ou même faire demi-tour"
 							]
 						}
 					]
@@ -693,28 +752,31 @@ async function main() {
 			languageContents: [
 				{
 					language: "nl",
-					title: "temp",
+					title: "Aquatisch ademen en verplaatsen",
 					objectives: [
-						"temp"
+						"aquatisch ademen",
+						"verplaatsen in het water"
 					]
 				},
 				{
 					language: "en",
-					title: "temp",
+					title: "Aquatic Breathing and Movement",
 					objectives: [
-						"temp"
+						"aquatic breathing",
+						"moving in water"
 					]
 				},
 				{
 					language: "fr",
-					title: "temp",
+					title: "Respiration Aquatique et Déplacement",
 					objectives: [
-						"temp"
+						"respiration aquatique",
+						"se déplacer dans l'eau"
 					]
 				}
 			]
 		},
-		{	// level 5 NOT DONE
+		{	// level 5
 			duration: 20,
 			levelNumber: 5,
 			exercises: [
@@ -722,11 +784,11 @@ async function main() {
 					exerciseNumber: 1,
 					videos: [
 						{
-							path: "temp",
+							path: "/src/lib/beeldmateriaalZwemfed/level5_ex1_1.mp4",
 							title: [
-								"temp",
-								"temp",
-								"temp"
+								"Bellenblazen",
+								"Blowing bubbles",
+								"Souffler des bulles"
 							]
 						}
 					],
@@ -734,49 +796,55 @@ async function main() {
 						{
 							language: "nl",
 							location: [
-								"temp"
+								"thuis"
 							],
-							title: "temp",
+							title: "Bellenblazer",
 							description: [
-								"temp"
+								"Je kind laat een beker vol lopen met water. Zorg ervoor dat het water ook over je kind heen loopt.",
+								"Laat het daarna met een rietje bellenblazen in de beker. Hoe harder het blaast, hoe groter de bellen.",
+								"Heb je geen beker? Dan kan je kind met een rietje gewoon ook bellen blazen in het water van het zwembad."
 							],
 							important: [
-								"temp"
+								"Deze oefening lukt het best als je kind diep inademt. Zo kan het ook lang rustig uitblazen."
 							],
 							tips: [
-								"temp"
+								"Doe deze opdracht mee met je kind. Wie blaast de grootste bellen of wie blaast het meeste water uit de beker?"
 							]
 						},
 						{
 							language: "en",
 							location: [
-								"temp"
+								"home"
 							],
-							title: "temp",
+							title: "Bubble Blower",
 							description: [
-								"temp"
+								"Have your child fill a cup with water. Make sure the water flows over your child as well.",
+								"Then let them blow bubbles in the cup with a straw. The harder they blow, the bigger the bubbles.",
+								"Don't have a cup? Then your child can also blow bubbles in the pool water with a straw."
 							],
 							important: [
-								"temp"
+								"This exercise works best when your child takes a deep breath. This way, they can exhale calmly for a longer time."
 							],
 							tips: [
-								"temp"
+								"Do this exercise with your child. Who can blow the biggest bubbles or who can blow the most water out of the cup?"
 							]
 						},
 						{
 							language: "fr",
 							location: [
-								"temp"
+								"maison"
 							],
-							title: "temp",
+							title: "Souffleur de Bulles",
 							description: [
-								"temp"
+								"Faites remplir un verre d'eau à votre enfant. Assurez-vous que l'eau coule aussi sur votre enfant.",
+								"Ensuite, laissez-le souffler des bulles dans le verre avec une paille. Plus il souffle fort, plus les bulles sont grosses.",
+								"Vous n'avez pas de verre ? Votre enfant peut aussi souffler des bulles dans l'eau de la piscine avec une paille."
 							],
 							important: [
-								"temp"
+								"Cet exercice fonctionne mieux lorsque votre enfant prend une profonde respiration. Ainsi, il peut expirer calmement plus longtemps."
 							],
 							tips: [
-								"temp"
+								"Faites cet exercice avec votre enfant. Qui peut souffler les plus grosses bulles ou qui peut souffler le plus d'eau hors du verre ?"
 							]
 						}
 					]
@@ -785,11 +853,19 @@ async function main() {
 					exerciseNumber: 2,
 					videos: [
 						{
-							path: "path",
+							path: "/src/lib/beeldmateriaalZwemfed/level5_ex2_1.mp4",
 							title: [
-								"path",
-								"path",
-								"path"
+								"Bellenblazen onder water",
+								"Blowing bubbles underwater",
+								"Souffler des bulles sous l'eau"
+							]
+						},
+						{
+							path: "/src/lib/beeldmateriaalZwemfed/level5_ex2_2.mp4",
+							title: [
+								"Bellenblazen met neus",
+								"Blowing bubbles with nose",
+								"Souffler des bulles avec le nez"
 							]
 						}
 					],
@@ -797,47 +873,64 @@ async function main() {
 						{
 							language: "nl",
 							location: [
-								"temp"
+								"zwembad"
 							],
-							title: "temp",
+							title: "Bellenblazen",
 							description: [
-								"temp"
+								"Laat je kind een licht balletje (bv. pingpongballetje) vooruit blazen. Dit kan vanuit verschillende posities in het bad:",
+								"op de knieën",
+								"rechtstaand",
+								"rondstappend"
 							],
 							important: [
-								"temp"
+								"Zorg ervoor dat je kind krachtig kan blazen. Zorg dat het hiervoor de lippen goed gebruikt, zoals in de afbeelding."
 							],
 							tips: [
-								"temp"
+								"Motiveer je kind door zelf mee te doen en bedenk leuke spelletjes:",
+								"blaas het balletje naar elkaar",
+								"leg zo snel mogelijk een parcours af met het balletje"
 							]
 						},
 						{
+							language: "en",
 							location: [
-								"temp"
+								"swimming pool"
 							],
-							title: "temp",
+							title: "Blowing Bubbles",
 							description: [
-								"temp"
+								"Have your child blow a light ball (e.g., ping pong ball) forward. This can be done from different positions in the pool:",
+								"on their knees",
+								"standing up",
+								"walking around"
 							],
 							important: [
-								"temp"
+								"Make sure your child can blow forcefully. Ensure they use their lips properly, as shown in the image."
 							],
 							tips: [
-								"temp"
+								"Motivate your child by participating and think of fun games:",
+								"blow the ball to each other",
+								"complete a course with the ball as quickly as possible"
 							]
 						},
 						{
+							language: "fr",
 							location: [
-								"temp"
+								"piscine"
 							],
-							title: "temp",
+							title: "Souffler des Bulles",
 							description: [
-								"temp"
+								"Faites souffler à votre enfant une balle légère (par exemple, une balle de ping-pong) vers l'avant. Cela peut se faire depuis différentes positions dans la piscine :",
+								"à genoux",
+								"debout",
+								"en marchant"
 							],
 							important: [
-								"temp"
+								"Assurez-vous que votre enfant puisse souffler avec force. Veillez à ce qu'il utilise correctement ses lèvres, comme montré sur l'image."
 							],
 							tips: [
-								"temp"
+								"Motivez votre enfant en participant et imaginez des jeux amusants :",
+								"soufflez la balle l'un vers l'autre",
+								"complétez un parcours avec la balle le plus rapidement possible"
 							]
 						}
 					]
@@ -846,28 +939,34 @@ async function main() {
 			languageContents: [
 				{
 					language: "nl",
-					title: "temp",
+					title: "Aquatisch ademen",
 					objectives: [
-						"temp"
+						"aquatisch ademen",
+						"vertrouwen",
+						"waterangst overwinnen"
 					]
 				},
 				{
 					language: "en",
-					title: "temp",
+					title: "Aquatic Breathing",
 					objectives: [
-						"temp"
+						"aquatic breathing",
+						"confidence",
+						"overcoming fear of water"
 					]
 				},
 				{
 					language: "fr",
-					title: "temp",
+					title: "Respiration Aquatique",
 					objectives: [
-						"temp"
+						"respiration aquatique",
+						"confiance",
+						"surmonter la peur de l'eau"
 					]
 				}
 			]
 		},
-		{	// level 6 NOT DONE
+		{	// level 6
 			duration: 20,
 			levelNumber: 6,
 			exercises: [
@@ -875,11 +974,11 @@ async function main() {
 					exerciseNumber: 1,
 					videos: [
 						{
-							path: "temp",
+							path: "/src/lib/beeldmateriaalZwemfed/level6_ex1_1.mp4",
 							title: [
-								"temp",
-								"temp",
-								"temp"
+								"Bellenblazen",
+								"Blowing bubbles",
+								"Souffler des bulles"
 							]
 						}
 					],
@@ -887,49 +986,55 @@ async function main() {
 						{
 							language: "nl",
 							location: [
-								"temp"
+								"thuis"
 							],
-							title: "temp",
+							title: "Bellenblazer",
 							description: [
-								"temp"
+								"Je kind laat een beker vol lopen met water. Zorg ervoor dat het water ook over je kind heen loopt.",
+								"Laat het daarna met een rietje bellenblazen in de beker. Hoe harder het blaast, hoe groter de bellen.",
+								"Heb je geen beker? Dan kan je kind met een rietje gewoon ook bellen blazen in het water van het zwembad."
 							],
 							important: [
-								"temp"
+								"Deze oefening lukt het best als je kind diep inademt. Zo kan het ook lang rustig uitblazen."
 							],
 							tips: [
-								"temp"
+								"Doe deze opdracht mee met je kind. Wie blaast de grootste bellen of wie blaast het meeste water uit de beker?"
 							]
 						},
 						{
 							language: "en",
 							location: [
-								"temp"
+								"home"
 							],
-							title: "temp",
+							title: "Bubble Blower",
 							description: [
-								"temp"
+								"Have your child fill a cup with water. Make sure the water flows over your child as well.",
+								"Then let them blow bubbles in the cup with a straw. The harder they blow, the bigger the bubbles.",
+								"Don't have a cup? Then your child can also blow bubbles in the pool water with a straw."
 							],
 							important: [
-								"temp"
+								"This exercise works best when your child takes a deep breath. This way, they can exhale calmly for a longer time."
 							],
 							tips: [
-								"temp"
+								"Do this exercise with your child. Who can blow the biggest bubbles or who can blow the most water out of the cup?"
 							]
 						},
 						{
 							language: "fr",
 							location: [
-								"temp"
+								"maison"
 							],
-							title: "temp",
+							title: "Souffleur de Bulles",
 							description: [
-								"temp"
+								"Faites remplir un verre d'eau à votre enfant. Assurez-vous que l'eau coule aussi sur votre enfant.",
+								"Ensuite, laissez-le souffler des bulles dans le verre avec une paille. Plus il souffle fort, plus les bulles sont grosses.",
+								"Vous n'avez pas de verre ? Votre enfant peut aussi souffler des bulles dans l'eau de la piscine avec une paille."
 							],
 							important: [
-								"temp"
+								"Cet exercice fonctionne mieux lorsque votre enfant prend une profonde respiration. Ainsi, il peut expirer calmement plus longtemps."
 							],
 							tips: [
-								"temp"
+								"Faites cet exercice avec votre enfant. Qui peut souffler les plus grosses bulles ou qui peut souffler le plus d'eau hors du verre ?"
 							]
 						}
 					]
@@ -938,11 +1043,19 @@ async function main() {
 					exerciseNumber: 2,
 					videos: [
 						{
-							path: "path",
+							path: "/src/lib/beeldmateriaalZwemfed/level6_ex2_1.mp4",
 							title: [
-								"path",
-								"path",
-								"path"
+								"Bellenblazen onder water",
+								"Blowing bubbles underwater",
+								"Souffler des bulles sous l'eau"
+							]
+						},
+						{
+							path: "/src/lib/beeldmateriaalZwemfed/level6_ex2_2.mp4",
+							title: [
+								"Bellenblazen met neus",
+								"Blowing bubbles with nose",
+								"Souffler des bulles avec le nez"
 							]
 						}
 					],
@@ -950,47 +1063,64 @@ async function main() {
 						{
 							language: "nl",
 							location: [
-								"temp"
+								"zwembad"
 							],
-							title: "temp",
+							title: "Bellenblazen",
 							description: [
-								"temp"
+								"Laat je kind een licht balletje (bv. pingpongballetje) vooruit blazen. Dit kan vanuit verschillende posities in het bad:",
+								"op de knieën",
+								"rechtstaand",
+								"rondstappend"
 							],
 							important: [
-								"temp"
+								"Zorg ervoor dat je kind krachtig kan blazen. Zorg dat het hiervoor de lippen goed gebruikt, zoals in de afbeelding."
 							],
 							tips: [
-								"temp"
+								"Motiveer je kind door zelf mee te doen en bedenk leuke spelletjes:",
+								"blaas het balletje naar elkaar",
+								"leg zo snel mogelijk een parcours af met het balletje"
 							]
 						},
 						{
+							language: "en",
 							location: [
-								"temp"
+								"swimming pool"
 							],
-							title: "temp",
+							title: "Blowing Bubbles",
 							description: [
-								"temp"
+								"Have your child blow a light ball (e.g., ping pong ball) forward. This can be done from different positions in the pool:",
+								"on their knees",
+								"standing up",
+								"walking around"
 							],
 							important: [
-								"temp"
+								"Make sure your child can blow forcefully. Ensure they use their lips properly, as shown in the image."
 							],
 							tips: [
-								"temp"
+								"Motivate your child by participating and think of fun games:",
+								"blow the ball to each other",
+								"complete a course with the ball as quickly as possible"
 							]
 						},
 						{
+							language: "fr",
 							location: [
-								"temp"
+								"piscine"
 							],
-							title: "temp",
+							title: "Souffler des Bulles",
 							description: [
-								"temp"
+								"Faites souffler à votre enfant une balle légère (par exemple, une balle de ping-pong) vers l'avant. Cela peut se faire depuis différentes positions dans la piscine :",
+								"à genoux",
+								"debout",
+								"en marchant"
 							],
 							important: [
-								"temp"
+								"Assurez-vous que votre enfant puisse souffler avec force. Veillez à ce qu'il utilise correctement ses lèvres, comme montré sur l'image."
 							],
 							tips: [
-								"temp"
+								"Motivez votre enfant en participant et imaginez des jeux amusants :",
+								"soufflez la balle l'un vers l'autre",
+								"complétez un parcours avec la balle le plus rapidement possible"
 							]
 						}
 					]
@@ -999,28 +1129,34 @@ async function main() {
 			languageContents: [
 				{
 					language: "nl",
-					title: "temp",
+					title: "Aquatisch ademen",
 					objectives: [
-						"temp"
+						"aquatisch ademen",
+						"vertrouwen",
+						"waterangst overwinnen"
 					]
 				},
 				{
 					language: "en",
-					title: "temp",
+					title: "Aquatic Breathing",
 					objectives: [
-						"temp"
+						"aquatic breathing",
+						"confidence",
+						"overcoming fear of water"
 					]
 				},
 				{
 					language: "fr",
-					title: "temp",
+					title: "Respiration Aquatique",
 					objectives: [
-						"temp"
+						"respiration aquatique",
+						"confiance",
+						"surmonter la peur de l'eau"
 					]
 				}
 			]
 		},
-		{	// level 7 NOT DONE
+		{	// level 7
 			duration: 20,
 			levelNumber: 7,
 			exercises: [
@@ -1028,11 +1164,11 @@ async function main() {
 					exerciseNumber: 1,
 					videos: [
 						{
-							path: "temp",
+							path: "/src/lib/beeldmateriaalZwemfed/level7_ex1_1.mp4",
 							title: [
-								"temp",
-								"temp",
-								"temp"
+								"Bellenblazen",
+								"Blowing bubbles",
+								"Souffler des bulles"
 							]
 						}
 					],
@@ -1040,49 +1176,55 @@ async function main() {
 						{
 							language: "nl",
 							location: [
-								"temp"
+								"thuis"
 							],
-							title: "temp",
+							title: "Bellenblazer",
 							description: [
-								"temp"
+								"Je kind laat een beker vol lopen met water. Zorg ervoor dat het water ook over je kind heen loopt.",
+								"Laat het daarna met een rietje bellenblazen in de beker. Hoe harder het blaast, hoe groter de bellen.",
+								"Heb je geen beker? Dan kan je kind met een rietje gewoon ook bellen blazen in het water van het zwembad."
 							],
 							important: [
-								"temp"
+								"Deze oefening lukt het best als je kind diep inademt. Zo kan het ook lang rustig uitblazen."
 							],
 							tips: [
-								"temp"
+								"Doe deze opdracht mee met je kind. Wie blaast de grootste bellen of wie blaast het meeste water uit de beker?"
 							]
 						},
 						{
 							language: "en",
 							location: [
-								"temp"
+								"home"
 							],
-							title: "temp",
+							title: "Bubble Blower",
 							description: [
-								"temp"
+								"Have your child fill a cup with water. Make sure the water flows over your child as well.",
+								"Then let them blow bubbles in the cup with a straw. The harder they blow, the bigger the bubbles.",
+								"Don't have a cup? Then your child can also blow bubbles in the pool water with a straw."
 							],
 							important: [
-								"temp"
+								"This exercise works best when your child takes a deep breath. This way, they can exhale calmly for a longer time."
 							],
 							tips: [
-								"temp"
+								"Do this exercise with your child. Who can blow the biggest bubbles or who can blow the most water out of the cup?"
 							]
 						},
 						{
 							language: "fr",
 							location: [
-								"temp"
+								"maison"
 							],
-							title: "temp",
+							title: "Souffleur de Bulles",
 							description: [
-								"temp"
+								"Faites remplir un verre d'eau à votre enfant. Assurez-vous que l'eau coule aussi sur votre enfant.",
+								"Ensuite, laissez-le souffler des bulles dans le verre avec une paille. Plus il souffle fort, plus les bulles sont grosses.",
+								"Vous n'avez pas de verre ? Votre enfant peut aussi souffler des bulles dans l'eau de la piscine avec une paille."
 							],
 							important: [
-								"temp"
+								"Cet exercice fonctionne mieux lorsque votre enfant prend une profonde respiration. Ainsi, il peut expirer calmement plus longtemps."
 							],
 							tips: [
-								"temp"
+								"Faites cet exercice avec votre enfant. Qui peut souffler les plus grosses bulles ou qui peut souffler le plus d'eau hors du verre ?"
 							]
 						}
 					]
@@ -1091,11 +1233,19 @@ async function main() {
 					exerciseNumber: 2,
 					videos: [
 						{
-							path: "path",
+							path: "/src/lib/beeldmateriaalZwemfed/level7_ex2_1.mp4",
 							title: [
-								"path",
-								"path",
-								"path"
+								"Bellenblazen onder water",
+								"Blowing bubbles underwater",
+								"Souffler des bulles sous l'eau"
+							]
+						},
+						{
+							path: "/src/lib/beeldmateriaalZwemfed/level7_ex2_2.mp4",
+							title: [
+								"Bellenblazen met neus",
+								"Blowing bubbles with nose",
+								"Souffler des bulles avec le nez"
 							]
 						}
 					],
@@ -1103,47 +1253,64 @@ async function main() {
 						{
 							language: "nl",
 							location: [
-								"temp"
+								"zwembad"
 							],
-							title: "temp",
+							title: "Bellenblazen",
 							description: [
-								"temp"
+								"Laat je kind een licht balletje (bv. pingpongballetje) vooruit blazen. Dit kan vanuit verschillende posities in het bad:",
+								"op de knieën",
+								"rechtstaand",
+								"rondstappend"
 							],
 							important: [
-								"temp"
+								"Zorg ervoor dat je kind krachtig kan blazen. Zorg dat het hiervoor de lippen goed gebruikt, zoals in de afbeelding."
 							],
 							tips: [
-								"temp"
+								"Motiveer je kind door zelf mee te doen en bedenk leuke spelletjes:",
+								"blaas het balletje naar elkaar",
+								"leg zo snel mogelijk een parcours af met het balletje"
 							]
 						},
 						{
+							language: "en",
 							location: [
-								"temp"
+								"swimming pool"
 							],
-							title: "temp",
+							title: "Blowing Bubbles",
 							description: [
-								"temp"
+								"Have your child blow a light ball (e.g., ping pong ball) forward. This can be done from different positions in the pool:",
+								"on their knees",
+								"standing up",
+								"walking around"
 							],
 							important: [
-								"temp"
+								"Make sure your child can blow forcefully. Ensure they use their lips properly, as shown in the image."
 							],
 							tips: [
-								"temp"
+								"Motivate your child by participating and think of fun games:",
+								"blow the ball to each other",
+								"complete a course with the ball as quickly as possible"
 							]
 						},
 						{
+							language: "fr",
 							location: [
-								"temp"
+								"piscine"
 							],
-							title: "temp",
+							title: "Souffler des Bulles",
 							description: [
-								"temp"
+								"Faites souffler à votre enfant une balle légère (par exemple, une balle de ping-pong) vers l'avant. Cela peut se faire depuis différentes positions dans la piscine :",
+								"à genoux",
+								"debout",
+								"en marchant"
 							],
 							important: [
-								"temp"
+								"Assurez-vous que votre enfant puisse souffler avec force. Veillez à ce qu'il utilise correctement ses lèvres, comme montré sur l'image."
 							],
 							tips: [
-								"temp"
+								"Motivez votre enfant en participant et imaginez des jeux amusants :",
+								"soufflez la balle l'un vers l'autre",
+								"complétez un parcours avec la balle le plus rapidement possible"
 							]
 						}
 					]
@@ -1152,23 +1319,29 @@ async function main() {
 			languageContents: [
 				{
 					language: "nl",
-					title: "temp",
+					title: "Aquatisch ademen",
 					objectives: [
-						"temp"
+						"aquatisch ademen",
+						"vertrouwen",
+						"waterangst overwinnen"
 					]
 				},
 				{
 					language: "en",
-					title: "temp",
+					title: "Aquatic Breathing",
 					objectives: [
-						"temp"
+						"aquatic breathing",
+						"confidence",
+						"overcoming fear of water"
 					]
 				},
 				{
 					language: "fr",
-					title: "temp",
+					title: "Respiration Aquatique",
 					objectives: [
-						"temp"
+						"respiration aquatique",
+						"confiance",
+						"surmonter la peur de l'eau"
 					]
 				}
 			]

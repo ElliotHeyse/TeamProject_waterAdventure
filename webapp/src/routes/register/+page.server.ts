@@ -192,7 +192,7 @@ export const actions = {
 
 			const name = formData.get('childName')?.toString().trim();
 			const dateOfBirth = formData.get('dateOfBirth')?.toString();
-			const level = formData.get('level')?.toString() as Level;
+			const level = formData.get('level')?.toString() as 'BEGINNER' | 'INTERMEDIATE';
 
 			console.log('Form data received:', { name, dateOfBirth, level });
 
@@ -209,19 +209,22 @@ export const actions = {
 			console.log('Creating pupil with data:', {
 				name,
 				dateOfBirth,
-				level,
-				parentId: parent.id,
-				coachId: parent.coachId
+				parentId: parent.id
 			});
 
 			const pupil = await prisma.pupil.create({
 				data: {
 					name,
 					dateOfBirth: new Date(dateOfBirth),
-					level,
 					parentId: parent.id,
-					coachId: parent.coachId,
-					notes: ''
+					notes: '',
+					levelProgress: {
+						create: {
+							levelNumber: level === 'INTERMEDIATE' ? 2 : 1,
+							firstPartCompleted: false,
+							fullyCompleted: false
+						}
+					}
 				}
 			});
 
@@ -253,4 +256,4 @@ export const actions = {
 			return fail(500, { error: 'Failed to add child' });
 		}
 	}
-} satisfies Actions; 
+} satisfies Actions;

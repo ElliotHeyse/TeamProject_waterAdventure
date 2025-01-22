@@ -3,7 +3,7 @@
 	import { toast } from 'svelte-sonner';
 	import { Loader2 } from 'lucide-svelte';
 
-	interface Submission {
+	export interface Submission {
 		id: string;
 		pupilName: string;
 		lessonTitle: string;
@@ -73,8 +73,8 @@
 				<span class="text-sm font-medium">{m.feedback()}</span>
 				<textarea
 					bind:value={feedback}
-					class="bg-background focus:border-ring focus:ring-ring mt-1 block w-full rounded-md border shadow-sm"
-					rows="4"
+					class="bg-background focus:border-ring focus:ring-ring mt-1 block w-full rounded-lg border shadow-sm text-base p-4"
+					rows="6"
 					placeholder={m.enter_feedback()}
 				></textarea>
 			</label>
@@ -83,7 +83,7 @@
 				<span class="text-sm font-medium">Medaille</span>
 				<select
 					bind:value={medal}
-					class="bg-background focus:border-ring focus:ring-ring mt-1 block w-full rounded-md border shadow-sm"
+					class="bg-background focus:border-ring focus:ring-ring mt-1 block w-full rounded-lg border shadow-sm text-base p-2"
 				>
 					<option value="NONE">Geen</option>
 					<option value="BRONZE">Brons</option>

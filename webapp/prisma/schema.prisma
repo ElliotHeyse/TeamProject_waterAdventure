@@ -26,7 +26,7 @@ model User {
   coach            Coach?
   parent           Parent?
   sessions         Session[]
-  settings         UserSettings? @relation("UserSettings")
+  settings         UserSettings?      @relation("UserSettings")
   notifications    Notification[]
   PushSubscription PushSubscription[]
 }
@@ -66,7 +66,7 @@ model Parent {
 
   // Incoming relations
   pupils        Pupil[]
-  messages      Message[] @relation("ParentMessages")
+  messages      Message[]      @relation("ParentMessages")
   notifications Notification[]
 }
 
@@ -113,7 +113,7 @@ model LevelLanguageContent {
 
   // Outgoing relations
   levelId String
-  level   Level  @relation(fields: [levelId], references: [id])
+  level   Level  @relation(fields: [levelId], references: [id], onDelete: Cascade)
 }
 
 model Exercise {
@@ -144,7 +144,7 @@ model ExerciseLanguageContent {
 
   // Outgoing relations
   exerciseId String
-  exercise   Exercise @relation(fields: [exerciseId], references: [id])
+  exercise   Exercise @relation(fields: [exerciseId], references: [id], onDelete: Cascade)
 }
 
 model Video {
@@ -238,12 +238,12 @@ enum Theme {
 }
 
 model Message {
-  id           String   @id @default(cuid())
-  content      String
-  isRead       Boolean  @default(false)
-  sender       UserRole
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  id        String   @id @default(cuid())
+  content   String
+  isRead    Boolean  @default(false)
+  sender    UserRole
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   // Outgoing relations
   coachId  String
@@ -265,7 +265,7 @@ model Notification {
   // Outgoing relations
   userId      String
   user        User    @relation(fields: [userId], references: [id])
-  levelNumber Int?    // necessary for href to feedback from notifications (parent app)
+  levelNumber Int? // necessary for href to feedback from notifications (parent app)
   level       Level?  @relation(fields: [levelNumber], references: [levelNumber])
   parentId    String? // necessary for href to correct chat (coach dashboard)
   parent      Parent? @relation(fields: [parentId], references: [id])
@@ -286,8 +286,8 @@ model PushSubscription {
   updatedAt DateTime @updatedAt
 
   // Relations
-  userId    String
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
 }

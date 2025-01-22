@@ -18,11 +18,10 @@
 	import { i18n } from '$lib/i18n';
 	import { goto } from '$app/navigation';
 	import type { AvailableLanguageTag } from '$lib/paraglide/runtime';
+	import type { Language } from '$lib/i18n/i18n-types';
 	import { Badge } from '$lib/components/coach/ui/badge';
-	import { Gb, Nl, Fr } from 'svelte-flags';
 	import { browser } from '$app/environment';
 	import { userSettings } from '$lib/stores/userSettings';
-	import type { Language } from '$lib/stores/userSettings';
 
 	let { data } = $props<{ data: PageData }>();
 	let formError: string | null = $state(null);
@@ -31,10 +30,22 @@
 	let bio = $state(data.coach.bio || '');
 	let specialties = $state(data.coach.specialties?.join(', ') || '');
 
+	// Keep track of theme locally to prevent flashing
+	let currentTheme = $state($userSettings.theme);
+
+	// Initialize theme on mount
+	onMount(() => {
+		if (browser) {
+			document.documentElement.classList.toggle('dark', currentTheme === 'DARK');
+		}
+	});
+
 	async function toggleDarkMode() {
-		const newMode = $userSettings.themeMode === 'LIGHT' ? 'DARK' : 'LIGHT';
-		const success = await userSettings.updateSettings({ themeMode: newMode });
+		const newMode = currentTheme === 'LIGHT' ? 'DARK' : 'LIGHT';
+		const success = await userSettings.updateSettings({ theme: newMode });
 		if (success) {
+			currentTheme = newMode;
+			document.documentElement.classList.toggle('dark', newMode === 'DARK');
 			toast.success(m.changes_saved());
 		} else {
 			toast.error(m.settings_save_failed());
@@ -42,18 +53,36 @@
 	}
 
 	async function handleLanguageChange(newLang: AvailableLanguageTag) {
-		const success = await userSettings.updateSettings({ language: newLang });
+		// Store current theme state
+		const themeBeforeChange = currentTheme;
+		
+		const success = await userSettings.updateSettings({ 
+			language: newLang,
+			theme: themeBeforeChange
+		});
+
 		if (success) {
+			// Force the theme to stay consistent
+			if (browser) {
+				document.documentElement.classList.toggle('dark', themeBeforeChange === 'DARK');
+			}
+
 			const currentPath = window.location.pathname;
 			const currentLang = i18n.strategy.getLanguageFromLocalisedPath(currentPath) || 'en';
 			const canonicalPath = i18n.strategy.getCanonicalPath(currentPath, currentLang as Language);
 
-			// For English, we don't need a language prefix
+			// Navigate with preserved theme
 			if (newLang === 'en') {
-				await goto(canonicalPath, { invalidateAll: true });
+				await goto(canonicalPath, { 
+					invalidateAll: true,
+					state: { preservedTheme: themeBeforeChange }
+				});
 			} else {
 				const newPath = i18n.strategy.getLocalisedPath(canonicalPath, newLang);
-				await goto(newPath, { invalidateAll: true });
+				await goto(newPath, { 
+					invalidateAll: true,
+					state: { preservedTheme: themeBeforeChange }
+				});
 			}
 			toast.success(m.changes_saved());
 		} else {
@@ -154,7 +183,7 @@
 					<div class="text-sm text-muted-foreground">{m.dark_mode_description()}</div>
 				</div>
 				<Button variant="outline" size="icon" onclick={toggleDarkMode}>
-					<Icon src={$userSettings.themeMode === 'DARK' ? Sun : Moon} class="h-5 w-5" />
+					<Icon src={$userSettings.theme === 'DARK' ? Sun : Moon} class="h-5 w-5" />
 				</Button>
 			</div>
 		</div>
@@ -220,36 +249,30 @@
 					onValueChange={(value: string) => handleLanguageChange(value as AvailableLanguageTag)}
 				>
 					<Select.Trigger class="w-[180px]">
-						<div class="flex items-center gap-2">
+						<div class="flex items-center">
 							{#if $userSettings.language === 'en'}
-								<Gb class="w-4 h-4" />
 								<span>English</span>
 							{:else if $userSettings.language === 'nl'}
-								<Nl class="w-4 h-4" />
-								<span>Dutch</span>
+								<span>Nederlands</span>
 							{:else}
-								<Fr class="w-4 h-4" />
-								<span>French</span>
+								<span>Français</span>
 							{/if}
 						</div>
 					</Select.Trigger>
 					<Select.Content>
 						<Select.Item value="en">
-							<div class="flex items-center gap-2">
-								<Gb class="w-4 h-4" />
+							<div class="flex items-center">
 								<span>English</span>
 							</div>
 						</Select.Item>
 						<Select.Item value="nl">
-							<div class="flex items-center gap-2">
-								<Nl class="w-4 h-4" />
-								<span>Dutch</span>
+							<div class="flex items-center">
+								<span>Nederlands</span>
 							</div>
 						</Select.Item>
 						<Select.Item value="fr">
-							<div class="flex items-center gap-2">
-								<Fr class="w-4 h-4" />
-								<span>French</span>
+							<div class="flex items-center">
+								<span>Français</span>
 							</div>
 						</Select.Item>
 					</Select.Content>

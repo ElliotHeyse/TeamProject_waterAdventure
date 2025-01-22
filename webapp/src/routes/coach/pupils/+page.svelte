@@ -1,5 +1,4 @@
 <script lang="ts">
-	import { Level } from '@prisma/client';
 	import type { PageData } from './$types';
 	import type { NewPupilData } from './types';
 	import DataTable from './data-table.svelte';
@@ -11,7 +10,6 @@
 	let newPupil = $state<NewPupilData>({
 		name: '',
 		dateOfBirth: '',
-		level: Level.BEGINNER,
 		parentId: '',
 		notes: ''
 	});
@@ -52,21 +50,6 @@
 							class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
 							required
 						/>
-					</div>
-
-					<div>
-						<label class="block text-sm font-medium text-gray-700" for="level">Swimming Level</label
-						>
-						<select
-							id="level"
-							name="level"
-							bind:value={newPupil.level}
-							class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-						>
-							<option value={Level.BEGINNER}>Beginner</option>
-							<option value={Level.INTERMEDIATE}>Intermediate</option>
-							<option value={Level.ADVANCED}>Advanced</option>
-						</select>
 					</div>
 
 					<div>

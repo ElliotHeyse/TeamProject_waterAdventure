@@ -30,6 +30,13 @@
 	let message = $state<string | null>(null);
 	let success = $state(false);
 
+	function handleFileChange(event: Event) {
+		const input = event.target as HTMLInputElement;
+		if (input.files) {
+			videoFile = input.files[0];
+		}
+	}
+
 	async function toggleCompletion(exercise: Exercise) {
 		if (exercises.length === 1) {
 			// if there is only one exercise in the level,
@@ -74,6 +81,11 @@
 		success = false;
 		message = '';
 
+		if (!videoFile) {
+			message = 'Please select a video file to upload';
+			return;
+		}
+
 		const formData = new FormData();
 		formData.append('pupilId', selectedChild.id);
 		formData.append('levelNumber', data.level.levelNumber);
@@ -90,7 +102,7 @@
 			console.info("submission success");
 			success = true;
 			message = m.video_submitted();
-			videoUrl = '';
+			videoFile = null;
 			// After successful submission, redirect to levels page
 			setTimeout(() => {
 				goto('/app/levels');
@@ -306,17 +318,17 @@
 				<h2 class="text-2xl font-semibold mb-4">Video Inzending</h2>
 				<form onsubmit={handleSubmit} class="space-y-4">
 					<div>
-						<label for="videoUrl" class="block text-sm font-medium text-gray-700">Video URL</label>
+						<label for="video" class="block text-sm font-medium text-gray-700">Video Bestand</label>
 						<input
-							type="url"
-							id="videoUrl"
-							bind:value={videoUrl}
+							type="file"
+							id="video"
+							accept="video/*"
+							onchange={handleFileChange}
 							class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-							placeholder="https://example.com/your-video"
 							required
 							/>
 						<p class="mt-1 text-sm text-gray-500">
-							Upload je video naar een platform zoals YouTube of Vimeo en plak de link hier.
+							Upload een video van je zwemles. Ondersteunde formaten: MP4, MOV, AVI.
 						</p>
 					</div>
 					<div class="flex justify-end">

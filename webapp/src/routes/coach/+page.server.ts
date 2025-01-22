@@ -8,28 +8,44 @@ export const load = (async ({ locals }) => {
 	}
 
 	const coach = await prisma.coach.findUnique({
-		where: { userId: locals.user.id }
+		where: { userId: locals.user.id },
+		include: {
+			parents: true
+		}
 	});
 
 	if (!coach) {
 		throw new Error('Coach not found');
 	}
 
-	const [totalPupils, activeLessons, pendingSubmissions, unreadMessages, recentActivity] =
+	const parentIds = coach.parents.map(parent => parent.id);
+
+	const [totalPupils, activeLevels, pendingSubmissions, unreadMessages, recentActivity] =
 		await Promise.all([
 			// Get total pupils count
 			prisma.pupil.count({
 				where: {
-					coachId: coach.id
+					parent: {
+						id: {
+							in: parentIds
+						}
+					}
 				}
 			}),
 
-			// Get active lessons (future lessons)
-			prisma.lesson.count({
+			// Get active levels count (levels with active pupils)
+			prisma.level.count({
 				where: {
-					coachId: coach.id,
-					date: {
-						gte: new Date()
+					levelProgresses: {
+						some: {
+							pupil: {
+								parent: {
+									id: {
+										in: parentIds
+									}
+								}
+							}
+						}
 					}
 				}
 			}),
@@ -39,7 +55,11 @@ export const load = (async ({ locals }) => {
 				where: {
 					status: 'PENDING',
 					pupil: {
-						coachId: coach.id
+						parent: {
+							id: {
+								in: parentIds
+							}
+						}
 					}
 				}
 			}),
@@ -48,24 +68,37 @@ export const load = (async ({ locals }) => {
 			prisma.message.count({
 				where: {
 					coachId: coach.id,
-					read: false
+					isRead: false
 				}
 			}),
 
-			// Get recent activity (submissions, messages, and lessons)
+			// Get recent activity (submissions and messages)
 			Promise.all([
 				// Recent submissions
 				prisma.submission.findMany({
 					where: {
 						pupil: {
-							coachId: coach.id
+							parent: {
+								id: {
+									in: parentIds
+								}
+							}
 						}
 					},
 					take: 3,
 					orderBy: { createdAt: 'desc' },
 					include: {
 						pupil: true,
-						lesson: true
+						level: {
+							include: {
+								languageContents: {
+									where: {
+										language: 'nl'
+									},
+									take: 1
+								}
+							}
+						}
 					}
 				}),
 				// Recent messages
@@ -82,31 +115,18 @@ export const load = (async ({ locals }) => {
 							}
 						}
 					}
-				}),
-				// Recent lessons
-				prisma.lesson.findMany({
-					where: {
-						coachId: coach.id
-					},
-					take: 3,
-					orderBy: { createdAt: 'desc' }
 				})
-			]).then(([submissions, messages, lessons]) => {
+			]).then(([submissions, messages]) => {
 				return [
 					...submissions.map((s) => ({
 						type: 'submission' as const,
-						text: `New video submission from ${s.pupil.name} for ${s.lesson.title}`,
+						text: `New video submission from ${s.pupil.name} for Level ${s.level.levelNumber}${s.level.languageContents[0]?.title ? `: ${s.level.languageContents[0].title}` : ''}`,
 						time: s.createdAt
 					})),
 					...messages.map((m) => ({
 						type: 'message' as const,
 						text: `Message from ${m.parent.user.name}`,
 						time: m.createdAt
-					})),
-					...lessons.map((l) => ({
-						type: 'lesson' as const,
-						text: `New lesson scheduled: ${l.title}`,
-						time: l.createdAt
 					}))
 				]
 					.sort((a, b) => b.time.getTime() - a.time.getTime())
@@ -117,7 +137,7 @@ export const load = (async ({ locals }) => {
 	const data: DashboardData = {
 		stats: {
 			totalPupils,
-			activeLessons,
+			activeLevels,
 			pendingSubmissions,
 			unreadMessages
 		},
