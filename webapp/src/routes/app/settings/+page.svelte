@@ -19,7 +19,19 @@
 	import { Alert, AlertTitle, AlertDescription } from '$lib/components/coach/ui/alert';
 	import { userSettings } from '$lib/stores/userSettings';
 	import { CircleAlert } from 'lucide-svelte';
+	import { isMobileView } from '$lib/stores/viewport';
 
+	// Branding
+	import mctLogoBlue from '$lib/img/brandkit/MCT-blue.svg';
+	import mctLogoBlack from '$lib/img/brandkit/MCT-black.svg';
+	import sbLogoBlue from '$lib/img/brandkit/SB-blue.svg';
+	import sbLogoBlack from '$lib/img/brandkit/SB-black.svg';
+	import sicLogoBlue from '$lib/img/brandkit/SIC-blue.svg';
+	import sicLogoBlack from '$lib/img/brandkit/SIC-black.svg';
+	import zfLogoLight from '$lib/img/brandkit/zwemfed-lightmode.svg';
+	import zfLogoDark from '$lib/img/brandkit/zwemfed-darkmode.svg';
+
+	// Logic
 	const { data } = $props<{ data: PageData }>();
 	let formError: string | null = $state(null);
 
@@ -28,12 +40,16 @@
 
 	// Keep track of theme locally to prevent flashing
 	let currentTheme = $state($userSettings.theme);
+	let isDarkMode = $state(false);
 
 	// Initialize theme on mount
 	onMount(() => {
 		if (browser) {
 			document.documentElement.classList.toggle('dark', currentTheme === 'DARK');
 		}
+
+		const savedDarkMode = localStorage.getItem('darkMode') === 'true';
+		isDarkMode = savedDarkMode;
 	});
 
 	async function toggleDarkMode() {
@@ -51,8 +67,8 @@
 	async function handleLanguageChange(newLang: AvailableLanguageTag) {
 		// Store current theme state
 		const themeBeforeChange = currentTheme;
-		
-		const success = await userSettings.updateSettings({ 
+
+		const success = await userSettings.updateSettings({
 			language: newLang,
 			theme: themeBeforeChange
 		});
@@ -69,13 +85,13 @@
 
 			// Navigate with preserved theme
 			if (newLang === 'en') {
-				await goto(canonicalPath, { 
+				await goto(canonicalPath, {
 					invalidateAll: true,
 					state: { preservedTheme: themeBeforeChange }
 				});
 			} else {
 				const newPath = i18n.strategy.getLocalisedPath(canonicalPath, newLang);
-				await goto(newPath, { 
+				await goto(newPath, {
 					invalidateAll: true,
 					state: { preservedTheme: themeBeforeChange }
 				});
@@ -121,6 +137,23 @@
 			});
 		}
 	}
+
+	$effect(() => {
+		const darkModeObserver = new MutationObserver((mutations) => {
+			mutations.forEach((mutation) => {
+				if (mutation.target instanceof HTMLElement) {
+					isDarkMode = mutation.target.classList.contains('dark');
+				}
+			});
+		});
+
+		darkModeObserver.observe(document.documentElement, {
+			attributes: true,
+			attributeFilter: ['class']
+		});
+
+		return () => darkModeObserver.disconnect();
+	});
 </script>
 
 <div class="px-4 py-4 lg:px-8">
@@ -267,5 +300,46 @@
 				</div>
 			</div>
 		</div>
+
+		<!-- Branding -->
+		<div class="pt-8 px-4 flex justify-center">
+			<div class="u-brandgrid">
+				<a href={"https://www.zwemfed.be"}>
+					<img src={isDarkMode ? zfLogoDark : zfLogoLight} alt={"Zwemfed"} />
+				</a>
+				<a href={"https://www.sportinnovatiecampus.be"}>
+					<img src={isDarkMode ? sicLogoBlue : sicLogoBlack} alt={"Sportinnovatiecampus"} />
+				</a>
+				<a href={"https://www.howest.be/nl/opleidingen/bachelor/sport-en-bewegen"}>
+					<img src={isDarkMode ? sbLogoBlue : sbLogoBlack} alt={"Howest | Sport & Bewegen"} />
+				</a>
+				<a href={"https://mct.be"}>
+					<img src={isDarkMode ? mctLogoBlue : mctLogoBlack} alt={"Howest | Multimedia & Creative Technologies"} />
+				</a>
+			</div>
+		</div>
 	</div>
 </div>
+
+<style>
+	.u-brandgrid {
+		display: grid;
+		grid-template-columns: repeat(2, 1fr);
+		grid-template-rows: repeat (2, auto);
+		column-gap: 1.5rem;
+		row-gap: 2rem;
+		justify-items: center;
+		align-items: center;
+		max-width: 800px;
+
+		@media (width > 425px) {
+			max-height: 80px;
+			grid-template-columns: repeat(4, 1fr);
+			column-gap: 2rem;
+		}
+
+		@media (width > 768px) {
+			column-gap: 3.6rem;
+		}
+	}
+</style>
