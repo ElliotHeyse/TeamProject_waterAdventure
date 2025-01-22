@@ -7,8 +7,6 @@
 	import AppHeader from './AppHeader.svelte';
 	import { isSidebarOpen } from '$lib/stores/sidebar';
 	import { isMobileView } from '$lib/stores/viewport';
-
-	let { children } = $props<{ children: any }>();
 </script>
 
 <div class="relative flex min-h-screen">
@@ -39,7 +37,7 @@
 		<AppHeader />
 		<!-- Main Content -->
 		<main class="flex-1 mb-14">
-			{@render children()}
+			<slot />
 		</main>
 	</div>
 </div>
