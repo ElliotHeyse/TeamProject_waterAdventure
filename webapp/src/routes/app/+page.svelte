@@ -4,9 +4,19 @@
 	import { selectedChildIdStore } from '$lib/stores/child.store';
 	import { isMobileView } from '$lib/stores/viewport';
 	import { cn } from '$lib/components/coach/utils';
-	import badge from '$lib/img/badge-placeholder.svg';
 	// import { notifications } from '$lib/paraglide/messages';
 	import type { ParentUser, Level, Pupil, UserNotification } from './types';
+
+	// import badge from '$lib/img/badge-placeholder.svg';
+	import badge0 from '$lib/img//progressBadges/badge-level-0.svg';
+	import badge1 from '$lib/img//progressBadges/badge-level-1.svg';
+	import badge2 from '$lib/img//progressBadges/badge-level-2.svg';
+	import badge3 from '$lib/img//progressBadges/badge-level-3.svg';
+	import badge4 from '$lib/img//progressBadges/badge-level-4.svg';
+	import badge5 from '$lib/img//progressBadges/badge-level-5.svg';
+	import badge6 from '$lib/img//progressBadges/badge-level-6.svg';
+	import badge7 from '$lib/img//progressBadges/badge-level-7.svg';
+	const badges = [badge0, badge1, badge2, badge3, badge4, badge5, badge6, badge7];
 
 	interface FrontendNotification {
 		id: string,
@@ -31,6 +41,8 @@
 	const selectedChild = $derived(
 		data.parentUser.parent.pupils.find((pupil: Pupil) => pupil.id === $selectedChildIdStore) || data.parentUser.parent.pupils[0]
 	);
+
+	const badge = $derived(() => badges[selectedChild.progress]);
 
 	const TOTAL_LEVELS = data.levels.length;
 
@@ -102,7 +114,7 @@
 		<div class="bg-blue-100 flex flex-col gap-4 p-6 items-center">
 			<div class="flex flex-col gap-2 items-center">
 				<div>
-					<img src={badge} alt="Progress badge">
+					<img src={badge()} alt="Progress badge">
 				</div>
 				<div>
 					<h1 class="text-[28px] leading-[120%] text-main">
