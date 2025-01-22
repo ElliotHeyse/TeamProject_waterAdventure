@@ -1503,7 +1503,7 @@ async function main() {
 							videoUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
 							status: SubmissionStatus.REVIEWED,
 							feedback: "Wauw!",
-							medal: Medal.BRONZE
+							medal: Medal.GOLD
 						},
 						{
 							levelNumber: 4,
@@ -1517,13 +1517,13 @@ async function main() {
 							videoUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
 							status: SubmissionStatus.REVIEWED,
 							feedback: "Wauw!",
-							medal: Medal.SILVER
+							medal: Medal.GOLD
 						},
 						{
 							levelNumber: 6,
 							videoUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
 							status: SubmissionStatus.PENDING,
-							feedback: "Wauw!",
+							feedback: null,
 							medal: Medal.NONE
 						}
 					]
@@ -1596,7 +1596,7 @@ async function main() {
 							levelNumber: 3,
 							videoUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
 							status: SubmissionStatus.PENDING,
-							feedback: "Wauw!",
+							feedback: null,
 							medal: Medal.NONE
 						}
 					]
@@ -1802,13 +1802,13 @@ async function main() {
 							videoUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
 							status: SubmissionStatus.REVIEWED,
 							feedback: "Wauw!",
-							medal: Medal.BRONZE
+							medal: Medal.GOLD
 						},
 						{
 							levelNumber: 4,
 							videoUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
 							status: SubmissionStatus.PENDING,
-							feedback: "Wauw!",
+							feedback: null,
 							medal: Medal.NONE
 						}
 					]
@@ -1954,8 +1954,22 @@ async function main() {
 						{
 							levelNumber: 2,
 							videoUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
-							status: SubmissionStatus.PENDING,
+							status: SubmissionStatus.REVIEWED,
 							feedback: "Wauw!",
+							medal: Medal.SILVER
+						},
+						{
+							levelNumber: 3,
+							videoUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+							status: SubmissionStatus.REVIEWED,
+							feedback: "Wauw!",
+							medal: Medal.GOLD
+						},
+						{
+							levelNumber: 4,
+							videoUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+							status: SubmissionStatus.PENDING,
+							feedback: null,
 							medal: Medal.NONE
 						}
 					]
@@ -2021,7 +2035,7 @@ async function main() {
 							levelNumber: 2,
 							videoUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
 							status: SubmissionStatus.PENDING,
-							feedback: "Wauw!",
+							feedback: null,
 							medal: Medal.NONE
 						}
 					]
