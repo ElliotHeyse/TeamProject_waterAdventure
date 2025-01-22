@@ -67,7 +67,7 @@
 			content: messageInput,
 			parentId: data.parent.id,
 			coachId: data.coach.id,
-			isFromParent: true
+			sender: 'PARENT'
 		};
 
 		socket.emit('message', message);
@@ -97,20 +97,20 @@
 						<div
 							class={cn(
 								'flex gap-2 max-w-[80%]',
-								message.isFromParent ? 'ml-auto flex-row-reverse' : 'flex-row'
+								message.sender === 'PARENT' ? 'ml-auto flex-row-reverse' : 'flex-row'
 							)}
 						>
 							<div
 								class="h-8 w-8 rounded-full bg-primary flex items-center justify-center text-primary-foreground text-sm"
 							>
-								{message.isFromParent
+								{message.sender === 'PARENT'
 									? getInitials(message.parent.user.name)
 									: getInitials(message.coach.user.name)}
 							</div>
 							<div
 								class={cn(
 									'rounded-lg p-3',
-									message.isFromParent ? 'bg-muted' : 'bg-primary text-primary-foreground'
+									message.sender === 'PARENT' ? 'bg-muted' : 'bg-primary text-primary-foreground'
 								)}
 							>
 								<p>{message.content}</p>
