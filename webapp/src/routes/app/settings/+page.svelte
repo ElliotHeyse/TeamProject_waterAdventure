@@ -1,11 +1,4 @@
 <script lang="ts">
-	import zwemfedLogo from '$lib/img/logo-dark.svg';
-	import zwemfedLogoLight from '$lib/img/logo-light.svg';
-	import sportinnovatiecampusLogo from '$lib/img/sportinnovatiecampus-logo-dark.svg';
-	import sportinnovatiecampusLogoLight from '$lib/img/sportinnovatiecampus-logo-light.svg';
-	import howestLogo from '$lib/img/howest-logo-dark.svg';
-	import howestLogoLight from '$lib/img/howest-logo-light.svg';
-
 	import { Label } from '$lib/components/coach/ui/label';
 	import { Input } from '$lib/components/coach/ui/input';
 	import { Button } from '$lib/components/coach/ui/button';
@@ -20,23 +13,35 @@
 	import { i18n } from '$lib/i18n';
 	import { goto } from '$app/navigation';
 	import type { AvailableLanguageTag } from '$lib/paraglide/runtime';
+	import type { Language } from '$lib/stores/userSettings';
 	import { Badge } from '$lib/components/coach/ui/badge';
-	import { Gb, Nl, Fr } from 'svelte-flags';
 	import { browser } from '$app/environment';
 	import { Alert, AlertTitle, AlertDescription } from '$lib/components/coach/ui/alert';
 	import { userSettings } from '$lib/stores/userSettings';
-	import type { Language } from '$lib/stores/userSettings';
+	import { CircleAlert } from 'lucide-svelte';
 
-	let { data } = $props<{ data: PageData }>();
+	const { data } = $props<{ data: PageData }>();
 	let formError: string | null = $state(null);
 
 	// Profile settings
-	let phone = $state(data.parent.phone || '');
+	let phone = $state(data?.parent?.phone || '');
+
+	// Keep track of theme locally to prevent flashing
+	let currentTheme = $state($userSettings.theme);
+
+	// Initialize theme on mount
+	onMount(() => {
+		if (browser) {
+			document.documentElement.classList.toggle('dark', currentTheme === 'DARK');
+		}
+	});
 
 	async function toggleDarkMode() {
-		const newMode = $userSettings.themeMode === 'LIGHT' ? 'DARK' : 'LIGHT';
-		const success = await userSettings.updateSettings({ themeMode: newMode });
+		const newMode = currentTheme === 'LIGHT' ? 'DARK' : 'LIGHT';
+		const success = await userSettings.updateSettings({ theme: newMode });
 		if (success) {
+			currentTheme = newMode;
+			document.documentElement.classList.toggle('dark', newMode === 'DARK');
 			toast.success(m.changes_saved());
 		} else {
 			toast.error(m.settings_save_failed());
@@ -44,18 +49,36 @@
 	}
 
 	async function handleLanguageChange(newLang: AvailableLanguageTag) {
-		const success = await userSettings.updateSettings({ language: newLang });
+		// Store current theme state
+		const themeBeforeChange = currentTheme;
+		
+		const success = await userSettings.updateSettings({ 
+			language: newLang,
+			theme: themeBeforeChange
+		});
+
 		if (success) {
+			// Force the theme to stay consistent
+			if (browser) {
+				document.documentElement.classList.toggle('dark', themeBeforeChange === 'DARK');
+			}
+
 			const currentPath = window.location.pathname;
 			const currentLang = i18n.strategy.getLanguageFromLocalisedPath(currentPath) || 'en';
 			const canonicalPath = i18n.strategy.getCanonicalPath(currentPath, currentLang as Language);
 
-			// For English, we don't need a language prefix
+			// Navigate with preserved theme
 			if (newLang === 'en') {
-				await goto(canonicalPath, { invalidateAll: true });
+				await goto(canonicalPath, { 
+					invalidateAll: true,
+					state: { preservedTheme: themeBeforeChange }
+				});
 			} else {
 				const newPath = i18n.strategy.getLocalisedPath(canonicalPath, newLang);
-				await goto(newPath, { invalidateAll: true });
+				await goto(newPath, { 
+					invalidateAll: true,
+					state: { preservedTheme: themeBeforeChange }
+				});
 			}
 			toast.success(m.changes_saved());
 		} else {
@@ -102,7 +125,7 @@
 
 <div class="px-4 py-4 lg:px-8">
 	<div class="mx-auto space-y-6">
-		<h1 class="text-3xl font-bold mb-8">Settings</h1>
+		<h1 class="text-3xl font-bold mb-8">{m.settings()}</h1>
 
 		<!-- Profile Settings -->
 		<div class="bg-card text-card-foreground rounded-lg border shadow-sm">
@@ -115,6 +138,7 @@
 				{#if formError}
 					<div class="alert-wrapper">
 						<Alert variant="destructive">
+							<CircleAlert class="h-4 w-4" />
 							<AlertTitle>{m.error()}</AlertTitle>
 							<AlertDescription>{formError}</AlertDescription>
 						</Alert>
@@ -130,7 +154,7 @@
 					<Input id="email" type="email" value={data.parent.user.email} disabled />
 				</div>
 				<div class="space-y-2">
-					<Label for="bio">{m.phone()}</Label>
+					<Label for="phone">{m.phone()}</Label>
 					<Input
 						id="phone"
 						name="phone"
@@ -148,7 +172,7 @@
 		<div class="bg-card text-card-foreground rounded-lg border shadow-sm">
 			<div class="flex flex-col space-y-1.5 p-6">
 				<h3 class="text-2xl font-semibold leading-none tracking-tight">{m.appearance()}</h3>
-				<p class="text-muted-foreground text-sm">Customize appearance (static => update paraglide)</p>
+				<p class="text-muted-foreground text-sm">{m.customize_appearance()}</p>
 			</div>
 			<Separator />
 			<div class="p-6">
@@ -158,7 +182,7 @@
 						<div class="text-sm text-muted-foreground">{m.dark_mode_description()}</div>
 					</div>
 					<Button variant="outline" size="icon" onclick={toggleDarkMode}>
-						<Icon src={$userSettings.themeMode === 'DARK' ? Sun : Moon} class="h-5 w-5" />
+						<Icon src={currentTheme === 'DARK' ? Sun : Moon} class="h-5 w-5" />
 					</Button>
 				</div>
 			</div>
@@ -224,64 +248,24 @@
 						onValueChange={(value: string) => handleLanguageChange(value as AvailableLanguageTag)}
 					>
 						<Select.Trigger class="w-[180px]">
-							<div class="flex items-center gap-2">
+							<div class="flex items-center">
 								{#if $userSettings.language === 'en'}
-									<Gb class="w-4 h-4" />
 									<span>English</span>
 								{:else if $userSettings.language === 'nl'}
-									<Nl class="w-4 h-4" />
-									<span>Dutch</span>
+									<span>Nederlands</span>
 								{:else}
-									<Fr class="w-4 h-4" />
-									<span>French</span>
+									<span>Français</span>
 								{/if}
 							</div>
 						</Select.Trigger>
 						<Select.Content>
-							<Select.Item value="en">
-								<div class="flex items-center gap-2">
-									<Gb class="w-4 h-4" />
-									<span>English</span>
-								</div>
-							</Select.Item>
-							<Select.Item value="nl">
-								<div class="flex items-center gap-2">
-									<Nl class="w-4 h-4" />
-									<span>Dutch</span>
-								</div>
-							</Select.Item>
-							<Select.Item value="fr">
-								<div class="flex items-center gap-2">
-									<Fr class="w-4 h-4" />
-									<span>French</span>
-								</div>
-							</Select.Item>
+							<Select.Item value="en">English</Select.Item>
+							<Select.Item value="nl">Nederlands</Select.Item>
+							<Select.Item value="fr">Français</Select.Item>
 						</Select.Content>
 					</Select.Root>
 				</div>
 			</div>
-		</div>
-
-		<!-- Partners -->
-		<div class="flex flex-col space-y-1.5 p-6">
-			<em>Bij small width (app weergave): partners hier tonen.</em>
-			<em>Bij large width (desktop weergave) partners in bottom zijkant tonen.</em>
-		</div>
-
-		<div class="flex gap-6 space-y-1.5 p-6">
-			<a href="https://www.zwemfed.be">
-				<img src={$userSettings.themeMode === 'LIGHT' ? zwemfedLogoLight : zwemfedLogo} alt="WaterAdventure" class="h-8" />
-			</a>
-			<a href="https://www.sportinnovatiecampus.be">
-				<img
-					src={$userSettings.themeMode === 'LIGHT' ? sportinnovatiecampusLogoLight : sportinnovatiecampusLogo}
-					alt="WaterAdventure"
-					class="h-8"
-				/>
-			</a>
-			<a href="https://www.howest.be/en">
-				<img src={$userSettings.themeMode === 'LIGHT' ? howestLogoLight : howestLogo} alt="WaterAdventure" class="h-8" />
-			</a>
 		</div>
 	</div>
 </div>

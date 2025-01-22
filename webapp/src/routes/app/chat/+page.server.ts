@@ -3,22 +3,11 @@ import type { PageServerLoad } from './$types';
 import { prisma } from '$lib/server/db';
 
 export const load: PageServerLoad = async ({ locals }) => {
-    // Get the parent
+    // Get the parent with their coach
     const parent = await prisma.parent.findUnique({
         where: { userId: locals.user?.id },
         include: {
-            user: true
-        }
-    });
-
-    if (!parent) {
-        throw error(404, 'Parent not found');
-    }
-
-    // Get the coach assigned to the parent's pupils
-    const pupil = await prisma.pupil.findFirst({
-        where: { parentId: parent.id },
-        include: {
+            user: true,
             coach: {
                 include: {
                     user: true
@@ -27,7 +16,11 @@ export const load: PageServerLoad = async ({ locals }) => {
         }
     });
 
-    if (!pupil?.coach) {
+    if (!parent) {
+        throw error(404, 'Parent not found');
+    }
+
+    if (!parent.coach) {
         throw error(404, 'No coach assigned');
     }
 
@@ -35,7 +28,7 @@ export const load: PageServerLoad = async ({ locals }) => {
     const messages = await prisma.message.findMany({
         where: {
             parentId: parent.id,
-            coachId: pupil.coach.id
+            coachId: parent.coach.id
         },
         orderBy: {
             createdAt: 'asc'
@@ -56,7 +49,7 @@ export const load: PageServerLoad = async ({ locals }) => {
 
     return {
         parent,
-        coach: pupil.coach,
+        coach: parent.coach,
         messages
     };
 };
@@ -73,11 +66,7 @@ export const actions = {
         const parent = await prisma.parent.findUnique({
             where: { userId: locals.user?.id },
             include: {
-                pupils: {
-                    include: {
-                        coach: true
-                    }
-                }
+                coach: true
             }
         });
 
@@ -85,8 +74,7 @@ export const actions = {
             throw error(404, 'Parent not found');
         }
 
-        const coach = parent.pupils[0]?.coach;
-        if (!coach) {
+        if (!parent.coach) {
             throw error(404, 'No coach assigned');
         }
 
@@ -94,7 +82,7 @@ export const actions = {
             data: {
                 content,
                 parentId: parent.id,
-                coachId: coach.id
+                coachId: parent.coach.id
             }
         });
 
