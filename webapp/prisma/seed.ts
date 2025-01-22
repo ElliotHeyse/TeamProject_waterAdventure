@@ -97,7 +97,7 @@ async function main() {
 					exerciseNumber: 2,
 					videos: [
 						{
-							path: "/src/lib/beeldmateriaalZwemfed/level1_ex2_1",
+							path: "/src/lib/beeldmateriaalZwemfed/level1_ex2_1.mp4",
 							title: [
 								"Zittend op de trap piano spelen",
 								"Sitting on the stairs playing the piano",
@@ -105,7 +105,7 @@ async function main() {
 							]
 						},
 						{
-							path: "/src/lib/beeldmateriaalZwemfed/level1_ex2_2",
+							path: "/src/lib/beeldmateriaalZwemfed/level1_ex2_2.mp4",
 							title: [
 								"Zittend op trap met de benen kloppen",
 								"Sitting on the stairs beating with the legs",
@@ -113,7 +113,7 @@ async function main() {
 							]
 						},
 						{
-							path: "/src/lib/beeldmateriaalZwemfed/level1_ex2_3",
+							path: "/src/lib/beeldmateriaalZwemfed/level1_ex2_3.mp4",
 							title: [
 								"Carwash",
 								"Carwash",
@@ -304,7 +304,7 @@ async function main() {
 					exerciseNumber: 2,
 					videos: [
 						{
-							path: "/src/lib/beeldmateriaalZwemfed/level2_ex2_1",
+							path: "/src/lib/beeldmateriaalZwemfed/level2_ex2_1.mp4",
 							title: [
 								"Plankje dwars in het water bewegen",
 								"Moving a board across the water",
@@ -312,7 +312,7 @@ async function main() {
 							]
 						},
 						{
-							path: "/src/lib/beeldmateriaalZwemfed/level2_ex2_2",
+							path: "/src/lib/beeldmateriaalZwemfed/level2_ex2_2.mp4",
 							title: [
 								"Drijvend voorwerp wegstuwen",
 								"Driving a floating object away",
