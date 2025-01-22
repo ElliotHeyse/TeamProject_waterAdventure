@@ -167,5 +167,8 @@
     "confirm_delete_level": "Êtes-vous sûr de vouloir supprimer ce niveau ?",
     "confirm_delete_level_warning": "Cette action ne peut pas être annulée. Toutes les soumissions et progrès associés à ce niveau seront également supprimés définitivement.",
     "selected_rows": "{count} ligne(s) sélectionnée(s)",
-    "pending": "En attente"
+    "pending": "En attente",
+    "error_loading_video": "Erreur lors du chargement de la vidéo",
+    "video_not_supported": "Votre navigateur ne supporte pas la balise vidéo",
+    "unauthorized_access": "Vous n'avez pas l'autorisation de voir cette vidéo"
 }

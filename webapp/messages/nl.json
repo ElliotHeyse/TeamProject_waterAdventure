@@ -167,5 +167,8 @@
     "confirm_delete_level": "Weet je zeker dat je dit niveau wilt verwijderen?",
     "confirm_delete_level_warning": "Deze actie kan niet ongedaan worden gemaakt. Alle inzendingen en voortgang die bij dit niveau horen worden ook permanent verwijderd.",
     "selected_rows": "{count} rij(en) geselecteerd",
-    "pending": "In afwachting"
+    "pending": "In afwachting",
+    "error_loading_video": "Fout bij het laden van de video",
+    "video_not_supported": "Uw browser ondersteunt de video tag niet",
+    "unauthorized_access": "U heeft geen toegang tot deze video"
 }
