@@ -163,15 +163,17 @@
 
 			<div bind:this={scrollContainer} class="flex-1 space-y-4 overflow-y-auto p-4">
 				{#each messages as message}
-					<div class="flex" class:justify-end={message.sender === 'PARENT'}>
+					<div class="flex" class:justify-end={message.coachId === data.coach.id && message.sender === 'COACH'}>
 						<div
 							class="max-w-[70%] rounded-lg p-3 shadow-sm"
-							class:bg-muted={message.sender === 'COACH'}
-							class:bg-primary={message.sender === 'PARENT'}
-							class:text-primary-foreground={message.sender === 'PARENT'}
+							class:bg-muted={message.coachId !== data.coach.id || message.sender !== 'COACH'}
+							class:bg-primary={message.coachId === data.coach.id && message.sender === 'COACH'}
+							class:text-primary-foreground={message.coachId === data.coach.id && message.sender === 'COACH'}
 						>
 							<p class="text-sm font-medium">
-								{message.sender === 'PARENT' ? message.parent.user.name : message.coach.user.name}
+								{message.coachId === data.coach.id && message.sender === 'COACH'
+									? message.coach.user.name
+									: message.parent.user.name}
 							</p>
 							<p class="mt-1">{message.content}</p>
 							<p class="text-muted-foreground mt-1 text-xs">

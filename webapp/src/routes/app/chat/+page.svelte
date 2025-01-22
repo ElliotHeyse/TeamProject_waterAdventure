@@ -104,20 +104,22 @@
 						<div
 							class={cn(
 								'flex gap-2 max-w-[80%]',
-								message.sender === 'PARENT' ? 'ml-auto flex-row-reverse' : 'flex-row'
+								message.parentId === data.parent.id && message.sender === 'PARENT' ? 'ml-auto flex-row-reverse' : 'flex-row'
 							)}
 						>
 							<div
 								class="h-8 w-8 rounded-full bg-primary flex items-center justify-center text-primary-foreground text-sm"
 							>
-								{message.sender === 'PARENT'
+								{message.parentId === data.parent.id && message.sender === 'PARENT'
 									? getInitials(message.parent.user.name)
 									: getInitials(message.coach.user.name)}
 							</div>
 							<div
 								class={cn(
 									'rounded-lg p-3',
-									message.sender === 'PARENT' ? 'bg-muted' : 'bg-primary text-primary-foreground'
+									message.parentId === data.parent.id && message.sender === 'PARENT'
+										? 'bg-primary text-primary-foreground'
+										: 'bg-muted'
 								)}
 							>
 								<p>{message.content}</p>
