@@ -23,7 +23,7 @@
 	let level = $state<'BEGINNER' | 'INTERMEDIATE' | 'ADVANCED'>('BEGINNER');
 
 	const inputStyles =
-		'mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#FF5555] focus:ring-[#FF5555]';
+		'mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#FF5555] focus:ring-[#FF5555] px-2 py-2';
 
 	const handleSubmit: SubmitFunction = () => {
 		return async ({ result }) => {
