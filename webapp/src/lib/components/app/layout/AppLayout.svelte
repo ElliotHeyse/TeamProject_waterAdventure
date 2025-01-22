@@ -14,7 +14,7 @@
 	<div
 		class={cn(
 			$isMobileView
-				? 'fixed bottom-0 min-h-fit w-full'
+				? 'fixed bottom-0 min-h-fit w-full z-50'
 				: `lg:block ${$isSidebarOpen ? 'block' : 'hidden'}`
 		)}
 	>

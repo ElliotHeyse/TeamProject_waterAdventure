@@ -105,7 +105,7 @@
 	class="border-border bg-background/95 supports-[backdrop-filter]:bg-background/60 sticky top-0 z-10 border-b backdrop-blur"
 >
 	<div class="h-16">
-		<div class="flex h-full items-center gap-4 px-4">
+		<div class="flex justify-between items-center gap-4 h-full px-4">
 			<div class={cn($isMobileView ? 'block' : 'hidden')}>
 				<img
 					src={$userSettings.theme === 'DARK' ? logoLight : logo}
@@ -114,44 +114,50 @@
 				/>
 			</div>
 
-			<button
-				class={cn(
-					'text-muted-foreground hover:bg-muted hover:text-foreground rounded-lg p-2',
-					$isMobileView ? 'hidden' : 'block'
-				)}
-				onclick={() => isSidebarOpen.update((open) => !open)}
-			>
-				{#if $isSidebarOpen}
-					<Menu class="h-5 w-5" />
-				{:else}
-					<ChevronRight class="h-5 w-5" />
-				{/if}
-			</button>
-
-			<nav class={cn('flex', $isMobileView ? 'hidden' : 'block')} aria-label="Breadcrumb">
-				<Breadcrumb.Root>
-					<Breadcrumb.List>
-						{#each breadcrumbs as { label, href }, i}
-							<Breadcrumb.Item>
-								{#if i === breadcrumbs.length - 1}
-									<Breadcrumb.Page>{label}</Breadcrumb.Page>
-								{:else}
-									<Breadcrumb.Link {href}>{label}</Breadcrumb.Link>
-									<Breadcrumb.Separator />
-								{/if}
-							</Breadcrumb.Item>
-						{/each}
-					</Breadcrumb.List>
-				</Breadcrumb.Root>
-			</nav>
-
-			<div class="ml-auto flex items-center space-x-4">
+			<!-- <div class={cn("flex items-center flex-nowrap gap-4", $isMobileView ? 'hidden' : 'block')}> -->
+			<div class="flex items-center gap-4 {isMobileView ? 'block' : 'hidden'}">
+			<!-- <div class="flex items-center gap-4"> -->
+				<!-- collapse/show sidebar button -->
 				<button
 					class={cn(
 						'text-muted-foreground hover:bg-muted hover:text-foreground rounded-lg p-2',
 						$isMobileView ? 'hidden' : 'block'
 					)}
-					onclick={toggleDarkMode}
+					onclick={() => isSidebarOpen.update((open) => !open)}
+				>
+					{#if $isSidebarOpen}
+						<Menu class="h-5 w-5" />
+					{:else}
+						<ChevronRight class="h-5 w-5" />
+					{/if}
+				</button>
+
+				<nav class={cn('flex', $isMobileView ? 'hidden' : 'block')} aria-label="Breadcrumb">
+					<Breadcrumb.Root>
+						<Breadcrumb.List>
+							{#each breadcrumbs as { label, href }, i}
+								<Breadcrumb.Item>
+									{#if i === breadcrumbs.length - 1}
+										<Breadcrumb.Page>{label}</Breadcrumb.Page>
+									{:else}
+										<Breadcrumb.Link {href}>{label}</Breadcrumb.Link>
+										<Breadcrumb.Separator />
+									{/if}
+								</Breadcrumb.Item>
+							{/each}
+						</Breadcrumb.List>
+					</Breadcrumb.Root>
+				</nav>
+			</div>
+
+			<div class="flex items-center gap-4">
+				<!-- toggle dark mode button -->
+				<button
+				class={cn(
+					'text-muted-foreground hover:bg-muted hover:text-foreground rounded-lg p-2',
+					$isMobileView ? 'hidden' : 'block'
+				)}
+				onclick={toggleDarkMode}
 				>
 					{#if $userSettings.theme === 'DARK'}
 						<Sun class="h-5 w-5" />
@@ -160,8 +166,12 @@
 					{/if}
 				</button>
 
+				<!-- toggle notifications button -->
 				<button
-					class={cn('hover:bg-muted relative rounded-lg p-2', $isMobileView ? 'hidden' : 'block')}
+				class={cn(
+					'text-muted-foreground hover:bg-muted hover:text-foreground rounded-lg p-2',
+					$isMobileView ? 'hidden' : 'block'
+				)}
 				>
 					<Bell class="text-muted-foreground h-5 w-5" />
 					{#if notifications.length > 0}
