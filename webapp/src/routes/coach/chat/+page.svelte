@@ -18,7 +18,7 @@
 			coachId: string;
 			parent: { user: { name: string } };
 			coach: { user: { name: string } };
-			isFromParent: boolean;
+			sender: string;
 		}[]
 	>([]);
 
@@ -109,7 +109,7 @@
 			content: newMessage,
 			coachId: data.coach.id,
 			parentId: selectedParent.id,
-			isFromParent: false
+			sender: 'COACH'
 		};
 
 		socket.emit('message', message);
@@ -164,15 +164,15 @@
 
 			<div bind:this={scrollContainer} class="flex-1 space-y-4 overflow-y-auto p-4">
 				{#each messages as message}
-					<div class="flex" class:justify-end={message.isFromParent}>
+					<div class="flex" class:justify-end={message.sender === 'PARENT'}>
 						<div
 							class="max-w-[70%] rounded-lg p-3 shadow-sm"
-							class:bg-muted={!message.isFromParent}
-							class:bg-primary={message.isFromParent}
-							class:text-primary-foreground={message.isFromParent}
+							class:bg-muted={message.sender === 'COACH'}
+							class:bg-primary={message.sender === 'PARENT'}
+							class:text-primary-foreground={message.sender === 'PARENT'}
 						>
 							<p class="text-sm font-medium">
-								{message.isFromParent ? message.parent.user.name : message.coach.user.name}
+								{message.sender === 'PARENT' ? message.parent.user.name : message.coach.user.name}
 							</p>
 							<p class="mt-1">{message.content}</p>
 							<p class="text-muted-foreground mt-1 text-xs">

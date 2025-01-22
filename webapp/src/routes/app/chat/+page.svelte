@@ -67,7 +67,7 @@
 			content: messageInput,
 			parentId: data.parent.id,
 			coachId: data.coach.id,
-			sender: 'PARENT'
+			isFromParent: true
 		};
 
 		socket.emit('message', message);
