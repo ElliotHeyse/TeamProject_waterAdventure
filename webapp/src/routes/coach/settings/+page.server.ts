@@ -1,10 +1,15 @@
 import { prisma } from '$lib/server/db';
 import type { PageServerLoad, Actions } from './$types';
 import { fail } from '@sveltejs/kit';
+import { error } from '@sveltejs/kit';
 
-export const load = (async () => {
-    // TODO: Replace with actual auth
-    const coach = await prisma.coach.findFirst({
+export const load = (async ({ locals }) => {
+    if (!locals.user) {
+        throw error(401, 'Unauthorized');
+    }
+
+    const coach = await prisma.coach.findUnique({
+        where: { userId: locals.user.id },
         include: {
             user: {
                 select: {
@@ -16,7 +21,7 @@ export const load = (async () => {
     });
 
     if (!coach) {
-        throw new Error('No coach found');
+        throw error(404, 'Coach not found');
     }
 
     return {
@@ -25,9 +30,15 @@ export const load = (async () => {
 }) satisfies PageServerLoad;
 
 export const actions = {
-    updateProfile: async ({ request }) => {
-        // TODO: Replace with actual auth
-        const coach = await prisma.coach.findFirst();
+    updateProfile: async ({ request, locals }) => {
+        if (!locals.user) {
+            return fail(401, { message: 'Unauthorized' });
+        }
+
+        const coach = await prisma.coach.findUnique({
+            where: { userId: locals.user.id }
+        });
+
         if (!coach) {
             return fail(404, { message: 'Coach not found' });
         }

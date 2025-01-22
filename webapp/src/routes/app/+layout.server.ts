@@ -1,32 +1,30 @@
-import { redirect } from '@sveltejs/kit';
+import { prisma } from '$lib/server/db';
 import type { LayoutServerLoad } from './$types';
-import { prisma } from '$lib/server/prisma';
+import { error } from '@sveltejs/kit';
 
-export const load: LayoutServerLoad = async ({ locals }) => {
+export const load = (async ({ locals }) => {
 	if (!locals.user) {
-		throw redirect(303, '/login');
+		throw error(401, 'Unauthorized');
 	}
 
-	const parentUser = await prisma.user.findUnique({
-		where: {
-			id: locals.user.id
-		},
+	const parent = await prisma.parent.findUnique({
+		where: { userId: locals.user.id },
 		include: {
-			parent: {
-				include: {
-					pupils: true
+			user: {
+				select: {
+					name: true,
+					email: true
 				}
 			},
-			settings: true,
-			notifications: true
+			pupils: true
 		}
 	});
 
-	if (!parentUser || !parentUser.parent) {
-		throw redirect(303, '/login');
+	if (!parent) {
+		throw error(404, 'Parent not found');
 	}
 
 	return {
-		parentUser
+		parent
 	};
-}; 
+}) satisfies LayoutServerLoad; 
