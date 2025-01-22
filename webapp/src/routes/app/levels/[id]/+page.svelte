@@ -22,9 +22,6 @@
 
 	// get exercises from the selected level
 	let exercises = $state(data.level.exercises);
-	if (exercises.length === 1) {
-
-	}
 
 	// get level progress from the selected child on this level
 	let levelProgress = $state(selectedChild.levelProgress[0]);
@@ -64,8 +61,11 @@
 
 		if (response.ok) {
 			const result = await response.json();
-			selectedChild.levelProgress[0] = result;
-			console.info("level progress updated");
+
+			// Update the acive child's progress in the store
+			selectedChild.progress = result.pupil.progress;
+			selectedChild.levelProgress[0] = result.levelProgress;
+			console.info("Level progress updated");
 		}
 	}
 
