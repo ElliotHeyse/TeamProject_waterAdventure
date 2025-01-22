@@ -116,6 +116,23 @@
 			toast.error(m.settings_save_failed());
 		}
 	}
+
+	$effect(() => {
+		const darkModeObserver = new MutationObserver((mutations) => {
+			mutations.forEach((mutation) => {
+				if (mutation.target instanceof HTMLElement) {
+					isDarkMode = mutation.target.classList.contains('dark');
+				}
+			});
+		});
+
+		darkModeObserver.observe(document.documentElement, {
+			attributes: true,
+			attributeFilter: ['class']
+		});
+
+		return () => darkModeObserver.disconnect();
+	});
 </script>
 
 <div class="mx-auto space-y-6">
@@ -303,13 +320,13 @@
 				<img src={isDarkMode ? zfLogoDark : zfLogoLight} alt={"Zwemfed"} />
 			</a>
 			<a href={"https://www.sportinnovatiecampus.be"}>
-				<img src={isDarkMode ? sicLogoBlue : sicLogoBlack} alt={"Sportinnovatiecampus"} />
+				<img src={sicLogoBlue} alt={"Sportinnovatiecampus"} />
 			</a>
 			<a href={"https://www.howest.be/nl/opleidingen/bachelor/sport-en-bewegen"}>
-				<img src={isDarkMode ? sbLogoBlue : sbLogoBlack} alt={"Howest | Sport & Bewegen"} />
+				<img src={sbLogoBlue} alt={"Howest | Sport & Bewegen"} />
 			</a>
 			<a href={"https://mct.be"}>
-				<img src={isDarkMode ? mctLogoBlue : mctLogoBlack} alt={"Howest | Multimedia & Creative Technologies"} />
+				<img src={mctLogoBlue} alt={"Howest | Multimedia & Creative Technologies"} />
 			</a>
 		</div>
 	</div>
