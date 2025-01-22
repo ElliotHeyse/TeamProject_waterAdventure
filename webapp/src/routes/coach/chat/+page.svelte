@@ -23,14 +23,19 @@
 	>([]);
 
 	let selectedParent: (Parent & { user: User; pupils: Pupil[] }) | null = $state(null);
-
 	let newMessage = $state('');
 	let socket: Socket;
 	let scrollContainer: HTMLDivElement | null = $state(null);
 
+	// Handle scrolling whenever messages change
 	$effect(() => {
-		if (scrollContainer) {
-			scrollContainer.scrollTop = scrollContainer.scrollHeight;
+		if (scrollContainer && messages.length > 0) {
+			requestAnimationFrame(() => {
+				scrollContainer?.scrollTo({
+					top: scrollContainer.scrollHeight,
+					behavior: 'smooth'
+				});
+			});
 		}
 	});
 
@@ -50,9 +55,6 @@
 		const response = await fetch(`/api/messages?parentId=${parent.id}&coachId=${data.coach.id}`);
 		if (response.ok) {
 			messages = await response.json();
-			if (scrollContainer) {
-				scrollContainer.scrollTop = scrollContainer.scrollHeight;
-			}
 		}
 	}
 
@@ -71,9 +73,6 @@
 				(message.parentId === selectedParent.id || message.coachId === data.coach.id)
 			) {
 				messages = [...messages, message];
-				if (scrollContainer) {
-					scrollContainer.scrollTop = scrollContainer.scrollHeight;
-				}
 			}
 		});
 

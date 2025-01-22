@@ -8,15 +8,23 @@
 	import { formatDistanceToNow } from 'date-fns';
 	import { io, type Socket } from 'socket.io-client';
 
-	export let data: PageData;
-
-	let messageInput: string = '';
-	let scrollContainer: HTMLDivElement;
+	const { data } = $props<{ data: PageData }>();
+	let messageInput = $state('');
+	let messages = $state(data.messages);
+	let scrollContainer: HTMLDivElement | null = $state(null);
 	let socket: Socket;
 
-	$: if (scrollContainer) {
-		scrollContainer.scrollTop = scrollContainer.scrollHeight;
-	}
+	// Handle scrolling whenever messages change
+	$effect(() => {
+		if (scrollContainer && messages?.length > 0) {
+			requestAnimationFrame(() => {
+				scrollContainer?.scrollTo({
+					top: scrollContainer.scrollHeight,
+					behavior: 'smooth'
+				});
+			});
+		}
+	});
 
 	function getInitials(name: string) {
 		return name
@@ -34,8 +42,7 @@
 
 		// Listen for incoming messages
 		socket.on('message', (message) => {
-			data.messages = [...data.messages, message];
-			scrollContainer.scrollTop = scrollContainer.scrollHeight;
+			messages = [...messages, message];
 		});
 
 		// Handle errors
@@ -93,7 +100,7 @@
 		<CardContent class="flex flex-col h-[calc(100%-5rem)]">
 			<div bind:this={scrollContainer} class="flex-1 overflow-y-auto pr-4">
 				<div class="flex flex-col gap-4">
-					{#each data.messages as message}
+					{#each messages as message}
 						<div
 							class={cn(
 								'flex gap-2 max-w-[80%]',
