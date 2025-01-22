@@ -1512,7 +1512,7 @@ async function main() {
 				{
 					name: 'Isabella Rodriguez',
 					dateOfBirth: new Date(2022, 10, 21),
-					progress: 1,
+					progress: 0,
 					notes: 'New pupil.',
 					levelProgress: [
 						{
