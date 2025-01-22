@@ -8,7 +8,7 @@ export const load: PageServerLoad = async ({ locals }) => {
         where: { userId: locals.user?.id },
         include: {
             user: true,
-            coach: {
+            Coach: {
                 include: {
                     user: true
                 }
@@ -20,7 +20,7 @@ export const load: PageServerLoad = async ({ locals }) => {
         throw error(404, 'Parent not found');
     }
 
-    if (!parent.coach) {
+    if (!parent.Coach) {
         throw error(404, 'No coach assigned');
     }
 
@@ -28,7 +28,7 @@ export const load: PageServerLoad = async ({ locals }) => {
     const messages = await prisma.message.findMany({
         where: {
             parentId: parent.id,
-            coachId: parent.coach.id
+            coachId: parent.Coach.id
         },
         orderBy: {
             createdAt: 'asc'
@@ -49,7 +49,7 @@ export const load: PageServerLoad = async ({ locals }) => {
 
     return {
         parent,
-        coach: parent.coach,
+        coach: parent.Coach,
         messages
     };
 };
@@ -66,7 +66,7 @@ export const actions = {
         const parent = await prisma.parent.findUnique({
             where: { userId: locals.user?.id },
             include: {
-                coach: true
+                Coach: true
             }
         });
 
@@ -74,7 +74,7 @@ export const actions = {
             throw error(404, 'Parent not found');
         }
 
-        if (!parent.coach) {
+        if (!parent.Coach) {
             throw error(404, 'No coach assigned');
         }
 
@@ -82,7 +82,8 @@ export const actions = {
             data: {
                 content,
                 parentId: parent.id,
-                coachId: parent.coach.id
+                coachId: parent.Coach.id,
+                sender: 'PARENT'
             }
         });
 
