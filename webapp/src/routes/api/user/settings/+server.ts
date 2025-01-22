@@ -5,8 +5,8 @@ import { error } from '@sveltejs/kit';
 import type { Theme, Language, UserSettings } from '$lib/stores/userSettings';
 
 const defaultSettings: UserSettings = {
-    pushNotifications: true,
-    emailNotifications: true,
+    pushNotifications: false,
+    emailNotifications: false,
     theme: 'LIGHT',
     language: 'en'
 };

@@ -11,8 +11,8 @@ export interface UserSettings {
 }
 
 const defaultSettings: UserSettings = {
-    pushNotifications: true,
-    emailNotifications: true,
+    pushNotifications: false,
+    emailNotifications: false,
     theme: 'LIGHT',
     language: 'en'
 };
