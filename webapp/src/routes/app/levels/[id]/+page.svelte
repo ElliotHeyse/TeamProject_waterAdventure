@@ -1,13 +1,9 @@
 <script lang="ts">
-	import type { PageData } from './$types';
-	import { onMount } from 'svelte';
-	import { writable } from 'svelte/store';
 	import * as m from '$lib/paraglide/messages.js';
 	import { goto } from '$app/navigation';
 	import { page } from '$app/state';
 	import { selectedChildIdStore } from '$lib/stores/child.store';
-	import type {ParentUser, Level, Exercise, Pupil, LevelProgress} from '../../types';
-	import { TrendingUpDown } from 'lucide-svelte';
+	import type { ParentUser, Level, Exercise, Pupil } from '../../types';
 
 	const { data } = $props<{
 		data: {
@@ -17,7 +13,8 @@
 	}>();
 
 	const selectedChild = $derived(
-		data.parentUser.parent.pupils.find((pupil: Pupil) => pupil.id === $selectedChildIdStore) || data.parentUser.parent.pupils[0]
+		data.parentUser.parent.pupils.find((pupil: Pupil) => pupil.id === $selectedChildIdStore) ||
+			data.parentUser.parent.pupils[0]
 	);
 
 	// get exercises from the selected level
@@ -29,6 +26,7 @@
 	let videoUrl = $state('');
 	let message = $state<string | null>(null);
 	let success = $state(false);
+	let videoFile = $state<File | null>(null);
 
 	function handleFileChange(event: Event) {
 		const input = event.target as HTMLInputElement;
@@ -58,12 +56,10 @@
 		const response = await fetch('/api/level-progress', {
 			method: 'PUT',
 			headers: { 'Content-Type': 'application/json' },
-			body: JSON.stringify(
-				{
-					pupil: selectedChild,
-					levelProgress: levelProgress
-				}
-			)
+			body: JSON.stringify({
+				pupil: selectedChild,
+				levelProgress: levelProgress
+			})
 		});
 
 		if (response.ok) {
@@ -72,7 +68,7 @@
 			// Update the acive child's progress in the store
 			selectedChild.progress = result.pupil.progress;
 			selectedChild.levelProgress[0] = result.levelProgress;
-			console.info("Level progress updated");
+			console.info('Level progress updated');
 		}
 	}
 
@@ -89,7 +85,7 @@
 		const formData = new FormData();
 		formData.append('pupilId', selectedChild.id);
 		formData.append('levelNumber', data.level.levelNumber);
-		formData.append('videoUrl', videoUrl);
+		formData.append('video', videoFile);
 
 		const response = await fetch('/api/submission', {
 			method: 'POST',
@@ -99,7 +95,7 @@
 		const result = await response.json();
 
 		if (result.success) {
-			console.info("submission success");
+			console.info('submission success');
 			success = true;
 			message = m.video_submitted();
 			videoFile = null;
@@ -117,13 +113,14 @@
 
 <div class="container mx-auto px-4 py-8">
 	<div class="mb-6">
-		<h1 class="text-3xl font-bold mb-4 text-foreground">Level {page.url.pathname.split('/').pop()} - {data.level.languageContents[0].title}
+		<h1 class="text-3xl font-bold mb-4 text-foreground">
+			Level {page.url.pathname.split('/').pop()} - {data.level.languageContents[0].title}
 		</h1>
 		<ul class="flex gap-4">
 			{#each data.level.languageContents[0].objectives as objective}
-			<li class="px-3 pt-1 pb-[6px] rounded-full bg-blue-200">
-				<span class="text-blue-700">{objective}</span>
-			</li>
+				<li class="px-3 pt-1 pb-[6px] rounded-full bg-blue-200">
+					<span class="text-blue-700">{objective}</span>
+				</li>
 			{/each}
 		</ul>
 	</div>
@@ -137,18 +134,25 @@
 					<ul class="flex mb-[2px]">
 						{#each exercise.languageContents[0].location as location}
 							<li>
-								<span class=" px-2 pb-[3px] pt-[2px] rounded bg-gray-200 text-muted-foreground">{location}</span>
+								<span class=" px-2 pb-[3px] pt-[2px] rounded bg-gray-200 text-muted-foreground"
+									>{location}</span
+								>
 							</li>
 						{/each}
 					</ul>
 				</div>
 				<button
-					class="px-4 py-2 rounded-md {(exercise.exerciseNumber === 1 && levelProgress.firstPartCompleted) || (exercise.exerciseNumber === 2 && levelProgress.fullyCompleted)
+					class="px-4 py-2 rounded-md {(exercise.exerciseNumber === 1 &&
+						levelProgress.firstPartCompleted) ||
+					(exercise.exerciseNumber === 2 && levelProgress.fullyCompleted)
 						? 'bg-green-500 hover:bg-green-600'
 						: 'bg-blue-500 hover:bg-blue-600'} text-white transition-colors"
 					onclick={() => toggleCompletion(exercise)}
 				>
-					{(exercise.exerciseNumber === 1 && levelProgress.firstPartCompleted) || (exercise.exerciseNumber === 2 && levelProgress.fullyCompleted) ? 'Voltooid' : 'Markeer als voltooid'}
+					{(exercise.exerciseNumber === 1 && levelProgress.firstPartCompleted) ||
+					(exercise.exerciseNumber === 2 && levelProgress.fullyCompleted)
+						? 'Voltooid'
+						: 'Markeer als voltooid'}
 				</button>
 			</div>
 
@@ -261,14 +265,11 @@
 				<div class="space-y-4">
 					<h2 class="text-2xl font-semibold">Jouw Inzending</h2>
 					<div class="space-y-2">
-						<p class="text-sm text-muted-foreground">Video URL:</p>
-						<a href={selectedChild.submissions[0].videoUrl}
-							target="_blank"
-							rel="noopener noreferrer"
-							class="text-blue-600 hover:underline">
-							{selectedChild.submissions[0].videoUrl}
-						</a>
-						<p>{"<video player here>"}</p>
+						<video class="w-full aspect-video" controls>
+							<source src={selectedChild.submissions[0].videoUrl} type="video/mp4" />
+							<track kind="captions" />
+							{m.video_not_supported()}
+						</video>
 					</div>
 				</div>
 				{#if selectedChild.submissions[0].status === 'REVIEWED'}
@@ -277,15 +278,13 @@
 							<div class="flex justify-between">
 								<h3 class="text-lg font-semibold">Feedback van je coach</h3>
 								<p class="text-sm text-muted-foreground">
-									{
-										(selectedChild.submissions[0].updatedAt).toLocaleDateString('nl-BE', {
-											year: 'numeric',
-											month: 'long',
-											day: 'numeric',
-											hour: '2-digit',
-											minute: '2-digit'
-										})
-									}
+									{selectedChild.submissions[0].updatedAt.toLocaleDateString('nl-BE', {
+										year: 'numeric',
+										month: 'long',
+										day: 'numeric',
+										hour: '2-digit',
+										minute: '2-digit'
+									})}
 								</p>
 							</div>
 							<div class="space-y-2">
@@ -326,7 +325,7 @@
 							onchange={handleFileChange}
 							class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
 							required
-							/>
+						/>
 						<p class="mt-1 text-sm text-gray-500">
 							Upload een video van je zwemles. Ondersteunde formaten: MP4, MOV, AVI.
 						</p>

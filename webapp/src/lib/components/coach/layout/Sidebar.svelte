@@ -15,9 +15,19 @@
 	import logoLight from '$lib/img/logo-light.svg';
 	import logoIcon from '$lib/img/logo-icon.svg';
 	import * as m from '$lib/paraglide/messages.js';
+	import * as DropdownMenu from '$lib/components/coach/ui/dropdown-menu';
+	import { LogOut, Settings } from 'lucide-svelte';
+	import { goto } from '$app/navigation';
 
 	let { isSidebarOpen } = $props<{ isSidebarOpen: boolean }>();
 	let isDarkMode = $state(false);
+
+	const data = $state(page.data);
+	const coachName = $state(data.coach?.user?.name || 'Unknown Coach');
+
+	async function handleLogout() {
+		await goto('/logout');
+	}
 
 	onMount(() => {
 		const savedDarkMode = localStorage.getItem('darkMode') === 'true';
@@ -99,22 +109,38 @@
 	</nav>
 
 	<div class="border-border mt-auto border-t px-3 py-3">
-		{#if isSidebarOpen}
-			<div class="bg-muted/80 flex items-center gap-3 rounded-lg px-3 py-2.5">
-				<div class="bg-primary/10 text-primary h-8 w-8 rounded-full">
-					<Icon src={UserCircle} class="h-8 w-8" />
-				</div>
-				<div class="min-w-0 flex-1">
-					<div class="text-foreground truncate text-sm font-medium">John Doe</div>
-					<div class="text-muted-foreground truncate text-xs">{m.swimming_coach()}</div>
-				</div>
-			</div>
-		{:else}
-			<div class="flex justify-center">
-				<div class="bg-primary/10 text-primary h-8 w-8 rounded-full">
-					<Icon src={UserCircle} class="h-8 w-8" />
-				</div>
-			</div>
-		{/if}
+		<DropdownMenu.Root>
+			<DropdownMenu.Trigger class="w-full">
+				{#if isSidebarOpen}
+					<div class="bg-muted/80 flex items-center gap-3 rounded-lg px-3 py-2.5">
+						<div class="bg-primary/10 text-primary h-8 w-8 rounded-full">
+							<Icon src={UserCircle} class="h-8 w-8" />
+						</div>
+						<div class="min-w-0 flex-1">
+							<div class="text-foreground truncate text-sm font-medium">{coachName}</div>
+							<div class="text-muted-foreground truncate text-xs">{m.swimming_coach()}</div>
+						</div>
+					</div>
+				{:else}
+					<div class="flex justify-center">
+						<div class="bg-primary/10 text-primary h-8 w-8 rounded-full">
+							<Icon src={UserCircle} class="h-8 w-8" />
+						</div>
+					</div>
+				{/if}
+			</DropdownMenu.Trigger>
+			<DropdownMenu.Content class="w-56">
+				<DropdownMenu.Label>My Account</DropdownMenu.Label>
+				<DropdownMenu.Separator />
+				<DropdownMenu.Item onSelect={() => goto('/coach/settings')} class="cursor-pointer">
+					<Settings class="mr-2 h-4 w-4" />
+					<span>Settings</span>
+				</DropdownMenu.Item>
+				<DropdownMenu.Item onSelect={handleLogout} class="cursor-pointer">
+					<LogOut class="mr-2 h-4 w-4" />
+					<span>Log out</span>
+				</DropdownMenu.Item>
+			</DropdownMenu.Content>
+		</DropdownMenu.Root>
 	</div>
 </aside>

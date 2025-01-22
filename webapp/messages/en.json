@@ -167,5 +167,8 @@
     "confirm_delete_level": "Are you sure you want to delete this level?",
     "confirm_delete_level_warning": "This action cannot be undone. All submissions and progress associated with this level will also be permanently deleted.",
     "selected_rows": "{count} row(s) selected",
-    "pending": "Pending"
+    "pending": "Pending",
+    "error_loading_video": "Error loading video",
+    "video_not_supported": "Your browser does not support the video tag",
+    "unauthorized_access": "You do not have permission to view this video"
 }

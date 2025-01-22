@@ -25,3 +25,5 @@ vite.config.ts.timestamp-*
 # Prisma
 /prisma/migrations/*
 
+# Uploads
+static/uploads/*

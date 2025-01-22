@@ -2,6 +2,7 @@
 	import * as m from '$lib/paraglide/messages.js';
 	import { toast } from 'svelte-sonner';
 	import { Loader2 } from 'lucide-svelte';
+	import { page } from '$app/state';
 
 	export interface Submission {
 		id: string;
@@ -24,6 +25,12 @@
 	let feedback = $state(submission?.feedback || '');
 	let medal = $state(submission?.medal || 'NONE');
 	let isSubmitting = $state(false);
+	let videoError = $state(false);
+
+	function handleVideoError() {
+		videoError = true;
+		toast.error(m.error_loading_video());
+	}
 
 	async function handleSubmit() {
 		if (!submission) return;
@@ -63,9 +70,18 @@
 			</p>
 		</div>
 
-		<div class="bg-muted flex aspect-video items-center justify-center rounded-md">
-			<!-- Video player would go here -->
-			<p class="text-muted-foreground">{m.video_player()}</p>
+		<div class="bg-muted rounded-md overflow-hidden">
+			{#if !videoError}
+				<video class="w-full aspect-video" controls onerror={handleVideoError}>
+					<source src={submission.videoUrl} type="video/mp4" />
+					<track kind="captions" />
+					{m.video_not_supported()}
+				</video>
+			{:else}
+				<div class="flex items-center justify-center aspect-video">
+					<p class="text-muted-foreground">{m.error_loading_video()}</p>
+				</div>
+			{/if}
 		</div>
 
 		<div class="space-y-4">
