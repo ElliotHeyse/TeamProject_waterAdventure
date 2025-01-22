@@ -28,8 +28,6 @@
 	);
 	console.info(selectedChild.name);
 
-	
-
 	const gameLevels = $derived(() => {
 		const levels: GameLevel[] = [];
 		data.levels.forEach((level: Level) => {
@@ -38,8 +36,6 @@
 			let currentStatus: 'locked' | 'current' | 'completed';
 			let currentMedal: 'gold' | 'silver' | 'bronze' | null = null;
 			if (currentLevel <= currentProgress) {
-				// Level has been completed at least once before
-				// Check levelProgress to evaluate excercise completion state
 				currentStatus = 'completed';
 				const submission = selectedChild.submissions.find((sub: Submission) => sub.levelNumber === currentLevel);
 				if (submission) {

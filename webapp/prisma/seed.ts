@@ -1558,15 +1558,7 @@ async function main() {
 							completedAt: null
 						}
 					],
-					submissions: [
-						{
-							levelNumber: 1,
-							videoUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
-							status: SubmissionStatus.PENDING,
-							feedback: "Wauw!",
-							medal: Medal.NONE
-						}
-					]
+					submissions: []
 				},
 				{
 					name: 'Liam Rodriguez',

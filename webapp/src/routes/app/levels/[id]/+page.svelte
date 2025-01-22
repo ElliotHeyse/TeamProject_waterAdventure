@@ -60,9 +60,6 @@
 	let message = $state<string | null>(null);
 	let success = $state(false);
 
-	// hardcoded completion state, requires database refactor
-	let levelProgress_completed = false;
-
 	async function toggleCompletion(exercise: Exercise) {
 		if (exercises.length === 1) {
 			// if there is only one exercise in the level,
@@ -101,35 +98,37 @@
 	}
 
 	async function handleSubmit(event: SubmitEvent) {
-		// event.preventDefault();
-		// success = false;
-		// message = '';
+		event.preventDefault();
+		success = false;
+		message = '';
 
-		// const formData = new FormData();
-		// formData.append('lessonId', data.lesson.id);
-		// formData.append('videoUrl', videoUrl);
+		const formData = new FormData();
+		formData.append('pupilId', selectedChild.id);
+		formData.append('levelNumber', data.level.levelNumber);
+		formData.append('videoUrl', videoUrl);
 
-		// const response = await fetch('/api/submission', {
-		// 	method: 'POST',
-		// 	body: formData
-		// });
+		const response = await fetch('/api/submission', {
+			method: 'POST',
+			body: formData
+		});
 
-		// const result = await response.json();
+		const result = await response.json();
 
-		// if (result.success) {
-		// 	success = true;
-		// 	message = m.video_submitted();
-		// 	videoUrl = '';
-		// 	// After successful submission, redirect to levels page
-		// 	setTimeout(() => {
-		// 		goto('/app/levels');
-		// 	}, 1500);
-		// } else {
-		// 	message = result.message || m.submission_failed();
-		// }
+		if (result.success) {
+			console.info("submission success");
+			success = true;
+			message = m.video_submitted();
+			videoUrl = '';
+			// After successful submission, redirect to levels page
+			setTimeout(() => {
+				goto('/app/levels');
+			}, 1500);
+		} else {
+			message = result.message || m.submission_failed();
+		}
 	}
 
-	// const isCompleted = $derived(exercises.every((ex: Exercise) => ex.completed));
+	const isCompleted = $derived(levelProgress.fullyCompleted);
 </script>
 
 <div class="container mx-auto px-4 py-8">
@@ -272,90 +271,105 @@
 		</div>
 	{/each}
 
-	<p>SEPARATOR</p>
-
-	<!-- {#if isCompleted}
+	{#if isCompleted}
 		<div class="mt-8 bg-card rounded-lg p-6 shadow-md">
-			{#if data.submission}
-				{#if data.submission.status === 'REVIEWED'}
-					<div class="space-y-4">
-						<h2 class="text-2xl font-semibold">Jouw Inzending</h2>
-						<div class="space-y-2">
-							<p class="text-sm text-muted-foreground">Video URL:</p>
-							<a
-								href={data.submission.videoUrl}
-								target="_blank"
-								rel="noopener noreferrer"
-								class="text-blue-600 hover:underline"
-							>
-								{data.submission.videoUrl}
-							</a>
-						</div>
-						{#if data.submission.reviewInfo}
-							<div class="mt-6 space-y-4 border-t pt-4">
+			{#if selectedChild.submissions[0]}
+				<div class="space-y-4">
+					<h2 class="text-2xl font-semibold">Jouw Inzending</h2>
+					<div class="space-y-2">
+						<p class="text-sm text-muted-foreground">Video URL:</p>
+						<a href={selectedChild.submissions[0].videoUrl}
+							target="_blank"
+							rel="noopener noreferrer"
+							class="text-blue-600 hover:underline">
+							{selectedChild.submissions[0].videoUrl}
+						</a>
+						<p>{"<video player here>"}</p>
+					</div>
+				</div>
+				{#if selectedChild.submissions[0].status === 'REVIEWED'}
+					{#if selectedChild.submissions[0].feedback}
+						<div class="mt-6 space-y-4 border-t pt-4">
+							<div class="flex justify-between">
 								<h3 class="text-lg font-semibold">Feedback van je coach</h3>
-								<div class="space-y-2">
-									<p class="text-sm text-muted-foreground">
-										Beoordeeld door {data.submission.reviewInfo.teacherName} op {new Date(
-											data.submission.reviewInfo.reviewedAt
-										).toLocaleDateString('nl-BE', {
+								<p class="text-sm text-muted-foreground">
+									{
+										(selectedChild.submissions[0].updatedAt).toLocaleDateString('nl-BE', {
 											year: 'numeric',
 											month: 'long',
 											day: 'numeric',
 											hour: '2-digit',
 											minute: '2-digit'
-										})}
-									</p>
-									<p class="text-base">{data.submission.reviewInfo.feedback}</p>
-									{#if data.submission.reviewInfo.medal !== 'NONE'}
-										<div class="flex items-center gap-2 mt-2">
-											<span class="text-sm font-medium">Medaille:</span>
-											<span class="text-sm">
-												{#if data.submission.reviewInfo.medal === 'GOLD'}
-													🥇 Goud
-												{:else if data.submission.reviewInfo.medal === 'SILVER'}
-													�� Zilver
-												{:else if data.submission.reviewInfo.medal === 'BRONZE'}
-													🥉 Brons
-												{/if}
-											</span>
-										</div>
-									{/if}
-								</div>
+										})
+									}
+								</p>
 							</div>
-						{/if}
-					</div>
+							<div class="space-y-2">
+								<p class="text-base">{selectedChild.submissions[0].feedback}</p>
+								{#if selectedChild.submissions[0].medal !== 'NONE'}
+									<div class="flex items-center gap-2 mt-2">
+										<span class="text-sm font-medium">Medaille:</span>
+										<span class="text-sm">
+											{#if selectedChild.submissions[0].medal === 'GOLD'}
+												🥇 Goud
+											{:else if selectedChild.submissions[0].medal === 'SILVER'}
+												🥈 Zilver
+											{:else if selectedChild.submissions[0].medal === 'BRONZE'}
+												🥉 Brons
+											{/if}
+										</span>
+									</div>
+								{/if}
+							</div>
+						</div>
+					{/if}
 				{:else}
-					<h2 class="text-2xl font-semibold mb-4">Video Inzending</h2>
-					<form onsubmit={handleSubmit} class="space-y-4">
-						<div>
-							<label for="videoUrl" class="block text-sm font-medium text-gray-700">Video URL</label
-							>
-							<input
-								type="url"
-								id="videoUrl"
-								bind:value={videoUrl}
-								class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-								placeholder="https://example.com/your-video"
-								required
-							/>
-							<p class="mt-1 text-sm text-gray-500">
-								Upload je video naar een platform zoals YouTube of Vimeo en plak de link hier.
-							</p>
+					<div class="mt-6 space-y-4 border-t pt-4">
+						<div class="flex justify-between">
+							<h3 class="text-lg font-semibold">Nog geen feedback van je coach</h3>
 						</div>
-
-						<div class="flex justify-end">
-							<button
-								type="submit"
-								class="rounded-md bg-blue-600 px-4 py-2 text-white transition-colors hover:bg-blue-700"
-							>
-								Video Indienen
-							</button>
-						</div>
-					</form>
+					</div>
 				{/if}
 			{:else}
 				<h2 class="text-2xl font-semibold mb-4">Video Inzending</h2>
+				<form onsubmit={handleSubmit} class="space-y-4">
+					<div>
+						<label for="videoUrl" class="block text-sm font-medium text-gray-700">Video URL</label>
+						<input
+							type="url"
+							id="videoUrl"
+							bind:value={videoUrl}
+							class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+							placeholder="https://example.com/your-video"
+							required
+							/>
+						<p class="mt-1 text-sm text-gray-500">
+							Upload je video naar een platform zoals YouTube of Vimeo en plak de link hier.
+						</p>
+					</div>
+					<div class="flex justify-end">
+						<button
+							type="submit"
+							class="rounded-md bg-blue-600 px-4 py-2 text-white transition-colors hover:bg-blue-700"
+						>
+							Video Indienen
+						</button>
+					</div>
+				</form>
+				{#if message}
+					<div
+						class="mt-4 p-4 rounded-md {success
+							? 'bg-green-100 text-green-700'
+							: 'bg-red-100 text-red-700'}"
+					>
+						{message}
+					</div>
+				{/if}
+			{/if}
+		</div>
+	{/if}
+
+	<!--		<h2 class="text-2xl font-semibold mb-4">Video Inzending</h2>
 				<form onsubmit={handleSubmit} class="space-y-4">
 					<div>
 						<label for="videoUrl" class="block text-sm font-medium text-gray-700">Video URL</label>
