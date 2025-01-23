@@ -2,7 +2,15 @@
 	import { page } from '$app/state';
 	import { Button } from '$lib/components/coach/ui/button';
 	import { cn } from '$lib/components/coach/utils';
-	import { Home, User, Trophy, MessageSquare, Settings, LogOut } from 'lucide-svelte';
+	import {
+		HomeModern,
+		UserCircle,
+		AcademicCap,
+		ChatBubbleLeftRight,
+		Cog6Tooth,
+		ArrowRightOnRectangle,
+		Icon
+	} from 'svelte-hero-icons';
 	import * as m from '$lib/paraglide/messages';
 	import { onMount } from 'svelte';
 	import logo from '$lib/img/logo-dark.svg';
@@ -45,10 +53,10 @@
 	});
 
 	const navItems = [
-		{ href: '/app', icon: Home, label: 'Overview' },
-		{ href: '/app/levels', icon: Trophy, label: 'Levels' },
-		{ href: '/app/chat', icon: MessageSquare, label: 'Chat' },
-		{ href: '/app/settings', icon: Settings, label: 'Settings' }
+		{ href: '/app', icon: HomeModern, label: 'Overview' },
+		{ href: '/app/levels', icon: AcademicCap, label: 'Levels' },
+		{ href: '/app/chat', icon: ChatBubbleLeftRight, label: 'Chat' },
+		{ href: '/app/settings', icon: Cog6Tooth, label: 'Settings' }
 	];
 </script>
 
