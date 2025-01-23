@@ -82,65 +82,65 @@
 	}
 </script>
 
-<div class="px-4 py-4 lg:px-8">
-	<Card class="h-[calc(100vh-2rem)]">
-		<CardHeader>
-			<CardTitle class="flex items-center gap-4">
-				<div
-					class="h-10 w-10 rounded-full bg-primary flex items-center justify-center text-primary-foreground"
-				>
-					{getInitials(data.coach.user.name)}
-				</div>
-				<div>
-					<p class="text-lg font-semibold">{data.coach.user.name}</p>
-					<p class="text-sm text-muted-foreground">Your Swimming Coach</p>
-				</div>
-			</CardTitle>
-		</CardHeader>
-		<CardContent class="flex flex-col h-[calc(100%-5rem)]">
-			<div bind:this={scrollContainer} class="flex-1 overflow-y-auto pr-4">
-				<div class="flex flex-col gap-4">
-					{#each messages as message}
-						<div
-							class={cn(
-								'flex gap-2 max-w-[80%]',
-								message.parentId === data.parent.id && message.sender === 'PARENT' ? 'ml-auto flex-row-reverse' : 'flex-row'
-							)}
-						>
-							<div
-								class="h-8 w-8 rounded-full bg-primary flex items-center justify-center text-primary-foreground text-sm"
-							>
-								{message.parentId === data.parent.id && message.sender === 'PARENT'
-									? getInitials(message.parent.user.name)
-									: getInitials(message.coach.user.name)}
-							</div>
-							<div
-								class={cn(
-									'rounded-lg p-3',
-									message.parentId === data.parent.id && message.sender === 'PARENT'
-										? 'bg-primary text-primary-foreground'
-										: 'bg-muted'
-								)}
-							>
-								<p>{message.content}</p>
-								<p class="text-xs opacity-70 mt-1">
-									{formatDistanceToNow(new Date(message.createdAt), { addSuffix: true })}
-								</p>
-							</div>
-						</div>
-					{/each}
-				</div>
-			</div>
+<div class="flex flex-col h-[calc(100vh-128px)] mt-16 mb-16">
+	<div class="flex items-center gap-4 p-4 border-b bg-background fixed top-16 left-0 right-0 z-50">
+		<div
+			class="h-10 w-10 rounded-full bg-primary flex items-center justify-center text-primary-foreground"
+		>
+			{getInitials(data.coach.user.name)}
+		</div>
+		<div>
+			<p class="text-lg font-semibold">{data.coach.user.name}</p>
+			<p class="text-sm text-muted-foreground">Your Swimming Coach</p>
+		</div>
+	</div>
 
-			<form on:submit={handleSubmit} class="flex gap-2 mt-4">
-				<Input
-					type="text"
-					bind:value={messageInput}
-					placeholder="Type your message..."
-					class="flex-1"
-				/>
-				<Button type="submit">Send</Button>
-			</form>
-		</CardContent>
-	</Card>
+	<div bind:this={scrollContainer} class="flex-1 overflow-y-auto px-4 pt-[72px] pb-4">
+		<div class="flex flex-col gap-4">
+			{#each messages as message}
+				<div
+					class={cn(
+						'flex gap-2 max-w-[80%]',
+						message.parentId === data.parent.id && message.sender === 'PARENT'
+							? 'ml-auto flex-row-reverse'
+							: 'flex-row'
+					)}
+				>
+					<div
+						class="h-8 w-8 rounded-full bg-primary flex items-center justify-center text-primary-foreground text-sm shrink-0"
+					>
+						{message.parentId === data.parent.id && message.sender === 'PARENT'
+							? getInitials(message.parent.user.name)
+							: getInitials(message.coach.user.name)}
+					</div>
+					<div
+						class={cn(
+							'rounded-lg p-3',
+							message.parentId === data.parent.id && message.sender === 'PARENT'
+								? 'bg-primary text-primary-foreground'
+								: 'bg-muted'
+						)}
+					>
+						<p class="break-words">{message.content}</p>
+						<p class="text-xs opacity-70 mt-1">
+							{formatDistanceToNow(new Date(message.createdAt), { addSuffix: true })}
+						</p>
+					</div>
+				</div>
+			{/each}
+		</div>
+	</div>
+
+	<form
+		onsubmit={handleSubmit}
+		class="flex-none flex gap-2 p-4 bg-background border-t fixed bottom-14 left-0 right-0"
+	>
+		<Input
+			type="text"
+			bind:value={messageInput}
+			placeholder="Type your message..."
+			class="flex-1"
+		/>
+		<Button type="submit">Send</Button>
+	</form>
 </div>
