@@ -1,3 +1,6 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Sniglet:wght@400;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Sniglet:wght@400;800&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -74,5 +77,106 @@
 	}
 	body {
 		@apply bg-background text-foreground;
+		font-family: 'inter', sans-serif;
+	}
+
+	/* Fonts */
+
+	.font-sniglet-regular {
+		font-family: "Sniglet", serif;
+		font-weight: 400;
+		font-style: normal;
+	}
+
+	.font-sniglet-extrabold {
+		font-family: "Sniglet", serif;
+		font-weight: 800;
+		font-style: normal;
+	}
+
+		/* Modular scale */
+	.fz-ms1 {
+		font-size: 0.75rem;
+		line-height: 150%;
+	}
+
+	.fz-ms2 {
+		font-size: 0.875rem;
+		line-height: 150%;
+	}
+
+	.fz-ms3 {
+		font-size: 1rem;
+		line-height: 150%;
+	}
+
+	.fz-ms4 {
+		font-size: 1.125rem;
+		line-height: 150%;
+	}
+
+	.fz-ms5 {
+		font-size: 1.25rem;
+		line-height: 150%;
+	}
+
+	.fz-ms6 {
+		font-size: 1.5rem;
+		line-height: 150%;
+	}
+
+	.fz-ms7 {
+		font-size: 1.75rem;
+		line-height: 150%;
+	}
+
+	.fz-ms8 {
+		font-size: 2rem;
+		line-height: 150%;
+	}
+
+	.fz-ms9 {
+		font-size: 2.25rem;
+		line-height: 150%;
+	}
+
+	.fz-ms10 {
+		font-size: 2.625rem;
+		line-height: 150%;
+	}
+
+	.fz-ms11 {
+		font-size: 3rem;
+		line-height: 150%;
+	}
+
+	.fz-ms12 {
+		font-size: 3.375rem;
+		line-height: 150%;
+	}
+
+	.fz-ms13 {
+		font-size: 3.75rem;
+		line-height: 150%;
+	}
+
+	.fz-ms14 {
+		font-size: 4.25rem;
+		line-height: 150%;
+	}
+
+	.fz-ms15 {
+		font-size: 4.75rem;
+		line-height: 150%;
+	}
+
+	.fz-ms16 {
+		font-size: 5.25rem;
+		line-height: 150%;
+	}
+
+	.fz-ms17 {
+		font-size: 5.75rem;
+		line-height: 150%;
 	}
 }

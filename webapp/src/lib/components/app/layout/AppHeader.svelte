@@ -2,7 +2,7 @@
 	import logo from '$lib/img/logo-dark.svg';
 	import logoLight from '$lib/img/logo-light.svg';
 	import { page } from '$app/state';
-	import { Bell, ChevronRight, Sun, Moon, Menu, ChevronDown } from 'lucide-svelte';
+	import { Bell, ChevronRight, ChevronLeft, Sun, Moon, Menu, ChevronDown } from 'lucide-svelte';
 	import * as Breadcrumb from '$lib/components/coach/ui/breadcrumb';
 	import * as DropdownMenu from '$lib/components/coach/ui/dropdown-menu';
 	import { Button } from '$lib/components/coach/ui/button';
@@ -114,10 +114,10 @@
 </script>
 
 <header
-	class="border-border bg-background/95 supports-[backdrop-filter]:bg-background/60 sticky top-0 z-10 border-b backdrop-blur"
+	class="border-border bg-background/95 supports-[backdrop-filter]:bg-background/60 sticky top-0 border-b backdrop-blur z-50"
 >
 	<div class="h-16">
-		<div class="flex justify-between items-center gap-4 h-full px-4">
+		<div class="flex items-center justify-between h-full gap-4 px-4">
 			<div class={cn($isMobileView ? 'block' : 'hidden')}>
 				<img
 					src={$userSettings.theme === 'DARK' ? logoLight : logo}
@@ -138,9 +138,9 @@
 					onclick={() => isSidebarOpen.update((open) => !open)}
 				>
 					{#if $isSidebarOpen}
-						<Menu class="h-5 w-5" />
+						<ChevronLeft class="w-5 h-5" />
 					{:else}
-						<ChevronRight class="h-5 w-5" />
+						<Menu class="w-5 h-5" />
 					{/if}
 				</button>
 
@@ -172,9 +172,9 @@
 				onclick={toggleDarkMode}
 				>
 					{#if $userSettings.theme === 'DARK'}
-						<Sun class="h-5 w-5" />
+						<Sun class="w-5 h-5" />
 					{:else}
-						<Moon class="h-5 w-5" />
+						<Moon class="w-5 h-5" />
 					{/if}
 				</button>
 
@@ -185,10 +185,10 @@
 					$isMobileView ? 'hidden' : 'block'
 				)}
 				>
-					<Bell class="text-muted-foreground h-5 w-5" />
+					<Bell class="w-5 h-5 text-muted-foreground" />
 					{#if notifications.length > 0}
 						<span
-							class="bg-destructive text-destructive-foreground absolute right-0 top-0 flex h-4 w-4 items-center justify-center rounded-full text-xs"
+							class="absolute top-0 right-0 flex items-center justify-center w-4 h-4 text-xs rounded-full bg-destructive text-destructive-foreground"
 						>
 							{notifications.length}
 						</span>
@@ -196,13 +196,14 @@
 				</button>
 
 				<DropdownMenu.Root>
+
 					<DropdownMenu.Trigger disabled={isLevelPage()}>
 						<Button variant="ghost" size="sm" class={cn(
 							"flex items-center gap-2 px-3 h-8 border",
 							isLevelPage() && "opacity-50 cursor-not-allowed"
 						)}>
 							<span class="text-sm font-medium">{selectedChild?.name || 'Select child'}</span>
-							<ChevronDown class="h-4 w-4" />
+							<ChevronDown class="w-4 h-4" />
 						</Button>
 					</DropdownMenu.Trigger>
 					{#if !isLevelPage()}
