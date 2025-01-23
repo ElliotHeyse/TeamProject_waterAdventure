@@ -20,6 +20,7 @@
 	import { userSettings } from '$lib/stores/userSettings';
 	import { CircleAlert } from 'lucide-svelte';
 	import { isMobileView } from '$lib/stores/viewport';
+	import { cn } from '$lib/components/coach/utils';
 
 	// Branding
 	import mctLogoBlue from '$lib/img/brandkit/MCT-blue.svg';
@@ -156,18 +157,20 @@
 	});
 </script>
 
-<div class="px-4 py-4 lg:px-8">
-	<div class="mx-auto space-y-6">
-		<h1 class="text-3xl font-bold mb-8">{m.settings()}</h1>
+<div class="px-4">
+	<div class="mx-auto">
+		<!-- <h1 class="fz-ms5 font-sniglet-regular">{m.settings()}</h1> -->
 
 		<!-- Profile Settings -->
-		<div class="bg-card text-card-foreground rounded-lg border shadow-sm">
-			<div class="flex flex-col space-y-1.5 p-6">
-				<h3 class="text-2xl font-semibold leading-none tracking-tight">{m.profile_settings()}</h3>
-				<p class="text-muted-foreground text-sm">{m.manage_personal_info()}</p>
+		<div class="mt-4 bg-card text-card-foreground rounded-lg border shadow-sm">
+			<div class={cn("flex flex-col gap-1 p-4",
+				$userSettings.theme === 'DARK' ? "bg-gray-500 bg-opacity-10" : "bg-gray-50"
+			)}>
+				<h3 class="fz-ms4 font-semibold leading-none">{m.profile_settings()}</h3>
+				<p class="fz-ms2 text-muted-foreground">{m.manage_personal_info()}</p>
 			</div>
 			<Separator />
-			<form method="POST" action="?/updateProfile" class="p-6 space-y-4" onsubmit={handleSubmit}>
+			<form method="POST" action="?/updateProfile" class="p-4 flex flex-col gap-4" onsubmit={handleSubmit}>
 				{#if formError}
 					<div class="alert-wrapper">
 						<Alert variant="destructive">
@@ -178,43 +181,60 @@
 					</div>
 				{/if}
 
-				<div class="space-y-2">
-					<Label for="name">{m.name()}</Label>
-					<Input id="name" value={data.parent.user.name} disabled />
+				<div class="space-y-1">
+					<Label class="text-[0.75rem] min-[425px]:text-[0.875rem]" for="name">{m.name()}</Label>
+					<Input class={cn("text-[0.875rem] !ring-0 ",
+						$userSettings.theme === 'DARK' ? "hover:bg-gray-500 bg-opacity-5" : "hover:bg-gray-50 focus:border-blue-500 focus:bg-blue-50"
+					)} id="name" value={data.parent.user.name} disabled />
 				</div>
-				<div class="space-y-2">
-					<Label for="email">{m.email()}</Label>
-					<Input id="email" type="email" value={data.parent.user.email} disabled />
+				<div class="space-y-1">
+					<Label class="text-[0.75rem] min-[425px]:text-[0.875rem]" for="email">{m.email()}</Label>
+					<Input class={cn("text-[0.875rem] !ring-0 ",
+						$userSettings.theme === 'DARK' ? "hover:bg-gray-500 bg-opacity-5" : "hover:bg-gray-50 focus:border-blue-500 focus:bg-blue-50"
+					)} id="email" type="email" value={data.parent.user.email} disabled />
 				</div>
-				<div class="space-y-2">
-					<Label for="phone">{m.phone()}</Label>
-					<Input
+				<div class="space-y-1">
+					<Label class="text-[0.75rem] min-[425px]:text-[0.875rem]" for="phone">{m.phone()}</Label>
+					<Input class={cn("text-[0.875rem] !ring-0 focus:border-blue-500",
+						$userSettings.theme === 'DARK' ? "hover:bg-blue-950 hover:bg-opacity-50 focus:bg-blue-950" : "hover:bg-blue-50 focus:bg-blue-50"
+					)}
+						type="tel"
 						id="phone"
 						name="phone"
 						bind:value={phone}
-						placeholder="phone placeholder (static => update paraglide)"
+						placeholder="telefoonnummer"
 					/>
 				</div>
 				<div class="flex justify-end">
-					<Button type="submit">{m.save_profile()}</Button>
+					<Button class={cn("text-[0.875rem] !ring-0 border-2 border-opacity-0 focus:drop-shadow-lg text-blue-50",
+						$userSettings.theme === 'DARK' ? "bg-blue-800 hover:bg-blue-700 focus:bg-blue-950 focus:border-opacity-100 focus:border-blue-500 focus:text-blue-500" : "bg-blue-500 hover:bg-blue-600 focus:bg-blue-200 focus:border-opacity-100 focus:border-blue-500 focus:text-blue-500"
+					)}
+					type="submit">{m.save_profile()}</Button>
 				</div>
 			</form>
 		</div>
 
 		<!-- Appearance Settings -->
-		<div class="bg-card text-card-foreground rounded-lg border shadow-sm">
-			<div class="flex flex-col space-y-1.5 p-6">
-				<h3 class="text-2xl font-semibold leading-none tracking-tight">{m.appearance()}</h3>
-				<p class="text-muted-foreground text-sm">{m.customize_appearance()}</p>
+		<div class="mt-4 bg-card text-card-foreground rounded-lg border shadow-sm">
+			<div class={cn("flex flex-col gap-1 p-4 bg-gray-50",
+				$userSettings.theme === 'DARK' ? "bg-gray-500 bg-opacity-10" : "bg-gray-50"
+			)}>
+				<h3 class="fz-ms4 font-semibold leading-none">{m.appearance()}</h3>
+				<!-- <p class="fz-ms2 text-muted-foreground">{m.customize_appearance()}</p> -->
 			</div>
 			<Separator />
-			<div class="p-6">
-				<div class="flex items-center justify-between">
+			<div class="p-4">
+				<div class="flex items-center justify-between gap-4">
 					<div class="space-y-0.5">
-						<Label>{m.dark_mode()}</Label>
-						<div class="text-sm text-muted-foreground">{m.dark_mode_description()}</div>
+						<Label class="text-[0.875rem]">{m.dark_mode()}</Label>
+						<div class="fz-ms1 min-[425px]:fz-ms2 text-muted-foreground">
+							{m.dark_mode_description()}
+						</div>
 					</div>
-					<Button variant="outline" size="icon" onclick={toggleDarkMode}>
+					<Button class={cn("!ring-0 focus:border-blue-500 flex-shrink-0 focus:text-blue-600",
+						$userSettings.theme === 'DARK' ? "hover:bg-gray-500 hover:bg-opacity-10 focus:bg-gray-500 focus:bg-opacity-10" : "hover:bg-blue-50 focus:bg-blue-50"
+					)}
+					variant="outline" size="icon" onclick={toggleDarkMode}>
 						<Icon src={currentTheme === 'DARK' ? Sun : Moon} class="h-5 w-5" />
 					</Button>
 				</div>
@@ -222,20 +242,22 @@
 		</div>
 
 		<!-- Notification Settings -->
-		<div class="bg-card text-card-foreground rounded-lg border shadow-sm">
-			<div class="flex flex-col space-y-1.5 p-6">
-				<h3 class="text-2xl font-semibold leading-none tracking-tight">{m.notifications()}</h3>
-				<p class="text-muted-foreground text-sm">{m.manage_notifications()}</p>
+		<div class="mt-4 bg-card text-card-foreground rounded-lg border shadow-sm">
+			<div class={cn("flex flex-col gap-1 p-4 bg-gray-50",
+				$userSettings.theme === 'DARK' ? "bg-gray-500 bg-opacity-10" : "bg-gray-50"
+			)}>
+				<h3 class="fz-ms4 font-semibold leading-none">{m.notifications()}</h3>
+				<!-- <p class="fz-ms2 text-muted-foreground">{m.manage_notifications()}</p> -->
 			</div>
 			<Separator />
-			<div class="p-6 space-y-4">
-				<div class="flex items-center justify-between">
+			<div class="p-4 space-y-4">
+				<div class="flex items-center justify-between gap-4">
 					<div class="space-y-0.5">
 						<div class="flex items-center gap-2">
-							<Label>{m.email_notifications()}</Label>
+							<Label class="text-[0.875rem]">{m.email_notifications()}</Label>
 							<Badge variant="secondary" class="text-xs">Soon</Badge>
 						</div>
-						<div class="text-sm text-muted-foreground">
+						<div class="fz-ms1 min-[425px]:fz-ms2 text-muted-foreground">
 							{m.email_notifications_description()}
 						</div>
 					</div>
@@ -246,13 +268,13 @@
 					/>
 				</div>
 				<Separator />
-				<div class="flex items-center justify-between">
+				<div class="flex items-center justify-between gap-4">
 					<div class="space-y-0.5">
 						<div class="flex items-center gap-2">
-							<Label>{m.push_notifications()}</Label>
+							<Label class="text-[0.875rem]">{m.push_notifications()}</Label>
 							<Badge variant="secondary" class="text-xs">Soon</Badge>
 						</div>
-						<div class="text-sm text-muted-foreground">
+						<div class="fz-ms1 min-[425px]:fz-ms2 text-muted-foreground">
 							{m.push_notifications_description()}
 						</div>
 					</div>
@@ -266,43 +288,47 @@
 		</div>
 
 		<!-- Account Settings -->
-		<div class="bg-card text-card-foreground rounded-lg border shadow-sm">
-			<div class="flex flex-col space-y-1.5 p-6">
-				<h3 class="text-2xl font-semibold leading-none tracking-tight">{m.account_settings()}</h3>
-				<p class="text-muted-foreground text-sm">{m.manage_account()}</p>
+		<div class="mt-4 bg-card text-card-foreground rounded-lg border shadow-sm">
+			<div class={cn("flex flex-col gap-1 p-4 bg-gray-50",
+				$userSettings.theme === 'DARK' ? "bg-gray-500 bg-opacity-10" : "bg-gray-50"
+			)}>
+				<h3 class="fz-ms4 font-semibold leading-none">{m.account_settings()}</h3>
+				<!-- <p class="fz-ms2 text-muted-foreground">{m.manage_account()}</p> -->
 			</div>
 			<Separator />
-			<div class="p-6 space-y-4">
-				<div class="space-y-2">
-					<Label>{m.language()}</Label>
+			<div class="p-4 flex flex-col gap-4">
+					<Label class="text-[0.75rem] min-[425px]:text-[0.875rem]">{m.language()}</Label>
 					<Select.Root
 						type="single"
 						value={$userSettings.language}
 						onValueChange={(value: string) => handleLanguageChange(value as AvailableLanguageTag)}
 					>
-						<Select.Trigger class="w-[180px]">
+						<Select.Trigger class={cn("w-[180px] !ring-0focus:border-blue-500 focus:text-blue-500",
+							$userSettings.theme === 'DARK' ? "hover:bg-gray-500 hover:bg-opacity-10 focus:bg-gray-500 focus:bg-opacity-10" : "hover:bg-blue-50 focus:bg-blue-50"
+						)}>
 							<div class="flex items-center">
 								{#if $userSettings.language === 'en'}
-									<span>English</span>
+									<span class="fz-ms2">English</span>
 								{:else if $userSettings.language === 'nl'}
-									<span>Nederlands</span>
+									<span class="fz-ms2">Nederlands</span>
 								{:else}
-									<span>Français</span>
+									<span class="fz-ms2">Français</span>
 								{/if}
 							</div>
 						</Select.Trigger>
 						<Select.Content>
-							<Select.Item value="en">English</Select.Item>
-							<Select.Item value="nl">Nederlands</Select.Item>
-							<Select.Item value="fr">Français</Select.Item>
+							<Select.Item class="text-[0.875rem]" value="en">English</Select.Item>
+							<Select.Item class="text-[0.875rem]" value="nl">Nederlands</Select.Item>
+							<Select.Item class="text-[0.875rem]" value="fr">Français</Select.Item>
 						</Select.Content>
 					</Select.Root>
-				</div>
 			</div>
 		</div>
 
 		<!-- Branding -->
-		<div class="pt-8 px-4 flex justify-center">
+		<div class={cn("pt-8 px-4 flex justify-center",
+			$isMobileView ? "mb-6" : "-mb-6"
+		)}>
 			<div class="u-brandgrid">
 				<a href={"https://www.zwemfed.be"}>
 					<img src={isDarkMode ? zfLogoDark : zfLogoLight} alt={"Zwemfed"} />
@@ -330,16 +356,18 @@
 		row-gap: 2rem;
 		justify-items: center;
 		align-items: center;
-		max-width: 800px;
+		max-width: min(100%, 288px);
 
-		@media (width > 425px) {
+		@media (width > 576px) {
 			max-height: 80px;
 			grid-template-columns: repeat(4, 1fr);
 			column-gap: 2rem;
+			max-width: 800px;
 		}
 
 		@media (width > 768px) {
 			column-gap: 3.6rem;
+			max-width: 800px;
 		}
 	}
 </style>
