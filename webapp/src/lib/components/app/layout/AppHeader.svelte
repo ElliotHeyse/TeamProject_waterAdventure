@@ -87,11 +87,23 @@
 
 	// Get children from the current page data
 	const data = $state(page.data);
-	const children = $state<Pupil[]>(data.parentUser.parent.pupils);
+	let children = $state<Pupil[]>([]);
 	let selectedChildId = $state($selectedChildIdStore);
-	let selectedChild = $state(
-		children.find((child) => child.id === selectedChildId) || children[0] || null
-	);
+	let selectedChild = $state<Pupil | null>(null);
+
+	// Update children and selected child when data changes
+	$effect(() => {
+		children = data?.parentUser?.parent?.pupils || [];
+		selectedChild = children.find((child) => child.id === selectedChildId) || children[0] || null;
+	});
+
+	// Check if we're on a specific level page (numbers 1-7)
+	const isLevelPage = $derived(() => {
+		const path = page.url.pathname;
+		// Match only numbered level pages, accounting for optional language prefix
+		const levelPattern = /^(?:\/(?:nl|fr))?\/app\/levels\/\d+$/;
+		return levelPattern.test(path);
+	});
 
 	async function handleChildSelect(childId: string) {
 		selectedChildIdStore.set(childId);
@@ -184,21 +196,27 @@
 				</button>
 
 				<DropdownMenu.Root>
-					<DropdownMenu.Trigger>
-						<Button variant="ghost" size="sm" class="flex items-center h-8 gap-2 px-3 border">
+
+					<DropdownMenu.Trigger disabled={isLevelPage()}>
+						<Button variant="ghost" size="sm" class={cn(
+							"flex items-center gap-2 px-3 h-8 border",
+							isLevelPage() && "opacity-50 cursor-not-allowed"
+						)}>
 							<span class="text-sm font-medium">{selectedChild?.name || 'Select child'}</span>
 							<ChevronDown class="w-4 h-4" />
 						</Button>
 					</DropdownMenu.Trigger>
-					<DropdownMenu.Content class="w-56">
-						<DropdownMenu.Label>Children</DropdownMenu.Label>
-						<DropdownMenu.Separator />
-						{#each children as child}
-							<DropdownMenu.Item onclick={() => handleChildSelect(child.id)}>
-								{child.name}
-							</DropdownMenu.Item>
-						{/each}
-					</DropdownMenu.Content>
+					{#if !isLevelPage()}
+						<DropdownMenu.Content class="w-56">
+							<DropdownMenu.Label>Children</DropdownMenu.Label>
+							<DropdownMenu.Separator />
+							{#each children as child}
+								<DropdownMenu.Item onclick={() => handleChildSelect(child.id)}>
+									{child.name}
+								</DropdownMenu.Item>
+							{/each}
+						</DropdownMenu.Content>
+					{/if}
 				</DropdownMenu.Root>
 			</div>
 		</div>

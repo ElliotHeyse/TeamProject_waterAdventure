@@ -3,32 +3,42 @@ import type { PageServerLoad } from './$types';
 import { prisma } from '$lib/server/db';
 
 export const load: PageServerLoad = async ({ locals }) => {
-    // Get the parent with their coach
-    const parent = await prisma.parent.findUnique({
-        where: { userId: locals.user?.id },
+    if (!locals.user) {
+        throw error(401, 'Unauthorized');
+    }
+
+    // Get the parent user with all necessary data
+    const parentUser = await prisma.user.findUnique({
+        where: { id: locals.user.id },
         include: {
-            user: true,
-            Coach: {
+            parent: {
                 include: {
-                    user: true
+                    pupils: true,
+                    Coach: {
+                        include: {
+                            user: true
+                        }
+                    }
                 }
-            }
+            },
+            settings: true,
+            notifications: true
         }
     });
 
-    if (!parent) {
+    if (!parentUser || !parentUser.parent) {
         throw error(404, 'Parent not found');
     }
 
-    if (!parent.Coach) {
+    if (!parentUser.parent.Coach) {
         throw error(404, 'No coach assigned');
     }
 
     // Get messages between parent and coach
     const messages = await prisma.message.findMany({
         where: {
-            parentId: parent.id,
-            coachId: parent.Coach.id
+            parentId: parentUser.parent.id,
+            coachId: parentUser.parent.Coach.id
         },
         orderBy: {
             createdAt: 'asc'
@@ -47,9 +57,25 @@ export const load: PageServerLoad = async ({ locals }) => {
         }
     });
 
+    // Format the parent user data to match the expected structure
+    const parentUserTrimmed = {
+        id: parentUser.id,
+        email: parentUser.email,
+        name: parentUser.name,
+        parent: {
+            id: parentUser.parent.id,
+            phone: parentUser.parent.phone,
+            coachId: parentUser.parent.Coach.id,
+            pupils: parentUser.parent.pupils,
+            messages: messages
+        },
+        settings: parentUser.settings,
+        notifications: parentUser.notifications
+    };
+
     return {
-        parent,
-        coach: parent.Coach,
+        parentUser: parentUserTrimmed,
+        coach: parentUser.parent.Coach,
         messages
     };
 };
@@ -89,4 +115,4 @@ export const actions = {
 
         return { message };
     }
-}; 
+};
