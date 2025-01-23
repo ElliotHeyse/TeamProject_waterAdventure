@@ -87,11 +87,15 @@
 
 	// Get children from the current page data
 	const data = $state(page.data);
-	const children = $state<Pupil[]>(data.parentUser.parent.pupils);
+	let children = $state<Pupil[]>([]);
 	let selectedChildId = $state($selectedChildIdStore);
-	let selectedChild = $state(
-		children.find((child) => child.id === selectedChildId) || children[0] || null
-	);
+	let selectedChild = $state<Pupil | null>(null);
+
+	// Update children and selected child when data changes
+	$effect(() => {
+		children = data?.parentUser?.parent?.pupils || [];
+		selectedChild = children.find((child) => child.id === selectedChildId) || children[0] || null;
+	});
 
 	// Check if we're on a specific level page (numbers 1-7)
 	const isLevelPage = $derived(() => {
