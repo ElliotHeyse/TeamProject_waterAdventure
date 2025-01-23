@@ -1,3 +1,6 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Sniglet:wght@400;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Sniglet:wght@400;800&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -74,5 +77,18 @@
 	}
 	body {
 		@apply bg-background text-foreground;
+		font-family: 'inter', sans-serif;
+	}
+
+	.font-sniglet-regular {
+		font-family: "Sniglet", serif;
+		font-weight: 400;
+		font-style: normal;
+	}
+
+	.font-sniglet-extrabold {
+		font-family: "Sniglet", serif;
+		font-weight: 800;
+		font-style: normal;
 	}
 }
