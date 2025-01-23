@@ -2,7 +2,15 @@
 	import { page } from '$app/state';
 	import { Button } from '$lib/components/coach/ui/button';
 	import { cn } from '$lib/components/coach/utils';
-	import { Home, User, Trophy, MessageSquare, Settings, LogOut } from 'lucide-svelte';
+	import {
+		HomeModern,
+		UserCircle,
+		AcademicCap,
+		ChatBubbleLeftRight,
+		Cog6Tooth,
+		ArrowRightOnRectangle,
+		Icon
+	} from 'svelte-hero-icons';
 	import * as m from '$lib/paraglide/messages';
 	import { onMount } from 'svelte';
 	import logo from '$lib/img/logo-dark.svg';
@@ -45,27 +53,19 @@
 	});
 
 	const navItems = [
-		{ href: '/app', icon: Home, label: 'Overview' },
-		{ href: '/app/levels', icon: Trophy, label: 'Levels' },
-		{ href: '/app/chat', icon: MessageSquare, label: 'Chat' },
-		{ href: '/app/settings', icon: Settings, label: 'Settings' }
+		{ href: '/app', icon: HomeModern, label: 'Overview' },
+		{ href: '/app/levels', icon: AcademicCap, label: 'Levels' },
+		{ href: '/app/chat', icon: ChatBubbleLeftRight, label: 'Chat' },
+		{ href: '/app/settings', icon: Cog6Tooth, label: 'Settings' }
 	];
 </script>
 
 <aside
-	class={cn(
-		'border-border bg-background/50 flex supports-[backdrop-filter]:bg-background/80 shadow-sm backdrop-blur transition-all duration-300',
-		$isMobileView
-			? 'border-t flex-grow-0'
-			: `sticky top-0 h-screen border-r flex-col ${$isSidebarOpen ? 'w-64' : 'w-16'}`
-	)}
+	class="border-border bg-background/50 supports-[backdrop-filter]:bg-background/80 sticky top-0 flex h-screen flex-col border-r shadow-sm backdrop-blur transition-all duration-300"
+	class:w-64={$isSidebarOpen}
+	class:w-16={!$isSidebarOpen}
 >
-	<div
-		class={cn(
-			'border-border flex h-16 items-center justify-between border-b px-4',
-			$isMobileView ? 'hidden' : ''
-		)}
-	>
+	<div class="border-border flex h-16 items-center justify-between border-b px-4">
 		{#if $isSidebarOpen}
 			<img src={isDarkMode ? logoLight : logo} alt="WaterAdventure" class="h-8" />
 		{:else}
@@ -75,62 +75,74 @@
 		{/if}
 	</div>
 
-	<nav class={cn('flex-1 space-y-1 p-2', $isMobileView ? 'flex justify-evenly' : '')}>
-		{#each navItems as { href, icon: Icon, label }}
-			{@const isActive =
-				page.url.pathname === href || (page.url.pathname.startsWith(href) && href !== '/app')}
-			<Button
-				variant={isActive ? 'secondary' : 'ghost'}
-				{href}
-				class={cn(
-					$isMobileView
-						? 'mobile style mt-1'
-						: `w-full justify-start ${$isSidebarOpen ? '' : 'justify-center px-2'}`
-				)}
-			>
-				<Icon class={cn('h-5 w-5', isActive ? 'text-primary' : 'text-muted-foreground')} />
-				{#if !$isMobileView && $isSidebarOpen}
-					<span class="ml-2">{label}</span>
-				{/if}
-			</Button>
-		{/each}
+	<nav class="flex-1 overflow-y-auto px-2 py-3">
+		<ul class="space-y-1">
+			{#each navItems as { href, icon, label }}
+				{@const currentPath = page.url.pathname.replace(/^\/[a-z]{2}(?=\/|$)/, '')}
+				{@const isActive =
+					(currentPath.startsWith(href) && href !== '/app') ||
+					(href === '/app' && currentPath === '/app')}
+				<li>
+					<a
+						{href}
+						class={{
+							'text-muted-foreground group flex items-center gap-x-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-150': true,
+							'bg-primary/10 text-primary': isActive
+						}}
+					>
+						<div
+							class="muted-foreground shrink-0 transition-colors"
+							class:text-primary={isActive}
+							class:group-hover:text-foreground={!isActive}
+						>
+							<Icon src={icon} class="h-5 w-5" />
+						</div>
+						{#if $isSidebarOpen}
+							<span class="truncate">{label}</span>
+						{/if}
+					</a>
+				</li>
+			{/each}
+		</ul>
 	</nav>
 
-	{#if !$isMobileView}
-		<div class="border-border mt-auto border-t px-3 py-3">
-			<DropdownMenu.Root>
-				<DropdownMenu.Trigger class="w-full">
-					{#if $isSidebarOpen}
-						<div class="bg-muted/80 flex items-center gap-3 rounded-lg px-3 py-2.5">
-							<div class="bg-primary/10 text-primary h-8 w-8 rounded-full">
-								<User class="h-8 w-8" />
-							</div>
-							<div class="min-w-0 flex-1">
-								<div class="text-foreground truncate text-sm font-medium">{parentName}</div>
-								<div class="text-muted-foreground truncate text-xs">Parent</div>
-							</div>
+	<div class="border-border mt-auto border-t px-3 py-3">
+		<DropdownMenu.Root>
+			<DropdownMenu.Trigger class="w-full">
+				{#if $isSidebarOpen}
+					<div class="bg-muted/80 flex items-center gap-3 rounded-lg px-3 py-2.5">
+						<div class="bg-primary/10 text-primary h-8 w-8 rounded-full">
+							<Icon src={UserCircle} class="h-8 w-8" />
 						</div>
-					{:else}
-						<div class="flex justify-center">
-							<div class="bg-primary/10 text-primary h-8 w-8 rounded-full">
-								<User class="h-8 w-8" />
-							</div>
+						<div class="min-w-0 flex-1">
+							<div class="text-foreground truncate text-sm font-medium">{parentName}</div>
+							<div class="text-muted-foreground truncate text-xs">Parent</div>
 						</div>
-					{/if}
-				</DropdownMenu.Trigger>
-				<DropdownMenu.Content class="w-56">
-					<DropdownMenu.Label>My Account</DropdownMenu.Label>
-					<DropdownMenu.Separator />
-					<DropdownMenu.Item onSelect={() => goto('/app/settings')} class="cursor-pointer">
-						<Settings class="mr-2 h-4 w-4" />
-						<span>Settings</span>
-					</DropdownMenu.Item>
-					<DropdownMenu.Item onSelect={handleLogout} class="cursor-pointer">
-						<LogOut class="mr-2 h-4 w-4" />
-						<span>Log out</span>
-					</DropdownMenu.Item>
-				</DropdownMenu.Content>
-			</DropdownMenu.Root>
-		</div>
-	{/if}
+					</div>
+				{:else}
+					<div class="flex justify-center">
+						<div class="bg-primary/10 text-primary h-8 w-8 rounded-full">
+							<Icon src={UserCircle} class="h-8 w-8" />
+						</div>
+					</div>
+				{/if}
+			</DropdownMenu.Trigger>
+			<DropdownMenu.Content class="w-56">
+				<DropdownMenu.Label>My Account</DropdownMenu.Label>
+				<DropdownMenu.Separator />
+				<DropdownMenu.Item onSelect={() => goto('/app/settings')} class="cursor-pointer">
+					<div class="shrink-0">
+						<Icon src={Cog6Tooth} class="mr-2 h-4 w-4" />
+					</div>
+					<span>Settings</span>
+				</DropdownMenu.Item>
+				<DropdownMenu.Item onSelect={handleLogout} class="cursor-pointer">
+					<div class="shrink-0">
+						<Icon src={ArrowRightOnRectangle} class="mr-2 h-4 w-4" />
+					</div>
+					<span>Log out</span>
+				</DropdownMenu.Item>
+			</DropdownMenu.Content>
+		</DropdownMenu.Root>
+	</div>
 </aside>
