@@ -18,7 +18,7 @@
 	import { browser } from '$app/environment';
 	import { Alert, AlertTitle, AlertDescription } from '$lib/components/coach/ui/alert';
 	import { userSettings } from '$lib/stores/userSettings';
-	import { CircleAlert } from 'lucide-svelte';
+	import { CircleAlert, LogOut } from 'lucide-svelte';
 	import { isMobileView } from '$lib/stores/viewport';
 	import { cn } from '$lib/components/coach/utils';
 
@@ -155,6 +155,10 @@
 
 		return () => darkModeObserver.disconnect();
 	});
+
+	async function handleLogout() {
+		await goto('/logout');
+	}
 </script>
 
 <div class="px-4">
@@ -163,11 +167,20 @@
 
 		<!-- Profile Settings -->
 		<div class="mt-4 bg-card text-card-foreground rounded-lg border shadow-sm">
-			<div class={cn("flex flex-col gap-1 p-4",
+			<div class={cn("flex justify-between items-start gap-2 p-4",
 				$userSettings.theme === 'DARK' ? "bg-gray-500 bg-opacity-10" : "bg-gray-50"
 			)}>
-				<h3 class="fz-ms4 font-semibold leading-none">{m.profile_settings()}</h3>
-				<p class="fz-ms2 text-muted-foreground">{m.manage_personal_info()}</p>
+				<div class="flex flex-col gap-1">
+					<h3 class="fz-ms4 font-semibold leading-none">{m.profile_settings()}</h3>
+					<p class="fz-ms2 text-muted-foreground">{m.manage_personal_info()}</p>
+				</div>
+				<Button class={cn("flex items-center p-3 h-auto !ring-0 focus:border-blue-500 flex-shrink-0 focus:text-blue-600",
+					$userSettings.theme === 'DARK' ? "hover:bg-gray-500 hover:bg-opacity-10 focus:bg-gray-500 focus:bg-opacity-10" : "hover:bg-blue-50 focus:bg-blue-50"
+				)}
+				variant="outline" onclick={handleLogout}>
+					<LogOut class="w-5 h-5 m-auto" />
+					<span class="max-[374px]:fz-ms1 hidden min-[320px]:block min-[375px]:fz-ms2 min-[425px]:text-[1rem]">Log out</span>
+				</Button>
 			</div>
 			<Separator />
 			<form method="POST" action="?/updateProfile" class="p-4 flex flex-col gap-4" onsubmit={handleSubmit}>
@@ -224,7 +237,7 @@
 			</div>
 			<Separator />
 			<div class="p-4">
-				<div class="flex items-center justify-between gap-4">
+				<div class="flex items-center justify-between gap-2">
 					<div class="space-y-0.5">
 						<Label class="text-[0.875rem]">{m.dark_mode()}</Label>
 						<div class="fz-ms1 min-[425px]:fz-ms2 text-muted-foreground">
