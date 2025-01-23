@@ -56,7 +56,7 @@
 	class={cn(
 		'border-border bg-background/50 flex supports-[backdrop-filter]:bg-background/80 shadow-sm backdrop-blur transition-all duration-300 z-40',
 		$isMobileView
-			? 'border-t flex-grow-0'
+			? 'border-t flex-grow-0 pb-2'
 			: `sticky top-0 h-screen border-r flex-col items-start ${$isSidebarOpen ? 'w-64' : 'w-16'}`
 	)}
 >
@@ -95,28 +95,28 @@
 	</nav>
 
 	{#if !$isMobileView}
-		<div class="px-3 py-3 mt-auto border-t border-border">
+		<div class="w-full px-1 py-1 border-t border-border">
 			<DropdownMenu.Root>
-				<DropdownMenu.Trigger class="w-full">
+				<DropdownMenu.Trigger class="w-full h-16">
 					{#if $isSidebarOpen}
-						<div class="bg-muted/80 flex items-center gap-3 rounded-lg px-3 py-2.5">
-							<div class="w-8 h-8 rounded-full bg-primary/10 text-primary">
+						<div class="flex items-center justify-start w-full gap-3 py-3 pl-3 rounded-lg bg-muted/80">
+							<div class="flex justify-center w-8 h-8 rounded-full bg-primary/10 text-primary align-center">
 								<User class="w-8 h-8" />
 							</div>
-							<div class="flex-1 min-w-0">
+							<div class="flex flex-col items-start flex-1 min-w-0 align-start">
 								<div class="text-sm font-medium truncate text-foreground">{parentName}</div>
 								<div class="text-xs truncate text-muted-foreground">Parent</div>
 							</div>
 						</div>
 					{:else}
-						<div class="flex justify-center">
-							<div class="w-8 h-8 rounded-full bg-primary/10 text-primary">
-								<User class="w-8 h-8" />
-							</div>
+					<div class="flex items-center justify-start w-full gap-3 py-3 pl-3 rounded-lg">
+						<div class="flex justify-center w-8 h-8 rounded-full bg-primary/10 text-primary align-center">
+							<User class="w-8 h-8" />
 						</div>
+					</div>
 					{/if}
 				</DropdownMenu.Trigger>
-				<DropdownMenu.Content class="w-56">
+				<DropdownMenu.Content class="w-56 ml-2">
 					<DropdownMenu.Label>My Account</DropdownMenu.Label>
 					<DropdownMenu.Separator />
 					<DropdownMenu.Item onSelect={() => goto('/app/settings')} class="cursor-pointer">
