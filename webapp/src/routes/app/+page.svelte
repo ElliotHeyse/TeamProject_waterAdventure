@@ -113,7 +113,7 @@
 	class="w-full cursor-pointer "
 	onclick={() => goto("/app/levels")}
 	type="button">
-		<div class={cn("flex flex-col items-center gap-4 p-6 bg-blue-100",
+		<div class={cn("flex flex-col items-center gap-4 p-6 bg-blue-100 hover:bg-blue-200 transition-colors duration-200",
 			$isMobileView ? "" : "items-start px-8"
 		)}>
 			<div class={cn("flex flex-col items-center gap-2",
@@ -154,41 +154,6 @@
 		</div>
 	</button>
 
-	<!-- Temporary responsive visual helper -->
-	<!-- <div class="p-4 m-4 flex flex-col items-center justify-center
-		bg-black
-		min-[320px]:bg-gray-500
-		min-[375px]:bg-green-500
-		min-[425px]:bg-blue-500
-		min-[768px]:bg-purple-500
-		min-[1024px]:bg-yellow-500
-		min-[1440px]:bg-red-500
-		min-[2560px]:bg-cyan-500"
-	>
-		<p class={cn("text-white",
-			$isMobileView ? "block" : "hidden"
-		)}>
-			mobile view
-		</p>
-		<p class={cn("text-white",
-			$isMobileView ? "hidden" : `${$isSidebarOpen ? "block" : "hidden"}`)}>
-			desktop view - sidebar OPEN
-		</p>
-		<p class={cn("text-white",
-			$isMobileView ? "hidden" : `${$isSidebarOpen ? "hidden" : "block"}`)}>
-			desktop view - sidebar CLOSED
-		</p>
-
-		<p class="min-[320px]:hidden flex gap-4 text-white">{"none => < 320px"}</p>
-		<p class="hidden min-[320px]:block min-[375px]:hidden flex gap-4 text-white">{"width: min-[320px] => 320+ px"}</p>
-		<p class="hidden min-[375px]:block min-[425px]:hidden flex gap-4 text-white">{"width: min-[375px] => 375+ px"}</p>
-		<p class="hidden min-[425px]:block min-[768px]:hidden flex gap-4 text-white">{"width: min-[425px] => 425+ px"}</p>
-		<p class="hidden min-[768px]:block min-[1024px]:hidden flex gap-4 text-white">{"width: min-[768px] => 768+ px"}</p>
-		<p class="hidden min-[1024px]:block min-[1440px]:hidden flex gap-4 text-white">{"width: min-[1024px] => 1024+ px"}</p>
-		<p class="hidden min-[1440px]:block min-[2560px]:hidden flex gap-4 text-white">{"width: min-[1440px] => 1440+ px"}</p>
-		<p class="hidden min-[2560px]:block flex gap-4 text-white">{"width: min-[2560px] => 2560+ px"}</p>
-	</div> -->
-
 	<div class="flex flex-col gap-6 px-4 py-6 m-0">
 		<!-- Next level -->
 		{#if selectedChild.progress < TOTAL_LEVELS}
@@ -217,7 +182,7 @@
 				</div>
 				<div class="mt-[-27.6px] min-[375px]:mt-[-30.6px] flex justify-center min-[425px]:mt-[-33.6px] min-[768px]:mt-[-92.6px] min-[768px]:justify-end mr-6">
 					<button
-					class="px-4 py-2 bg-blue-500 border-[2px] rounded-[20px] border-white cursor-pointer text-blue-50 font-sniglet-extrabold fz-ms6 min-[375px]:fz-ms7 min-[425px]:fz-ms8"
+					class="px-4 py-2 bg-blue-500 hover:bg-blue-600 border-[2px] rounded-[20px] border-white cursor-pointer text-blue-50 font-sniglet-extrabold fz-ms6 min-[375px]:fz-ms7 min-[425px]:fz-ms8 transition-colors duration-200"
 					onclick={() => goto(`/app/levels/${selectedChild.progress + 1}`)}
 					type="button">
 						START
@@ -294,7 +259,7 @@
 									</div>
 									<a href="/app/levels/{notification.levelNumber}#feedback" class={cn("border-border border-l my-1 flex items-start flex-1 transition-all duration-300", notification.isBodyHidden ? "hidden" : "block")}>
 										<div class="h-full flex justify-start ml-6 min-[768px]:ml-0 px-2 py-1 mr-1 bg-blue-50 rounded border border-solid border-opacity-0 hover:border-opacity-100 hover:border-blue-500 transition-all duration-300">
-											<p class="text-left text-[14px] leading-[150%] text-main break-words transition-all duration-300">
+											<p class="text-left break-words transition-all duration-300 fz-ms1 text-main">
 												{notification.body}
 											</p>
 										</div>
