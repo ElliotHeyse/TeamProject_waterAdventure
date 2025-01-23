@@ -187,8 +187,8 @@
 				</div>
 				<div class="w-full flex justify-center px-4 pt-6 pb-8 bg-blue-950 rounded-[20px] min-[768px]:pt-8 min-[768px]:justify-start min-[768px]:pl-6">
 					<span class="text-center text-blue-500 font-sniglet-regular fz-ms6 min-[375px]:fz-ms7 min-[425px]:fz-ms9 min-[768px]:text-left">
-						<!-- {data.levels[selectedChild.progress].languageContents[0].title} -->
-						<p>Aquatisch ademen: vervolg</p>
+						{data.levels[selectedChild.progress].languageContents[0].title}
+						<!-- <p>Aquatisch ademen: vervolg</p> -->
 						<!-- Lorem ipsum dolor sit amet consectetur, adipisicing elit. -->
 						<!-- titel vak is 118px high -->
 						<!-- button is 67.2px high-->
