@@ -92,15 +92,29 @@
 		});
 	}
 
-	const markNotificationAsRead = function (notificationId: string) {
-		// Frontend: update read status, might be obsolete if new fetch is implemented
+	const markNotificationAsRead = async function (notificationId: string) {
+		// Frontend: update read status
 		const notification = notifications.find(notification => notification.id === notificationId);
 		if (notification) {
 			notification.isRead = true;
 		}
 
-		// TODO: update the notification isRead status in the database
-		// using new store and/or API ?
+		// Update in the database
+		try {
+			const response = await fetch('/api/notifications/mark-read', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json'
+				},
+				body: JSON.stringify({ notificationId })
+			});
+
+			if (!response.ok) {
+				console.error('Failed to mark notification as read');
+			}
+		} catch (error) {
+			console.error('Error marking notification as read:', error);
+		}
 	}
 </script>
 
