@@ -132,16 +132,16 @@
 	}
 </script>
 
-<div class="px-4 py-4 lg:px-8">
+<div class="mb-[-3.5rem]">
 	<div class="min-h-screen bg-background">
-		<h1 class="text-center text-4xl font-bold text-foreground pt-4 pb-6">Swimming Levels</h1>
+		<!-- <h1 class="pt-4 pb-6 text-4xl font-bold text-center text-foreground">Swimming Levels</h1> -->
 
-		<div class="w-full overflow-hidden flex items-center justify-center relative">
-			<img src={g10} alt="Level background" class="w-full h-full object-contain" />
+		<div class="relative flex flex-col items-center justify-center w-full overflow-hidden mt-[-2.8vw]">
+			<img src={g10} alt="Level background" class="object-contain w-full h-full" />
 			<div class="absolute inset-0 w-full h-full">
 				{#each pageLevels as level}
 					<button
-						class="absolute transform -translate-x-1/2 -translate-y-1/2 transition-all duration-300 hover:scale-110 focus:outline-none"
+						class="absolute transition-all duration-300 transform -translate-x-1/2 -translate-y-1/2 hover:scale-110 focus:outline-none"
 						style="left: {level.x}%; top: {level.y}%;"
 						onclick={(e) => handleLevelClick(level, e)}
 					>
@@ -155,10 +155,12 @@
 							{level.status === 'locked' ? 'opacity-60' : 'opacity-100'}
 							{$isMobileView ? 'w-[min(12vw,12rem)] h-[min(12vw,12rem)]' : 'w-[min(8vw,8rem)] h-[min(8vw,8rem)]'}"
 						>
+							<!-- <span
+								class="text-white drop-shadow-md font-sniglet-regular fz-ms3 min-[320px]:fz-ms4 min-[425px]:font-sniglet-extrabold"> -->
 							<span
-								class="text-white font-bold drop-shadow-md {$isMobileView
-									? 'text-[min(3vw,3rem)]'
-									: 'text-[min(2vw,2rem)]'}"
+								class="text-white drop-shadow-md font-sniglet-regular {$isMobileView
+									? 'text-[min(5vw,1.75rem)]'
+									: 'text-[min(3.5vw,2.25rem)]'}"
 							>
 								{level.id}
 							</span>
@@ -176,12 +178,12 @@
 
 					{#if showAlert && clickedLevelId === level.id}
 						<div
-							class="absolute z-50 w-72 transition-opacity animate-in fade-in-0 duration-300"
+							class="absolute z-50 transition-opacity duration-300 w-72 animate-in fade-in-0"
 							style="left: {level.x + 5}%; top: {level.y}%; transform: translateY(-50%);"
 						>
-							<div class="bg-background text-foreground rounded-lg border shadow-lg p-4 space-y-2">
-								<div class="flex items-center gap-2 text-primary font-medium">
-									<CircleAlert class="h-4 w-4" />
+							<div class="p-4 space-y-2 border rounded-lg shadow-lg bg-background text-foreground">
+								<div class="flex items-center gap-2 font-medium text-primary">
+									<CircleAlert class="w-4 h-4" />
 									<span>Level Locked</span>
 								</div>
 								<p class="text-sm text-muted-foreground">{alertMessage}</p>

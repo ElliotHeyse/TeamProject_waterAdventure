@@ -3,6 +3,7 @@
 	import { goto } from '$app/navigation';
 	import { selectedChildIdStore } from '$lib/stores/child.store';
 	import { isMobileView } from '$lib/stores/viewport';
+	import { isSidebarOpen } from '$lib/stores/sidebar';
 	import { cn } from '$lib/components/coach/utils';
 	// import { notifications } from '$lib/paraglide/messages';
 	import type { ParentUser, Level, Pupil, UserNotification } from './types';
@@ -16,6 +17,7 @@
 	import badge5 from '$lib/img//progressBadges/badge-level-5.svg';
 	import badge6 from '$lib/img//progressBadges/badge-level-6.svg';
 	import badge7 from '$lib/img//progressBadges/badge-level-7.svg';
+	import { is } from 'date-fns/locale';
 	const badges = [badge0, badge1, badge2, badge3, badge4, badge5, badge6, badge7];
 
 	interface FrontendNotification {
@@ -108,16 +110,20 @@
 	{#if selectedChild}
 	<!-- Progress banner -->
 	<button
-	class="cursor-pointer w-full "
+	class="w-full cursor-pointer "
 	onclick={() => goto("/app/levels")}
 	type="button">
-		<div class="bg-blue-100 flex flex-col gap-4 p-6 items-center">
-			<div class="flex flex-col gap-2 items-center">
+		<div class={cn("flex flex-col items-center gap-4 p-6 bg-blue-100 hover:bg-blue-200 transition-colors duration-200",
+			$isMobileView ? "" : "items-start px-8"
+		)}>
+			<div class={cn("flex flex-col items-center gap-2",
+				$isMobileView ? "" : "flex-row gap-8"
+			)}>
 				<div>
 					<img src={badge()} alt="Progress badge">
 				</div>
-				<div>
-					<h1 class="text-[28px] leading-[120%] text-main">
+				<div class={cn($isMobileView ? "" : "mt-[3px]")}>
+					<h1 class="text-main font-sniglet-regular fz-ms6 min-[320px]:fz-ms7 min-[375px]:fz-ms8">
 						{#if [0, 1, 2].includes(selectedChild.progress)}
 							BEGINNER
 						{:else if [3, 4, 5].includes(selectedChild.progress)}
@@ -131,16 +137,16 @@
 			<div class="w-full flex flex-col gap-[4px]">
 				<div class="flex justify-between">
 					<div>
-						<span class="text-sm text-gray-500">Level</span>
+						<span class="text-gray-500 fz-ms2 min-[375px]:fz-ms3">Level</span>
 					</div>
 					<div class="flex gap-0">
-						<span class="text-sm text-main font-bold">{selectedChild.progress}</span>
-						<span class="text-sm text-gray-500">/{TOTAL_LEVELS}</span>
+						<span class="font-bold text-main fz-ms2 min-[375px]:fz-ms3">{selectedChild.progress}</span>
+						<span class="text-gray-500 fz-ms2 min-[375px]:fz-ms3">/{TOTAL_LEVELS}</span>
 					</div>
 				</div>
-				<div class="h-2 w-full rounded-full bg-muted">
+				<div class="w-full h-2 rounded-full bg-muted">
 					<div
-						class="h-full rounded-full bg-blue-500 transition-all"
+						class="h-full transition-all bg-blue-500 rounded-full"
 						style="width: {(selectedChild.progress / TOTAL_LEVELS) * 100}%"
 					></div>
 				</div>
@@ -148,26 +154,35 @@
 		</div>
 	</button>
 
-	<div class="flex flex-col gap-6 py-6 px-4 m-0">
+	<div class="flex flex-col gap-6 px-4 py-6 m-0">
 		<!-- Next level -->
 		{#if selectedChild.progress < TOTAL_LEVELS}
 		<div class="flex flex-col gap-3">
-			<div class="flex gap-3">
-				<h2 class="text-[20px] leading-[150%] text-main font-semibold">Next</h2>
-				<span class="w-full border-b-2 border-gray-300 h-4 "></span>
-			</div>
-			<div class="flex flex-col align-center">
-				<div class="mb-[-12.5px] z-10">
-					<span class="ml-6 px-3 py-[2px] border border-white bg-blue-200 rounded-lg text-[14px] leading-[150%] text-blue-950 font-medium">Level {selectedChild.progress+1}</span>
+			<div class="flex items-center gap-3">
+				<h2 class="font-semibold text-main fz-ms3 min-[320px]:fz-ms4 min-[375px]:fz-ms5">Next</h2>
+				<div class="grid w-full h-6 grid-rows-[1fr_1fr]">
+					<div class="w-full h-full border-gray-300 border-b-[0.5px]"></div>
+					<div class="w-full h-full border-t-[0.5px] border-gray-300"></div>
 				</div>
-				<div class="w-full flex justify-center pt-6 pb-8 bg-blue-950 rounded-[20px]">
-					<span class="text-[36px] leading-[150%] text-blue-500">
-						{data.levels[selectedChild.progress].languageContents[0].title}
+			</div>
+			<div class="flex flex-col align-center min-[768px]:mb-6">
+				<div class="z-10 mb-[-11px]">
+					<span class="ml-6 px-3 py-[2px] border border-white bg-blue-200 rounded-lg text-blue-950 font-medium fz-ms1 min-[320px]:fz-ms2">
+						Level {selectedChild.progress+1}
 					</span>
 				</div>
-				<div class="mt-[-26.4px] flex justify-center">
+				<div class="w-full flex justify-center px-4 pt-6 pb-8 bg-blue-950 rounded-[20px] min-[768px]:pt-8 min-[768px]:justify-start min-[768px]:pl-6">
+					<span class="text-center text-blue-500 font-sniglet-regular fz-ms6 min-[375px]:fz-ms7 min-[425px]:fz-ms9 min-[768px]:text-left">
+						<!-- {data.levels[selectedChild.progress].languageContents[0].title} -->
+						<p>Aquatisch ademen: vervolg</p>
+						<!-- Lorem ipsum dolor sit amet consectetur, adipisicing elit. -->
+						<!-- titel vak is 118px high -->
+						<!-- button is 67.2px high-->
+					</span>
+				</div>
+				<div class="mt-[-27.6px] min-[375px]:mt-[-30.6px] flex justify-center min-[425px]:mt-[-33.6px] min-[768px]:mt-[-92.6px] min-[768px]:justify-end mr-6">
 					<button
-					class="cursor-pointer bg-green-500 px-4 py-2 text-[28px] leading-[120%] font-extrabold text-green-100 border-2 border-white rounded-[20px]"
+					class="px-4 py-2 bg-blue-500 hover:bg-blue-600 border-[2px] rounded-[20px] border-white cursor-pointer text-blue-50 font-sniglet-extrabold fz-ms6 min-[375px]:fz-ms7 min-[425px]:fz-ms8 transition-colors duration-200"
 					onclick={() => goto(`/app/levels/${selectedChild.progress + 1}`)}
 					type="button">
 						START
@@ -179,12 +194,12 @@
 
 		<!-- Notifications -->
 		<div class="flex flex-col gap-3">
-			<div>
-				<div class="flex gap-3">
-					<h2 class="text-[20px] leading-[150%] text-main font-semibold">Notifications</h2>
-					<span class="w-full border-b-2 border-gray-300 h-4 "></span>
+			<div class="flex items-center gap-3">
+				<h2 class="font-semibold text-main fz-ms3 min-[320px]:fz-ms4 min-[375px]:fz-ms5">Notifications</h2>
+				<div class="grid w-full h-6 grid-rows-[1fr_1fr]">
+					<div class="w-full h-full border-gray-300 border-b-[0.5px]"></div>
+					<div class="w-full h-full border-t-[0.5px] border-gray-300"></div>
 				</div>
-				<span class="text-[14px] leading-[140%] text-gray-500">You have 2 unread messages.</span>
 			</div>
 			{#if notifications.length != 0}
 				<div class="flex flex-col gap-3">
@@ -192,7 +207,7 @@
 						{#if notification.type === "MESSAGE"}
 							<!-- Message notification (link to chat page) -->
 							<button
-							class="cursor-pointer w-full rounded hover:bg-blue-100"
+							class="w-full rounded cursor-pointer hover:bg-blue-100"
 							onclick={() => {
 								resetOtherNotificationBodies(notification.id);
 								markNotificationAsRead(notification.id);
@@ -203,7 +218,7 @@
 								<div class="flex gap-4 px-2 py-[6px]">
 									<div class={cn("mt-2 h-2 w-2 bg-blue-500 rounded-full",
 										notification.isRead ? "opacity-0" : "opacity-100")}></div>
-									<div class="w-full flex flex-col items-start gap-1">
+									<div class="flex flex-col items-start w-full gap-1">
 										<span class="text-[14px] leading-[150%] font-medium text-main">You have a new message</span>
 										<span class="text-[14px] leading-[150%] text-gray-500">
 											{formatTimeAgo(notification.timestamp)}
@@ -228,22 +243,25 @@
 								}
 							}}
 							type="button">
-								<div class="pb-1 transition-all duration-300">
-									<div class="flex gap-4 px-2 py-[6px]">
+								<div class="flex flex-col min-[768px]:flex-row min-[768px]:gap-1 transition-all duration-300">
+									<div class="flex gap-4 px-2 py-[6px] min-[768px]:flex-shrink-0">
 										<div class={cn("mt-2 h-2 w-2 bg-blue-500 rounded-full",
 											notification.isRead ? "opacity-0" : "opacity-100")}></div>
-										<div class="w-full flex flex-col items-start gap-1">
-											<span class="text-[14px] leading-[150%] font-medium text-main">New feedback: Level {notification.levelNumber}</span>
-											<span class="text-[14px] leading-[150%] text-gray-500">
+										<div class="flex flex-col items-start gap-1">
+											<span class="text-left text-[14px] leading-[150%] font-medium text-main">
+												New feedback: Level {notification.levelNumber}
+											</span>
+											<span class="text-left text-[14px] leading-[150%] text-gray-500">
 												{formatTimeAgo(notification.timestamp)}
+												<!-- update formatTimeAgo() logic -->
 											</span>
 										</div>
 									</div>
-									<a href="/app/levels/{notification.levelNumber}#feedback">
-										<div class={cn("flex justify-start ml-6 px-2 py-1 mr-1 bg-blue-50 rounded border border-solid border-opacity-0 hover:border-opacity-100 hover:border-blue-500 transition-all duration-300",
-											notification.isBodyHidden ? "hidden" : "block"
-										)}>
-											<p class="text-left text-[14px] leading-[150%] text-main">{notification.body}</p>
+									<a href="/app/levels/{notification.levelNumber}#feedback" class={cn("border-border border-l my-1 flex items-start flex-1 transition-all duration-300", notification.isBodyHidden ? "hidden" : "block")}>
+										<div class="h-full flex justify-start ml-6 min-[768px]:ml-0 px-2 py-1 mr-1 bg-blue-50 rounded border border-solid border-opacity-0 hover:border-opacity-100 hover:border-blue-500 transition-all duration-300">
+											<p class="text-left break-words transition-all duration-300 fz-ms1 text-main">
+												{notification.body}
+											</p>
 										</div>
 									</a>
 								</div>
@@ -264,31 +282,34 @@
 								}
 							}}
 							type="button">
-								<div class="pb-1 transition-all duration-300">
-									<div class="flex gap-4 px-2 py-[6px]">
+							<div class="flex flex-col min-[768px]:flex-row min-[768px]:gap-1 transition-all duration-300">
+								<div class="flex flex-col min-[768px]:flex-row min-[768px]:gap-1 transition-all duration-300">
+									<div class="flex gap-4 px-2 py-[6px] min-[768px]:flex-shrink-0">
 										<div class={cn("mt-2 h-2 w-2 bg-blue-500 rounded-full",
 											notification.isRead ? "opacity-0" : "opacity-100")}></div>
-										<div class="w-full flex flex-col items-start gap-1">
-											<span class="text-[14px] leading-[150%] font-medium text-main">{notification.title}</span>
-											<span class="text-[14px] leading-[150%] text-gray-500">
+										<div class="flex flex-col items-start gap-1">
+											<span class="text-left text-[14px] leading-[150%] font-medium text-main">{notification.title}</span>
+											<span class="text-left text-[14px] leading-[150%] text-gray-500">
 												{formatTimeAgo(notification.timestamp)}
+												<!-- update formatTimeAgo() logic -->
 											</span>
 										</div>
 									</div>
-									<div>
-										<div class={cn("flex justify-start ml-6 px-2 py-1 mr-1 rounded transition-all duration-300",
-											notification.isBodyHidden ? "hidden" : "block"
-										)}>
-											<p class="text-left text-[14px] leading-[150%] text-main">{notification.body}</p>
+									<div class={cn("border-border border-l my-1 flex items-start flex-1 transition-all duration-300", notification.isBodyHidden ? "hidden" : "block")}>
+										<div class="h-full flex justify-start ml-6 min-[768px]:ml-0 px-2 py-1 mr-1 bg-blue-50 rounded border border-solid border-opacity-0 hover:border-opacity-100 hover:border-blue-500 transition-all duration-300">
+											<p class="text-left text-[14px] leading-[150%] text-main break-words transition-all duration-300">
+												{notification.body}
+											</p>
 										</div>
 									</div>
 								</div>
+							</div>
 							</button>
 						{/if}
 					{/each}
 				</div>
 			{:else}
-				<p class="text-gray-500 text-center">No notifications yet</p>
+				<p class="text-center text-gray-500">No notifications yet</p>
 			{/if}
 		</div>
 	</div>
