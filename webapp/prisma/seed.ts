@@ -1328,14 +1328,14 @@ async function main() {
 							videoUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
 							status: SubmissionStatus.REVIEWED,
 							feedback: "Wauw!",
-							medal: Medal.GOLD
+							medal: Medal.BRONZE
 						},
 						{
 							levelNumber: 4,
 							videoUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
 							status: SubmissionStatus.REVIEWED,
 							feedback: "Wauw!",
-							medal: Medal.GOLD
+							medal: Medal.NONE
 						},
 						{
 							levelNumber: 5,

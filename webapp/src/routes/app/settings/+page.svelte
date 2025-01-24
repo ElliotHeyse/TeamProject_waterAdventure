@@ -161,7 +161,7 @@
 	}
 </script>
 
-<div class="px-4">
+<div class="px-4 pb-14">
 	<div class="mx-auto">
 		<!-- <h1 class="fz-ms5 font-sniglet-regular">{m.settings()}</h1> -->
 
