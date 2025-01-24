@@ -6,6 +6,7 @@
 	import { goto } from '$app/navigation';
 	import { CircleAlert } from 'lucide-svelte';
 	import { isMobileView } from '$lib/stores/viewport';
+	import { isSidebarOpen } from '$lib/stores/sidebar';
 	import { selectedChildIdStore } from '$lib/stores/child.store';
 	import type { ParentUser, Level, Pupil, Submission} from '../types';
 	import { cn } from '$lib/components/coach/utils';
@@ -131,6 +132,8 @@
 
 		goto(`/app/levels/${level.id}`);
 	}
+
+	$isSidebarOpen = (false);
 </script>
 
 <div class="mb-[-3.5rem]">

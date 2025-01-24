@@ -139,6 +139,8 @@
 			console.error('Error marking notification as read:', error);
 		}
 	}
+
+	$isSidebarOpen = (false);
 </script>
 
 <div class="mx-auto pb-14">
