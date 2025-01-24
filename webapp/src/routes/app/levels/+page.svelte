@@ -8,6 +8,7 @@
 	import { isMobileView } from '$lib/stores/viewport';
 	import { selectedChildIdStore } from '$lib/stores/child.store';
 	import type { ParentUser, Level, Pupil, Submission} from '../types';
+	import { cn } from '$lib/components/coach/utils';
 
 	interface GameLevel {
 		id: number;
@@ -108,7 +109,7 @@
 			setTimeout(() => {
 				showAlert = false;
 				clickedLevelId = null;
-			}, 3000);
+			}, 5000);
 		}
 	});
 
@@ -178,15 +179,22 @@
 
 					{#if showAlert && clickedLevelId === level.id}
 						<div
-							class="absolute z-50 transition-opacity duration-300 w-72 animate-in fade-in-0"
-							style="left: {level.x + 5}%; top: {level.y}%; transform: translateY(-50%);"
+							class="absolute z-30 transition-opacity duration-300 animate-in fade-in-0 flex flex-grow-1"
+							style={$isMobileView
+								? cn("left: 50%; transform: translateX(-50%);", level.id === 7 ? `top: ${levelPositions[1].y + 3.5}%;` : `top: ${level.y + 3.5}%;`)
+								: `left: 50%; transform: translateX(-50%); top: ${level.y + 3.5}%;`}
 						>
-							<div class="p-4 space-y-2 border rounded-lg shadow-lg bg-background text-foreground">
+							<div class={cn("p-1 flex flex-col flex-grow-1 gap-1 border rounded-lg shadow-lg bg-background/80 text-foreground",
+								$isMobileView ? "" : "items-center gap-2"
+							)}>
 								<div class="flex items-center gap-2 font-medium text-primary">
 									<CircleAlert class="w-4 h-4" />
-									<span>Level Locked</span>
+									<span class="fz-ms2">Level Locked</span>
 								</div>
-								<p class="text-sm text-muted-foreground">{alertMessage}</p>
+								<p class={cn("fz-ms1 w-[min(66vw,16rem)] flex-grow-1 flex-shrink-0 text-muted-foreground",
+									$isMobileView ? "" : "fz-ms2 w-[80vw] text-center"
+								)}>
+									{alertMessage}</p>
 							</div>
 						</div>
 					{/if}
