@@ -804,7 +804,8 @@ async function main() {
 						{
 							language: "nl",
 							location: [
-								"thuis en zwembad"
+								"thuis",
+								"zwembad"
 							],
 							title: "Duikexpert",
 							description: [
@@ -824,7 +825,8 @@ async function main() {
 						{
 							language: "en",
 							location: [
-								"home and swimming pool"
+								"home",
+								"swimming pool"
 							],
 							title: "Diving Expert",
 							description: [
@@ -844,7 +846,8 @@ async function main() {
 						{
 							language: "fr",
 							location: [
-								"maison et piscine"
+								"maison",
+								"piscine"
 							],
 							title: "Expert en Plongée",
 							description: [
