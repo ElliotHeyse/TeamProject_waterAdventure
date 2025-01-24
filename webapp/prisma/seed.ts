@@ -1426,7 +1426,7 @@ async function main() {
 			],
 			notifications: [
 				{
-					timestamp: new Date(2025, 1, 1),
+					timestamp: new Date('2025-01-24T10:55:00Z'), // Just now
 					isRead: true,
 					type: NotificationType.META,
 					title: 'Welkom bij Zwemfed!',
@@ -1434,7 +1434,7 @@ async function main() {
 					levelNumber: null,
 				},
 				{
-					timestamp: new Date(2025, 1, 2),
+					timestamp: new Date('2025-01-24T09:30:00Z'), // 1.5 hours ago
 					isRead: true,
 					type: NotificationType.MESSAGE,
 					title: null,
@@ -1442,7 +1442,7 @@ async function main() {
 					levelNumber: null,
 				},
 				{
-					timestamp: new Date(2025, 1, 3),
+					timestamp: new Date('2025-01-23T10:55:00Z'), // 1 day ago
 					isRead: true,
 					type: NotificationType.FEEDBACK,
 					title: null,
@@ -1450,7 +1450,7 @@ async function main() {
 					levelNumber: 1,
 				},
 				{
-					timestamp: new Date(2025, 1, 4),
+					timestamp: new Date('2025-01-22T15:30:00Z'), // 2 days ago
 					isRead: false,
 					type: NotificationType.MESSAGE,
 					title: null,
@@ -1458,7 +1458,7 @@ async function main() {
 					levelNumber: null,
 				},
 				{
-					timestamp: new Date(2025, 1, 5),
+					timestamp: new Date('2025-01-17T10:55:00Z'), // 1 week ago
 					isRead: false,
 					type: NotificationType.FEEDBACK,
 					title: null,
@@ -1466,7 +1466,7 @@ async function main() {
 					levelNumber: 2,
 				},
 				{
-					timestamp: new Date(2025, 1, 6),
+					timestamp: new Date('2025-01-10T10:55:00Z'), // 2 weeks ago
 					isRead: false,
 					type: NotificationType.MESSAGE,
 					title: null,
@@ -1474,7 +1474,7 @@ async function main() {
 					levelNumber: null,
 				},
 				{
-					timestamp: new Date(2025, 1, 7),
+					timestamp: new Date('2025-01-03T14:30:00Z'), // 3 weeks ago
 					isRead: false,
 					type: NotificationType.META,
 					title: 'Gepland onderhoud',
@@ -1482,7 +1482,7 @@ async function main() {
 					levelNumber: null,
 				},
 				{
-					timestamp: new Date(2025, 1, 8),
+					timestamp: new Date('2024-12-24T10:55:00Z'), // 1 month ago
 					isRead: false,
 					type: NotificationType.MESSAGE,
 					title: null,
@@ -1490,7 +1490,7 @@ async function main() {
 					levelNumber: null,
 				},
 				{
-					timestamp: new Date(2025, 1, 9),
+					timestamp: new Date('2024-12-01T10:55:00Z'), // ~2 months ago
 					isRead: false,
 					type: NotificationType.FEEDBACK,
 					title: null,
@@ -1638,7 +1638,7 @@ async function main() {
 			],
 			notifications: [
 				{
-					timestamp: new Date(2025, 1, 1),
+					timestamp: new Date('2025-01-24T10:55:00Z'), // Just now
 					isRead: true,
 					type: NotificationType.META,
 					title: 'Welkom bij Zwemfed!',
@@ -1646,7 +1646,7 @@ async function main() {
 					levelNumber: null,
 				},
 				{
-					timestamp: new Date(2025, 1, 2),
+					timestamp: new Date('2025-01-24T09:30:00Z'), // 1.5 hours ago
 					isRead: true,
 					type: NotificationType.MESSAGE,
 					title: null,
@@ -1654,7 +1654,7 @@ async function main() {
 					levelNumber: null,
 				},
 				{
-					timestamp: new Date(2025, 1, 3),
+					timestamp: new Date('2025-01-23T10:55:00Z'), // 1 day ago
 					isRead: true,
 					type: NotificationType.FEEDBACK,
 					title: null,
@@ -1662,7 +1662,7 @@ async function main() {
 					levelNumber: 1,
 				},
 				{
-					timestamp: new Date(2025, 1, 4),
+					timestamp: new Date('2025-01-22T15:30:00Z'), // 2 days ago
 					isRead: false,
 					type: NotificationType.MESSAGE,
 					title: null,
@@ -1670,7 +1670,7 @@ async function main() {
 					levelNumber: null,
 				},
 				{
-					timestamp: new Date(2025, 1, 5),
+					timestamp: new Date('2025-01-17T10:55:00Z'), // 1 week ago
 					isRead: false,
 					type: NotificationType.FEEDBACK,
 					title: null,
@@ -1678,7 +1678,7 @@ async function main() {
 					levelNumber: 2,
 				},
 				{
-					timestamp: new Date(2025, 1, 6),
+					timestamp: new Date('2025-01-10T10:55:00Z'), // 2 weeks ago
 					isRead: false,
 					type: NotificationType.MESSAGE,
 					title: null,
@@ -1686,7 +1686,7 @@ async function main() {
 					levelNumber: null,
 				},
 				{
-					timestamp: new Date(2025, 1, 7),
+					timestamp: new Date('2025-01-03T14:30:00Z'), // 3 weeks ago
 					isRead: false,
 					type: NotificationType.META,
 					title: 'Gepland onderhoud',
@@ -1694,7 +1694,7 @@ async function main() {
 					levelNumber: null,
 				},
 				{
-					timestamp: new Date(2025, 1, 8),
+					timestamp: new Date('2024-12-24T10:55:00Z'), // 1 month ago
 					isRead: false,
 					type: NotificationType.MESSAGE,
 					title: null,
@@ -1702,7 +1702,7 @@ async function main() {
 					levelNumber: null,
 				},
 				{
-					timestamp: new Date(2025, 1, 9),
+					timestamp: new Date('2024-12-01T10:55:00Z'), // ~2 months ago
 					isRead: false,
 					type: NotificationType.FEEDBACK,
 					title: null,
@@ -1713,232 +1713,232 @@ async function main() {
 		},
 		{
 			name: 'David Williams',
-			email: 'dwilliams@example.com',
-			phone: '+15553456789',
-			pupils: [
-				{
-					name: 'Mia Williams',
-					dateOfBirth: new Date(2022, 8, 7),
-					progress: 4,
-					notes: 'Nothing special to note.',
-					levelProgress: [
-						{
-							levelNumber: 1,
-							firstPartCompleted: true,
-							fullyCompleted: true,
-							completedAt: new Date(2025, 1, 1)
-						},
-						{
-							levelNumber: 2,
-							firstPartCompleted: true,
-							fullyCompleted: true,
-							completedAt: new Date(2025, 1, 2)
-						},
-						{
-							levelNumber: 3,
-							firstPartCompleted: true,
-							fullyCompleted: true,
-							completedAt: new Date(2025, 1, 3)
-						},
-						{
-							levelNumber: 4,
-							firstPartCompleted: true,
-							fullyCompleted: true,
-							completedAt: new Date(2025, 1, 4)
-						},
-						{
-							levelNumber: 5,
-							firstPartCompleted: false,
-							fullyCompleted: false,
-							completedAt: null
-						},
-						{
-							levelNumber: 6,
-							firstPartCompleted: false,
-							fullyCompleted: false,
-							completedAt: null
-						},
-						{
-							levelNumber: 7,
-							firstPartCompleted: false,
-							fullyCompleted: false,
-							completedAt: null
-						}
-					],
-					submissions: [
-						{
-							levelNumber: 1,
-							videoUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
-							status: SubmissionStatus.REVIEWED,
-							feedback: "Wauw!",
-							medal: Medal.GOLD
-						},
-						{
-							levelNumber: 2,
-							videoUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
-							status: SubmissionStatus.REVIEWED,
-							feedback: "Wauw!",
-							medal: Medal.SILVER
-						},
-						{
-							levelNumber: 3,
-							videoUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
-							status: SubmissionStatus.REVIEWED,
-							feedback: "Wauw!",
-							medal: Medal.GOLD
-						},
-						{
-							levelNumber: 4,
-							videoUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
-							status: SubmissionStatus.PENDING,
-							feedback: null,
-							medal: Medal.NONE
-						}
-					]
-				},
-				{
-					name: 'Ethan Williams',
-					dateOfBirth: new Date(2020, 5, 18),
-					progress: 2,
-					notes: 'Slowly overcoming water anxiety.',
-					levelProgress: [
-						{
-							levelNumber: 1,
-							firstPartCompleted: true,
-							fullyCompleted: true,
-							completedAt: new Date(2025, 1, 1)
-						},
-						{
-							levelNumber: 2,
-							firstPartCompleted: true,
-							fullyCompleted: true,
-							completedAt: new Date(2025, 1, 2)
-						},
-						{
-							levelNumber: 3,
-							firstPartCompleted: false,
-							fullyCompleted: false,
-							completedAt: null
-						},
-						{
-							levelNumber: 4,
-							firstPartCompleted: false,
-							fullyCompleted: false,
-							completedAt: null
-						},
-						{
-							levelNumber: 5,
-							firstPartCompleted: false,
-							fullyCompleted: false,
-							completedAt: null
-						},
-						{
-							levelNumber: 6,
-							firstPartCompleted: false,
-							fullyCompleted: false,
-							completedAt: null
-						},
-						{
-							levelNumber: 7,
-							firstPartCompleted: false,
-							fullyCompleted: false,
-							completedAt: null
-						}
-					],
-					submissions: [
-						{
-							levelNumber: 1,
-							videoUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
-							status: SubmissionStatus.REVIEWED,
-							feedback: "Wauw!",
-							medal: Medal.GOLD
-						},
-						{
-							levelNumber: 2,
-							videoUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
-							status: SubmissionStatus.PENDING,
-							feedback: null,
-							medal: Medal.NONE
-						}
-					]
-				}
-			],
-			notifications: [
-				{
-					timestamp: new Date(2025, 1, 1),
-					isRead: true,
-					type: NotificationType.META,
-					title: 'Welkom bij Zwemfed!',
-					body: 'Welkom bij het Eerste Wateravontuur!! Neem gerust een kijkje in de app, of ga meteen samen aan de slag met het eerste level.',
-					levelNumber: null,
-				},
-				{
-					timestamp: new Date(2025, 1, 2),
-					isRead: true,
-					type: NotificationType.MESSAGE,
-					title: null,
-					body: null,
-					levelNumber: null,
-				},
-				{
-					timestamp: new Date(2025, 1, 3),
-					isRead: true,
-					type: NotificationType.FEEDBACK,
-					title: null,
-					body: 'Goed gedaan! Goed begonnen met het eerste level!',
-					levelNumber: 1,
-				},
-				{
-					timestamp: new Date(2025, 1, 4),
-					isRead: false,
-					type: NotificationType.MESSAGE,
-					title: null,
-					body: null,
-					levelNumber: null,
-				},
-				{
-					timestamp: new Date(2025, 1, 5),
-					isRead: false,
-					type: NotificationType.FEEDBACK,
-					title: null,
-					body: 'Goed bezig! Je maakt al goede vooruitgang!',
-					levelNumber: 2,
-				},
-				{
-					timestamp: new Date(2025, 1, 6),
-					isRead: false,
-					type: NotificationType.MESSAGE,
-					title: null,
-					body: null,
-					levelNumber: null,
-				},
-				{
-					timestamp: new Date(2025, 1, 7),
-					isRead: false,
-					type: NotificationType.META,
-					title: 'Gepland onderhoud',
-					body: 'De app zal op 14 januari 2025 van 9:00 tot 12:00 uur UTC worden onderhouden. Onze excuses voor het ongemak.',
-					levelNumber: null,
-				},
-				{
-					timestamp: new Date(2025, 1, 8),
-					isRead: false,
-					type: NotificationType.MESSAGE,
-					title: null,
-					body: null,
-					levelNumber: null,
-				},
-				{
-					timestamp: new Date(2025, 1, 9),
-					isRead: false,
-					type: NotificationType.FEEDBACK,
-					title: null,
-					body: 'Let op details. Houd je vingers goed gesloten bij het duwen van het water. Ga zo door!',
-					levelNumber: 3,
-				}
-			]
-		}
-	];
+				email: 'dwilliams@example.com',
+				phone: '+15553456789',
+				pupils: [
+					{
+						name: 'Mia Williams',
+						dateOfBirth: new Date(2022, 8, 7),
+						progress: 4,
+						notes: 'Nothing special to note.',
+						levelProgress: [
+							{
+								levelNumber: 1,
+								firstPartCompleted: true,
+								fullyCompleted: true,
+								completedAt: new Date(2025, 1, 1)
+							},
+							{
+								levelNumber: 2,
+								firstPartCompleted: true,
+								fullyCompleted: true,
+								completedAt: new Date(2025, 1, 2)
+							},
+							{
+								levelNumber: 3,
+								firstPartCompleted: true,
+								fullyCompleted: true,
+								completedAt: new Date(2025, 1, 3)
+							},
+							{
+								levelNumber: 4,
+								firstPartCompleted: true,
+								fullyCompleted: true,
+								completedAt: new Date(2025, 1, 4)
+							},
+							{
+								levelNumber: 5,
+								firstPartCompleted: false,
+								fullyCompleted: false,
+								completedAt: null
+							},
+							{
+								levelNumber: 6,
+								firstPartCompleted: false,
+								fullyCompleted: false,
+								completedAt: null
+							},
+							{
+								levelNumber: 7,
+								firstPartCompleted: false,
+								fullyCompleted: false,
+								completedAt: null
+							}
+						],
+						submissions: [
+							{
+								levelNumber: 1,
+								videoUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+								status: SubmissionStatus.REVIEWED,
+								feedback: "Wauw!",
+								medal: Medal.GOLD
+							},
+							{
+								levelNumber: 2,
+								videoUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+								status: SubmissionStatus.REVIEWED,
+								feedback: "Wauw!",
+								medal: Medal.SILVER
+							},
+							{
+								levelNumber: 3,
+								videoUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+								status: SubmissionStatus.REVIEWED,
+								feedback: "Wauw!",
+								medal: Medal.GOLD
+							},
+							{
+								levelNumber: 4,
+								videoUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+								status: SubmissionStatus.PENDING,
+								feedback: null,
+								medal: Medal.NONE
+							}
+						]
+					},
+					{
+						name: 'Ethan Williams',
+						dateOfBirth: new Date(2020, 5, 18),
+						progress: 2,
+						notes: 'Slowly overcoming water anxiety.',
+						levelProgress: [
+							{
+								levelNumber: 1,
+								firstPartCompleted: true,
+								fullyCompleted: true,
+								completedAt: new Date(2025, 1, 1)
+							},
+							{
+								levelNumber: 2,
+								firstPartCompleted: true,
+								fullyCompleted: true,
+								completedAt: new Date(2025, 1, 2)
+							},
+							{
+								levelNumber: 3,
+								firstPartCompleted: false,
+								fullyCompleted: false,
+								completedAt: null
+							},
+							{
+								levelNumber: 4,
+								firstPartCompleted: false,
+								fullyCompleted: false,
+								completedAt: null
+							},
+							{
+								levelNumber: 5,
+								firstPartCompleted: false,
+								fullyCompleted: false,
+								completedAt: null
+							},
+							{
+								levelNumber: 6,
+								firstPartCompleted: false,
+								fullyCompleted: false,
+								completedAt: null
+							},
+							{
+								levelNumber: 7,
+								firstPartCompleted: false,
+								fullyCompleted: false,
+								completedAt: null
+							}
+						],
+						submissions: [
+							{
+								levelNumber: 1,
+								videoUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+								status: SubmissionStatus.REVIEWED,
+								feedback: "Wauw!",
+								medal: Medal.GOLD
+							},
+							{
+								levelNumber: 2,
+								videoUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+								status: SubmissionStatus.PENDING,
+								feedback: null,
+								medal: Medal.NONE
+							}
+						]
+					}
+				],
+				notifications: [
+					{
+						timestamp: new Date('2025-01-24T10:55:00Z'), // Just now
+						isRead: true,
+						type: NotificationType.META,
+						title: 'Welkom bij Zwemfed!',
+						body: 'Welkom bij het Eerste Wateravontuur!! Neem gerust een kijkje in de app, of ga meteen samen aan de slag met het eerste level.',
+						levelNumber: null,
+					},
+					{
+						timestamp: new Date('2025-01-24T09:30:00Z'), // 1.5 hours ago
+						isRead: true,
+						type: NotificationType.MESSAGE,
+						title: null,
+						body: null,
+						levelNumber: null,
+					},
+					{
+						timestamp: new Date('2025-01-23T10:55:00Z'), // 1 day ago
+						isRead: true,
+						type: NotificationType.FEEDBACK,
+						title: null,
+						body: 'Goed gedaan! Goed begonnen met het eerste level!',
+						levelNumber: 1,
+					},
+					{
+						timestamp: new Date('2025-01-22T15:30:00Z'), // 2 days ago
+						isRead: false,
+						type: NotificationType.MESSAGE,
+						title: null,
+						body: null,
+						levelNumber: null,
+					},
+					{
+						timestamp: new Date('2025-01-17T10:55:00Z'), // 1 week ago
+						isRead: false,
+						type: NotificationType.FEEDBACK,
+						title: null,
+						body: 'Goed bezig! Je maakt al goede vooruitgang!',
+						levelNumber: 2,
+					},
+					{
+						timestamp: new Date('2025-01-10T10:55:00Z'), // 2 weeks ago
+						isRead: false,
+						type: NotificationType.MESSAGE,
+						title: null,
+						body: null,
+						levelNumber: null,
+					},
+					{
+						timestamp: new Date('2025-01-03T14:30:00Z'), // 3 weeks ago
+						isRead: false,
+						type: NotificationType.META,
+						title: 'Gepland onderhoud',
+						body: 'De app zal op 14 januari 2025 van 9:00 tot 12:00 uur UTC worden onderhouden. Onze excuses voor het ongemak.',
+						levelNumber: null,
+					},
+					{
+						timestamp: new Date('2024-12-24T10:55:00Z'), // 1 month ago
+						isRead: false,
+						type: NotificationType.MESSAGE,
+						title: null,
+						body: null,
+						levelNumber: null,
+					},
+					{
+						timestamp: new Date('2024-12-01T10:55:00Z'), // ~2 months ago
+						isRead: false,
+						type: NotificationType.FEEDBACK,
+						title: null,
+						body: 'Let op details. Houd je vingers goed gesloten bij het duwen van het water. Ga zo door!',
+						levelNumber: 3,
+					}
+				]
+			}
+	]
 
 	// CREATE parent users with linked: parent, userSettings, notifications and pupils with linked: levelProgress and submissions
 	const parentUsers = await Promise.all(
