@@ -3,7 +3,11 @@
 	import { goto } from '$app/navigation';
 	import { page } from '$app/state';
 	import { selectedChildIdStore } from '$lib/stores/child.store';
+	import { isMobileView } from '$lib/stores/viewport';
 	import type { ParentUser, Level, Exercise, Pupil } from '../../types';
+	import { cn } from '$lib/components/coach/utils';
+	import { writable } from 'svelte/store';
+	import { userSettings } from '$lib/stores/userSettings';
 
 	const { data } = $props<{
 		data: {
@@ -27,11 +31,13 @@
 	let message = $state<string | null>(null);
 	let success = $state(false);
 	let videoFile = $state<File | null>(null);
+	let fileName = writable("No file chosen");
 
 	function handleFileChange(event: Event) {
 		const input = event.target as HTMLInputElement;
 		if (input.files) {
 			videoFile = input.files[0];
+			$fileName = input.files[0].name;
 		}
 	}
 
@@ -111,244 +117,303 @@
 	const isCompleted = $derived(levelProgress.fullyCompleted);
 </script>
 
-<div class="container mx-auto px-4 py-8">
-	<div class="mb-6">
-		<h1 class="text-3xl font-bold mb-4 text-foreground">
-			Level {page.url.pathname.split('/').pop()} - {data.level.languageContents[0].title}
-		</h1>
-		<ul class="flex gap-4">
-			{#each data.level.languageContents[0].objectives as objective}
-				<li class="px-3 pt-1 pb-[6px] rounded-full bg-blue-200">
-					<span class="text-blue-700">{objective}</span>
-				</li>
-			{/each}
-		</ul>
-	</div>
+<div class={cn("h-full pb-14",
+	$userSettings.theme === 'DARK' ? "bg-background" : "bg-blue-50"
+)}>
+	<div class="container mx-auto min-[1024px]:max-w-[1024px]">
 
-	{#each exercises as exercise}
-		<div class="mb-12 bg-card rounded-lg p-6 shadow-md">
-			<!-- header -->
-			<div class="flex justify-between items-center mb-4">
-				<div class="flex gap-8 items-end">
-					<h3 class="text-2xl font-bold text-blue-950">{exercise.languageContents[0].title}</h3>
-					<ul class="flex mb-[2px]">
-						{#each exercise.languageContents[0].location as location}
-							<li>
-								<span class=" px-2 pb-[3px] pt-[2px] rounded bg-gray-200 text-muted-foreground"
-									>{location}</span
-								>
-							</li>
-						{/each}
-					</ul>
-				</div>
-				<button
-					class="px-4 py-2 rounded-md {(exercise.exerciseNumber === 1 &&
-						levelProgress.firstPartCompleted) ||
-					(exercise.exerciseNumber === 2 && levelProgress.fullyCompleted)
-						? 'bg-green-500 hover:bg-green-600'
-						: 'bg-blue-500 hover:bg-blue-600'} text-white transition-colors"
-					onclick={() => toggleCompletion(exercise)}
-				>
-					{(exercise.exerciseNumber === 1 && levelProgress.firstPartCompleted) ||
-					(exercise.exerciseNumber === 2 && levelProgress.fullyCompleted)
-						? 'Voltooid'
-						: 'Markeer als voltooid'}
-				</button>
+		<!-- title -->
+		<div class="pb-6 p-4 flex flex-col">
+			<div class="flex flex-col">
+				<span class="fz-ms2 min-[375px]:fz-ms3 text-muted-foreground">Level {page.url.pathname.split('/').pop()}</span>
+				<h1 class="fz-ms7 min-[375px]:fz-ms9 font-sniglet-regular mb-2 text-foreground">
+					{data.level.languageContents[0].title}
+				</h1>
 			</div>
-
-			<!-- description(s) -->
-			<div class="mb-6 text-blue-950 text-lg">
-				{#if exercise.languageContents[0].description.length > 1}
-					<ul class="flex flex-col gap-0 list-disc pl-4 space-y-2">
-						{#each exercise.languageContents[0].description as description}
-							<li>
-								<span>{description}</span>
-							</li>
-						{/each}
-					</ul>
-				{:else}
-					<p>{exercise.languageContents[0].description[0]}</p>
-				{/if}
-			</div>
-
-			<!-- importants note(s) -->
-			{#if exercise.languageContents[0].important.length > 0}
-				<div class="mb-6">
-					<h4 class="text-lg font-semibold text-foreground">Important</h4>
-					{#if exercise.languageContents[0].important.length > 1}
-						<ul class="list-disc pl-4 space-y-2">
-							{#each exercise.languageContents[0].important as note}
-								<li class="text-foreground">{note}</li>
-							{/each}
-						</ul>
-					{:else}
-						<p class="text-foreground">{exercise.languageContents[0].important[0]}</p>
-					{/if}
-				</div>
-			{/if}
-
-			<!-- tip(s) -->
-			{#if exercise.languageContents[0].tips.length > 0}
-				<div class="mb-6">
-					<h4 class="text-lg font-semibold text-foreground">Tips</h4>
-					{#if exercise.languageContents[0].tips.length > 1}
-						<ul class="list-disc pl-4 space-y-2">
-							{#each exercise.languageContents[0].tips as tip}
-								<li class="text-foreground">{tip}</li>
-							{/each}
-						</ul>
-					{:else}
-						<p class="text-foreground">{exercise.languageContents[0].tips[0]}</p>
-					{/if}
-				</div>
-			{/if}
-
-			<!-- video(s) -->
-			<div class="mt-6 space-y-6">
-				{#each exercise.videos as video}
-					<div class="flex flex-col md:flex-row gap-6">
-						<div class="w-full md:w-1/2">
-							{#if data.parentUser.settings.language === 'nl'}
-								<h5 class="text-lg font-semibold mb-2 text-foreground">{video.title[0]}</h5>
-							{:else if data.parentUser.settings.language === 'en'}
-								<h5 class="text-lg font-semibold mb-2 text-foreground">{video.title[1]}</h5>
-							{:else if data.parentUser.settings.language === 'fr'}
-								<h5 class="text-lg font-semibold mb-2 text-foreground">{video.title[2]}</h5>
-							{/if}
-							<video controls class="w-full rounded-lg border border-border">
-								<source src={video.path} type="video/mp4" />
-								Your browser does not support the video tag.
-								<track kind="captions" />
-							</video>
-						</div>
-						<span>{video.path}</span>
-						<!-- video notes, skip for now -->
-						<!-- <div class="w-full md:w-1/2 text-muted-foreground md:mt-10">
-							{#if true}
-								<ul class="list-disc pl-4 space-y-2">
-									<li>Zittend op de trap met de handen golven maken</li>
-									<li>Drijvend voorwaarts voortduwen</li>
-									<li>Rustig in water stappen</li>
-									<li>Handen in het water houden</li>
-									<li>Vingers sturen</li>
-									<li>Voorwerpen niet omstoten</li>
-								</ul>
-							{:else if video.description === 'Golven maken'}
-								<ul class="list-disc pl-4 space-y-2">
-									<li>Zittend op de trap met de benen</li>
-									<li>Vriesvluchtige voorbij of omrijdende</li>
-									<li>Gestrekte benen en voet-tenen</li>
-									<li>Been-beweging zonder hulp</li>
-									<li>Been-verplaatsing</li>
-								</ul>
-							{:else if video.description === 'Op het water slaan'}
-								<ul class="list-disc pl-4 space-y-2">
-									<li>Carwash</li>
-									<li>Plezier door de voorwaarts lopen</li>
-									<li>Met handen spelen op het water</li>
-									<li>Achterwaarts, zijwaarts, springend... in de voorwaarts</li>
-									<li>Een doorgang uitsluiten</li>
-									<li>Ogen open houden</li>
-									<li>Met vingers samengeknepen sturen</li>
-								</ul>
-							{/if}
-						</div> -->
-					</div>
+			<ul class="flex flex-wrap gap-x-2 gap-y-1 min-[375px]:gap-x-4">
+				{#each data.level.languageContents[0].objectives as objective}
+					<li class={cn("px-2 py-[0.0625rem] rounded-full min-[375px]:px-3 min-[375px]:py-1 bg-blue-200",
+						$userSettings.theme === 'DARK' ? "bg-blue-950 bg-opacity-100 text-blue-200" : "bg-blue-200 text-blue-700"
+					)}>
+						<span class="fz-ms1 min-[375px]:fz-ms2">{objective}</span>
+					</li>
 				{/each}
-			</div>
+			</ul>
 		</div>
-	{/each}
 
-	{#if isCompleted}
-		<div class="mt-8 bg-card rounded-lg p-6 shadow-md">
-			{#if selectedChild.submissions[0]}
-				<div class="space-y-4">
-					<h2 class="text-2xl font-semibold">Jouw Inzending</h2>
-					<div class="space-y-2">
-						<video class="w-full aspect-video" controls>
-							<source src={selectedChild.submissions[0].videoUrl} type="video/mp4" />
-							<track kind="captions" />
-							{m.video_not_supported()}
-						</video>
+		<!-- exercises -->
+		{#each exercises as exercise}
+			<div class={cn("mb-6 p-4 shadow-md min-[425px]:rounded-lg min-[425px]:mx-4",
+				$userSettings.theme === 'DARK' ? "bg-blue-950 bg-opacity-50" : "bg-card"
+			)}>
+				<!-- header -->
+				<div class="flex justify-between gap-3 items-start mb-6">
+					<div class="flex flex-col gap-1 items-start min-[577px]:gap-2">
+						<h3 class={cn("fz-ms5 min-[375px]:fz-ms6 min-[577px]:fz-ms7 font-sniglet-extrabold",
+							$userSettings.theme === 'DARK' ? "text-foreground" : "text-blue-950"
+						)}>
+							{exercise.languageContents[0].title}
+						</h3>
+						<ul class="flex flex-wrap gap-x-2 gap-y-1 min-[375px]:gap-x-3">
+							{#each exercise.languageContents[0].location as location}
+								<li class={cn("px-1 rounded-md bg-opacity-75 min-[375px]:px-2 min-[375px]:py-[0.125rem]",
+									$userSettings.theme === 'DARK' ? "bg-blue-950 bg-opacity-100 text-blue-100" : "text-blue-700 bg-blue-100"
+								)}>
+									<span class="text-opacity-75 fz-ms1 min-[375px]:fz-ms2">{location}</span>
+								</li>
+							{/each}
+						</ul>
+					</div>
+					<!-- Mark-as-done button -->
+					<div class="flex flex-shrink-0 justify-end">
+						<button
+							class="rounded-md px-3 py-2 flex flex-col items-center {
+								(exercise.exerciseNumber === 1 && levelProgress.firstPartCompleted) ||
+								(exercise.exerciseNumber === 2 && levelProgress.fullyCompleted)
+								? `${$userSettings.theme === 'DARK' ? 'bg-green-700 hover:bg-green-800' : 'bg-green-500 hover:bg-green-600'}`
+								: `${$userSettings.theme === 'DARK' ? 'bg-blue-700 hover:bg-blue-800' : 'bg-blue-500 hover:bg-blue-600'}`
+							}"
+							onclick={() => toggleCompletion(exercise)}
+						>
+							{#if (exercise.exerciseNumber === 1 && levelProgress.firstPartCompleted)
+								|| (exercise.exerciseNumber === 2 && levelProgress.fullyCompleted)
+							}
+							<span class="fz-ms1 min-[320px]:fz-ms2 min-[375px]:fz-ms3 text-white">Voltooid</span>
+							{:else}
+							<span class="fz-ms1 min-[320px]:fz-ms2 min-[375px]:fz-ms3 text-white">Markeer als</span>
+							<span class="fz-ms1 min-[320px]:fz-ms2 min-[375px]:fz-ms3 text-white">voltooid</span>
+							{/if}
+						</button>
 					</div>
 				</div>
-				{#if selectedChild.submissions[0].status === 'REVIEWED'}
-					{#if selectedChild.submissions[0].feedback}
-						<div class="mt-6 space-y-4 border-t pt-4">
-							<div class="flex justify-between">
-								<h3 class="text-lg font-semibold">Feedback van je coach</h3>
-								<p class="text-sm text-muted-foreground">
-									{selectedChild.submissions[0].updatedAt.toLocaleDateString('nl-BE', {
-										year: 'numeric',
-										month: 'long',
-										day: 'numeric',
-										hour: '2-digit',
-										minute: '2-digit'
-									})}
-								</p>
-							</div>
-							<div class="space-y-2">
-								<p class="text-base">{selectedChild.submissions[0].feedback}</p>
-								{#if selectedChild.submissions[0].medal !== 'NONE'}
-									<div class="flex items-center gap-2 mt-2">
-										<span class="text-sm font-medium">Medaille:</span>
-										<span class="text-sm">
-											{#if selectedChild.submissions[0].medal === 'GOLD'}
-												🥇 Goud
-											{:else if selectedChild.submissions[0].medal === 'SILVER'}
-												🥈 Zilver
-											{:else if selectedChild.submissions[0].medal === 'BRONZE'}
-												🥉 Brons
+
+				<!-- exercise content -->
+				<div class="flex flex-col gap-6">
+					<!-- description(s) -->
+					<div class={cn("font-medium fz-ms1 min-[375px]:fz-ms2 min-[768px]:fz-ms3",
+						$userSettings.theme === 'DARK' ? "text-foreground" : "text-blue-950"
+					)}>
+						{#if exercise.languageContents[0].description.length > 1}
+							<!-- test on level 2 -->
+							<ul class="flex flex-col gap-2 list-disc pl-4">
+								{#each exercise.languageContents[0].description as description}
+									<li>
+										<span>{description}</span>
+									</li>
+								{/each}
+							</ul>
+						{:else}
+							<p>{exercise.languageContents[0].description[0]}</p>
+						{/if}
+					</div>
+
+					<!-- important note(s) -->
+					{#if exercise.languageContents[0].important.length > 0}
+						<div class="flex flex-col gap-1">
+							<h4 class="font-sniglet-regular text-foreground fz-ms4 min-[375px]:fz-ms5 min-[425px]:fz-ms6">Important</h4>
+							{#if exercise.languageContents[0].important.length > 1}
+								<!-- test on level 2 -->
+								<ul class="space-y-2">
+									{#each exercise.languageContents[0].important as note}
+										<li class="text-foreground fz-ms1 min-[375px]:fz-ms2">{note}</li>
+									{/each}
+								</ul>
+							{:else}
+								<p class="text-foreground fz-ms1 min-[375px]:fz-ms2">{exercise.languageContents[0].important[0]}</p>
+							{/if}
+						</div>
+					{/if}
+
+					<!-- tips -->
+					{#if exercise.languageContents[0].tips.length > 0}
+						<div class="flex flex-col gap-1">
+							<h4 class="font-sniglet-regular text-foreground fz-ms4 min-[375px]:fz-ms5 min-[425px]:fz-ms6">Tips</h4>
+							{#if exercise.languageContents[0].tips.length > 1}
+								<!-- test on level 2 -->
+								<ul class="flex flex-col gap-2 list-disc pl-4">
+									{#each exercise.languageContents[0].tips as note}
+										<li class="fz-ms1 text-foreground min-[375px]:fz-ms2">{note}</li>
+									{/each}
+								</ul>
+							{:else}
+								<!-- test on level 1 -->
+								<p class="fz-ms1 text-foreground min-[375px]:fz-ms2">{exercise.languageContents[0].tips[0]}</p>
+							{/if}
+						</div>
+					{/if}
+
+					<!-- videos -->
+					{#if exercise.videos.length > 0}
+						<div class="flex flex-col gap-2">
+							<h4 class="fz-ms4 font-sniglet-regular text-foreground min-[375px]:fz-ms5 min-[425px]:fz-ms6">Voorbeeldvideo's</h4>
+							<div class="flex flex-col gap-3 min-[425px]:gap-6
+								{(exercise.videos.length > 1) ? 'min-[768px]:grid min-[768px]:grid-cols-2 min-[768px]:gap-3' : 'min-[768px]:w-[min(100%,29.625rem)]'}">
+								{#each exercise.videos as video}
+									<div class="flex flex-col gap-1">
+										<h5 class="fz-ms2 font-sniglet-regular text-[#F3474F] min-[375px]:fz-ms3 min-[425px]:fz-ms4
+											{(exercise.videos.length > 1) ? 'min-[768px]:fz-ms3 min-[1024px]:fz-ms5' : 'min-[768px]:fz-ms5'}">
+											{#if data.parentUser.settings.language === 'nl'}
+												{video.title[0]}
+											{:else if data.parentUser.settings.language === 'en'}
+												{video.title[1]}
+											{:else if data.parentUser.settings.language === 'fr'}
+												{video.title[2]}
 											{/if}
-										</span>
+										</h5>
+										<video controls class="w-full rounded-lg border border-border">
+											<source src={video.path} type="video/mp4" />
+											{m.video_not_supported()}
+											<track kind="captions" />
+										</video>
 									</div>
+								{/each}
+							</div>
+						</div>
+					{/if}
+				</div>
+			</div>
+		{/each}
+
+		{#if isCompleted}
+			{#if selectedChild.submissions[0]}
+				<div class={cn("mb-6 p-4 shadow-md min-[420px]:rounded-lg min-[425px]:mx-4",
+					$userSettings.theme === 'DARK' ? "bg-blue-950 bg-opacity-50" : "bg-card"
+				)}>
+					<div class="flex flex-col gap-4">
+						<h3 class={cn("fz-ms5 min-[375px]:fz-ms6 min-[577px]:fz-ms7 font-sniglet-extrabold",
+							$userSettings.theme === 'DARK' ? "text-foreground" : "text-blue-950"
+						)}>
+							Mijn inzending
+						</h3>
+						<div>
+							<div class="flex flex-col gap-2">
+								<video controls class="w-full rounded-lg border border-border mb-2">
+									<source src={selectedChild.submissions[0].videoUrl} type="video/mp4" />
+									Your browser does not support the video tag.
+									<track kind="captions" />
+								</video>
+								<hr>
+								{#if selectedChild.submissions[0].status === 'REVIEWED'}
+									<div class="flex flex-col gap-1 min-[320px]:gap-2">
+										<div class="flex justify-between items-center">
+											<h4 class="fz-ms4 font-sniglet-regular text-foreground min-[375px]:fz-ms5 min-[425px]:fz-ms6">Feedback van je coach</h4>
+											<span class={cn("px-1 py-[0.0625rem] rounded fz-ms1 text-right text-muted-foreground",
+												$userSettings.theme === 'DARK' ? "bg-gray-950" : "bg-gray-200"
+											)}>
+												{selectedChild.submissions[0].updatedAt.toLocaleDateString('nl-BE', {
+													year: 'numeric',
+													month: 'numeric',
+													day: 'numeric'
+												})}
+											</span>
+										</div>
+										<div class={cn("flex gap-1 p-1 rounded shadow-[0_3px_6px_0_rgba(0,0,0,0.25)] min-[375px]:p-2",
+											selectedChild.submissions[0].medal === "GOLD" ? `bg-yellow-100 ${$userSettings.theme === 'DARK' ? 'bg-opacity-25' : ''}` : "",
+											selectedChild.submissions[0].medal === "SILVER" ? `bg-slate-100 ${$userSettings.theme === 'DARK' ? 'bg-opacity-25' : ''}` : "",
+											selectedChild.submissions[0].medal === "BRONZE" ? `bg-orange-100 ${$userSettings.theme === 'DARK' ? 'bg-opacity-25' : ''}` : "",
+											selectedChild.submissions[0].medal === "NONE" ? `bg-blue-50 ${$userSettings.theme === 'DARK' ? 'bg-opacity-25' : ''}` : ""
+										)}>
+											<span class={cn("fz-ms1 min-[375px]:fz-ms2",
+												selectedChild.submissions[0].medal === "GOLD" ? `text-yellow-950 ${$userSettings.theme === 'DARK' ? 'text-gray-200' : ''}` : "",
+												selectedChild.submissions[0].medal === "SILVER" ? `text-slate-950 ${$userSettings.theme === 'DARK' ? 'text-gray-200' : ''}` : "",
+												selectedChild.submissions[0].medal === "BRONZE" ? `text-orange-950 ${$userSettings.theme === 'DARK' ? 'text-gray-200' : ''}` : "",
+												selectedChild.submissions[0].medal === "NONE" ? `text-blue-950 ${$userSettings.theme === 'DARK' ? 'text-gray-200' : ''}` : ""
+											)}>
+												<span class={cn("float-left fz-ms6 min-[375px]:fz-ms7 mr-2 rounded",
+													selectedChild.submissions[0].medal === "GOLD" ? "bg-yellow-300" : "",
+													selectedChild.submissions[0].medal === "SILVER" ? "bg-slate-300" : "",
+													selectedChild.submissions[0].medal === "BRONZE" ? "bg-orange-300" : "",
+													selectedChild.submissions[0].medal === "NONE" ? "hidden" : ""
+												)}>
+													{#if selectedChild.submissions[0].medal === "GOLD"}
+														🥇
+													{:else if selectedChild.submissions[0].medal === "SILVER"}
+														🥈
+													{:else if selectedChild.submissions[0].medal === "BRONZE"}
+														🥉
+													{/if}
+												</span>
+												{selectedChild.submissions[0].feedback}
+												<!-- Lorem ipsum dolor sit amet consectetur adipisicing elit. Repudiandae repellendus incidunt ullam dolores rerum aliquam at distinctio alias quos eius? Unde nisi, recusandae nulla tempore laboriosam corrupti accusamus. Soluta, nostrum! -->
+											</span>
+										</div>
+									</div>
+								{:else}
+									<h4 class="fz-ms4 font-sniglet-regular text-foreground min-[375px]:fz-ms5 min-[425px]:fz-ms6">Nog geen feedback</h4>
 								{/if}
 							</div>
 						</div>
-					{/if}
-				{:else}
-					<div class="mt-6 space-y-4 border-t pt-4">
-						<div class="flex justify-between">
-							<h3 class="text-lg font-semibold">Nog geen feedback van je coach</h3>
+					</div>
+				</div>
+			{:else}
+				<div class={cn("mb-6 p-4 shadow-md min-[420px]:rounded-lg min-[425px]:mx-4",
+					$isMobileView ? "" : "max-w-[30rem]",
+					$userSettings.theme === 'DARK' ? "bg-blue-950 bg-opacity-50" : "bg-card"
+				)}>
+					<div class="flex flex-col gap-4">
+						<h3 class={cn("fz-ms5 min-[375px]:fz-ms6 min-[577px]:fz-ms7 font-sniglet-extrabold",
+							$userSettings.theme === 'DARK' ? "text-foreground" : "text-blue-950"
+						)}>
+							Video inzenden
+						</h3>
+						<div>
+							<form onsubmit={handleSubmit}>
+								<input
+									type="file"
+									id="video"
+									accept="video/*"
+									onchange={handleFileChange}
+									class="hidden"
+									required
+								/>
+								<div class="flex flex-col gap-2 mb-6">
+									<span class={cn("fz-ms2 min-[425px]:text-[1rem] ",
+										$userSettings.theme === 'DARK' ? "text-gray-300" : "text-gray-600"
+									)}>
+										Upload een video van de oefeningen en misschien verdien je wel een medaille!
+									</span>
+									<div class="flex flex-col gap-1 items-center">
+										<label for="video" class={cn("w-full cursor-pointer fz-ms2 min-[425px]:text-[1rem] text-center px-4 py-2 rounded text-white transition-all",
+											$userSettings.theme === 'DARK' ? "bg-green-700 hover:bg-green-800" : "bg-green-500 hover:bg-green-600"
+										)}>
+											Video kiezen
+										</label>
+										<span class={cn("fz-ms1 min-[425px]:fz-ms2",
+											$userSettings.theme === 'DARK' ? "text-gray-500" : "text-gray-400"
+										)}>
+											Ondersteunde formaten: MP4, MOV, AVI.
+										</span>
+									</div>
+								</div>
+								<div class="flex gap-2 justify-between items-center">
+									<span class="fz-ms2 tex-foreground truncate max-w-[50%] overflow-hidden whitespace-nowrap text-ellipsis">
+										{$fileName}
+									</span>
+									<button type="submit"
+										class={cn("max-w-[50%] fz-ms2 min-[425px]:text-[1rem] rounded px-3 py-2 transition-colors text-white",
+											$userSettings.theme === 'DARK' ? "bg-blue-700  hover:bg-blue-800" : "bg-blue-500  hover:bg-blue-600"
+										)}
+									>
+										Video indienen
+									</button>
+								</div>
+							</form>
+							{#if message}
+								<div
+									class="mt-4 p-3 fz-ms2 min-[425px]:text-[1rem] font-medium rounded-md {
+										success
+											? `${$userSettings.theme === 'DARK' ? 'bg-green-500 bg-opacity-25 text-green-100' : 'bg-green-100 text-green-700'}`
+											: `${$userSettings.theme === 'DARK' ? 'bg-red-500 bg-opacity-25 text-red-100' : 'bg-red-100 text-red-700'}`
+									}"
+								>
+									{message}
+									Indienen mislukt
+								</div>
+							{/if}
 						</div>
 					</div>
-				{/if}
-			{:else}
-				<h2 class="text-2xl font-semibold mb-4">Video Inzending</h2>
-				<form onsubmit={handleSubmit} class="space-y-4">
-					<div>
-						<label for="video" class="block text-sm font-medium text-gray-700">Video Bestand</label>
-						<input
-							type="file"
-							id="video"
-							accept="video/*"
-							onchange={handleFileChange}
-							class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-							required
-						/>
-						<p class="mt-1 text-sm text-gray-500">
-							Upload een video van je zwemles. Ondersteunde formaten: MP4, MOV, AVI.
-						</p>
-					</div>
-					<div class="flex justify-end">
-						<button
-							type="submit"
-							class="rounded-md bg-blue-600 px-4 py-2 text-white transition-colors hover:bg-blue-700"
-						>
-							Video Indienen
-						</button>
-					</div>
-				</form>
-				{#if message}
-					<div
-						class="mt-4 p-4 rounded-md {success
-							? 'bg-green-100 text-green-700'
-							: 'bg-red-100 text-red-700'}"
-					>
-						{message}
-					</div>
-				{/if}
+				</div>
 			{/if}
-		</div>
-	{/if}
+		{/if}
+	</div>
 </div>

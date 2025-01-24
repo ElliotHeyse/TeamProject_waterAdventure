@@ -18,6 +18,7 @@
 	import { browser } from '$app/environment';
 	import { Alert, AlertTitle, AlertDescription } from '$lib/components/coach/ui/alert';
 	import { userSettings } from '$lib/stores/userSettings';
+	import { isSidebarOpen } from '$lib/stores/sidebar';
 	import { CircleAlert, LogOut } from 'lucide-svelte';
 	import { isMobileView } from '$lib/stores/viewport';
 	import { cn } from '$lib/components/coach/utils';
@@ -159,9 +160,11 @@
 	async function handleLogout() {
 		await goto('/logout');
 	}
+
+	$isSidebarOpen = (false);
 </script>
 
-<div class="px-4">
+<div class="px-4 pb-14">
 	<div class="mx-auto">
 		<!-- <h1 class="fz-ms5 font-sniglet-regular">{m.settings()}</h1> -->
 

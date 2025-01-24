@@ -9,6 +9,7 @@
 	import { io, type Socket } from 'socket.io-client';
 	import { userSettings } from '$lib/stores/userSettings';
 	import { isMobileView } from '$lib/stores/viewport';
+	import { isSidebarOpen } from '$lib/stores/sidebar';
 
 	const { data } = $props<{ data: PageData }>();
 	let messageInput = $state('');
@@ -82,10 +83,12 @@
 		socket.emit('message', message);
 		messageInput = '';
 	}
+
+	$isSidebarOpen = (false);
 </script>
 
 <!-- <div class="flex flex-col h-[calc(100vh-128px)]"> -->
-<div class="h-full flex flex-col">
+<div class="h-full flex flex-col pb-14">
 	<div class=" fixed w-full z-30 -mt-16">
 		<div class="bg-background h-16"></div>
 		<div class={cn("flex gap-2 p-2 z-30 border-b",

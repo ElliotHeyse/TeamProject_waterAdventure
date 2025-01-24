@@ -77,13 +77,13 @@
 		const then = typeof thenTimestamp === 'string' ? new Date(thenTimestamp).getTime() : thenTimestamp.getTime();
 		const diffInSeconds = Math.floor((now - then) / 1000);
 
-		// Debug logging
-		console.log('Formatting time for:', {
-			timestamp: thenTimestamp,
-			parsed: new Date(thenTimestamp),
-			now: new Date(nowTimestamp),
-			diffInSeconds
-		});
+		// // Debug logging
+		// console.log('Formatting time for:', {
+		// 	timestamp: thenTimestamp,
+		// 	parsed: new Date(thenTimestamp),
+		// 	now: new Date(nowTimestamp),
+		// 	diffInSeconds
+		// });
 
 		if (diffInSeconds < 60) {
 			return 'just now';
@@ -139,9 +139,11 @@
 			console.error('Error marking notification as read:', error);
 		}
 	}
+
+	$isSidebarOpen = (false);
 </script>
 
-<div class="mx-auto">
+<div class="mx-auto pb-14">
 	{#if selectedChild}
 	<!-- Progress banner -->
 	<button

@@ -804,7 +804,8 @@ async function main() {
 						{
 							language: "nl",
 							location: [
-								"thuis en zwembad"
+								"thuis",
+								"zwembad"
 							],
 							title: "Duikexpert",
 							description: [
@@ -824,7 +825,8 @@ async function main() {
 						{
 							language: "en",
 							location: [
-								"home and swimming pool"
+								"home",
+								"swimming pool"
 							],
 							title: "Diving Expert",
 							description: [
@@ -844,7 +846,8 @@ async function main() {
 						{
 							language: "fr",
 							location: [
-								"maison et piscine"
+								"maison",
+								"piscine"
 							],
 							title: "Expert en Plongée",
 							description: [
@@ -1325,14 +1328,14 @@ async function main() {
 							videoUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
 							status: SubmissionStatus.REVIEWED,
 							feedback: "Wauw!",
-							medal: Medal.GOLD
+							medal: Medal.BRONZE
 						},
 						{
 							levelNumber: 4,
 							videoUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
 							status: SubmissionStatus.REVIEWED,
 							feedback: "Wauw!",
-							medal: Medal.GOLD
+							medal: Medal.NONE
 						},
 						{
 							levelNumber: 5,

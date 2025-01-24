@@ -37,7 +37,7 @@
 	<div class="flex flex-col flex-1">
 		<AppHeader />
 		<!-- Main Content -->
-		<main class="flex-1 mb-14">
+		<main class="flex-1">
 			<slot />
 		</main>
 	</div>
