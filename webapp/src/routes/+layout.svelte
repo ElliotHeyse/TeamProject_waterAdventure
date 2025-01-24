@@ -21,14 +21,6 @@
 			};
 			userSettings.set(settings);
 
-			// Check for preserved theme in navigation state
-			const preservedTheme = $page.state.preservedTheme;
-			if (preservedTheme) {
-				document.documentElement.classList.toggle('dark', preservedTheme === 'DARK');
-			} else {
-				document.documentElement.classList.toggle('dark', settings.theme === 'DARK');
-			}
-
 			// Handle language path
 			const currentPath = window.location.pathname;
 			const currentLang = i18n.strategy.getLanguageFromLocalisedPath(currentPath) || 'en';
@@ -37,7 +29,10 @@
 			if (currentLang !== settings.language && settings.language !== 'en') {
 				const canonicalPath = i18n.strategy.getCanonicalPath(currentPath, currentLang as Language);
 				const newPath = i18n.strategy.getLocalisedPath(canonicalPath, settings.language);
-				goto(newPath, { invalidateAll: true });
+				goto(newPath, { 
+					invalidateAll: true,
+					state: { preservedTheme: settings.theme }
+				});
 			}
 		}
 	});

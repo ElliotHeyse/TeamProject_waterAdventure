@@ -17,8 +17,7 @@
 	import { isMobileView } from '$lib/stores/viewport';
 	import * as DropdownMenu from '$lib/components/coach/ui/dropdown-menu';
 	import { goto } from '$app/navigation';
-
-	let isDarkMode = $state(false);
+	import { userSettings } from '$lib/stores/userSettings';
 
 	const data = $state(page.data);
 	const parentName = $state(data.parent?.user?.name || 'Unknown Parent');
@@ -26,28 +25,6 @@
 	async function handleLogout() {
 		await goto('/logout');
 	}
-
-	onMount(() => {
-		const savedDarkMode = localStorage.getItem('darkMode') === 'true';
-		isDarkMode = savedDarkMode;
-	});
-
-	$effect(() => {
-		const darkModeObserver = new MutationObserver((mutations) => {
-			mutations.forEach((mutation) => {
-				if (mutation.target instanceof HTMLElement) {
-					isDarkMode = mutation.target.classList.contains('dark');
-				}
-			});
-		});
-
-		darkModeObserver.observe(document.documentElement, {
-			attributes: true,
-			attributeFilter: ['class']
-		});
-
-		return () => darkModeObserver.disconnect();
-	});
 
 	const navItems = [
 		{ href: '/app', icon: HomeModern, label: 'Overview' },
