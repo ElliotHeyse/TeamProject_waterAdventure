@@ -56,25 +56,45 @@
 	const notifications: FrontendNotification[] = $state(
 		notificationData_sorted.map(notification => ({
 		...notification,
+		timestamp: new Date(notification.timestamp),
 		isBodyHidden: true
 	})));
 	// const notfications: FrontendNotification[] = []; // test empty state
 
-	let nowTimestamp = new Date().toISOString();
+	let nowTimestamp = $state(new Date().toISOString());
 
-	const formatTimeAgo = (thenTimestamp: Date) => {
-		// AI generated function. Not reviewed, but seems to work. Further testing recommended => update seed data
-		const now = new Date().getTime();
-		const then = thenTimestamp.getTime();
+	$effect(() => {
+		// Update nowTimestamp every second
+		const interval = setInterval(() => {
+			nowTimestamp = new Date().toISOString();
+		}, 1000);
+
+		return () => clearInterval(interval);
+	});
+
+	const formatTimeAgo = $derived((thenTimestamp: Date | string) => {
+		const now = new Date(nowTimestamp).getTime();
+		const then = typeof thenTimestamp === 'string' ? new Date(thenTimestamp).getTime() : thenTimestamp.getTime();
 		const diffInSeconds = Math.floor((now - then) / 1000);
+
+		// Debug logging
+		console.log('Formatting time for:', {
+			timestamp: thenTimestamp,
+			parsed: new Date(thenTimestamp),
+			now: new Date(nowTimestamp),
+			diffInSeconds
+		});
+
+		if (diffInSeconds < 60) {
+			return 'just now';
+		}
 
 		const intervals = [
 			{ label: 'year', seconds: 31536000 },
 			{ label: 'month', seconds: 2592000 },
 			{ label: 'day', seconds: 86400 },
 			{ label: 'hour', seconds: 3600 },
-			{ label: 'minute', seconds: 60 },
-			{ label: 'second', seconds: 1 }
+			{ label: 'minute', seconds: 60 }
 		];
 
 		for (const interval of intervals) {
@@ -84,8 +104,8 @@
 			}
 		}
 
-		return 'just now';
-	};
+		return `${diffInSeconds} second${diffInSeconds !== 1 ? 's' : ''} ago`;
+	});
 
 	const resetOtherNotificationBodies = function (notificationId: string) {
 		notifications.forEach(notification => {
