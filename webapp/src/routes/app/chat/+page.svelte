@@ -7,6 +7,8 @@
 	import { cn } from '$lib/utils';
 	import { formatDistanceToNow } from 'date-fns';
 	import { io, type Socket } from 'socket.io-client';
+	import { userSettings } from '$lib/stores/userSettings';
+	import { isMobileView } from '$lib/stores/viewport';
 
 	const { data } = $props<{ data: PageData }>();
 	let messageInput = $state('');
@@ -82,28 +84,37 @@
 	}
 </script>
 
-<div class="flex flex-col h-[calc(100vh-128px)] mt-16 mb-16">
-	<div class="flex items-center gap-4 p-4 border-b bg-background fixed top-16 left-0 right-0 z-50">
-		<div
-			class="h-10 w-10 rounded-full bg-primary flex items-center justify-center text-primary-foreground"
-		>
-			{getInitials(data.coach.user.name)}
-		</div>
-		<div>
-			<p class="text-lg font-semibold">{data.coach.user.name}</p>
-			<p class="text-sm text-muted-foreground">Your Swimming Coach</p>
+<!-- <div class="flex flex-col h-[calc(100vh-128px)]"> -->
+<div class="h-full flex flex-col">
+	<div class=" fixed w-full z-30 -mt-16">
+		<div class="bg-background h-16"></div>
+		<div class={cn("flex gap-2 p-2 z-30 border-b",
+			$userSettings.theme === "DARK" ? "bg-blue-950 border-background" : "bg-blue-100 border-gray-300"
+		)}>
+			<div
+				class="h-10 w-10 rounded-full bg-primary flex items-center justify-center text-primary-foreground"
+			>
+				{getInitials(data.coach.user.name)}
+			</div>
+			<div>
+				<p class="fz-ms2 font-semibold">{data.coach.user.name}</p>
+				<p class="fz-ms1 text-muted-foreground">Your Swimming Coach</p>
+			</div>
 		</div>
 	</div>
 
-	<div bind:this={scrollContainer} class="flex-1 overflow-y-auto px-4 pt-[72px] pb-4">
-		<div class="flex flex-col gap-4">
-			{#each messages as message}
+	<div bind:this={scrollContainer} class={cn("flex-1 overflow-y-auto px-4 pt-[72px] pb-4",
+		$isMobileView ? "pb-[4.5rem]" : "pb-[2rem]"
+	)}>
+		<div class="flex flex-col">
+			{#each messages as message, index}
 				<div
 					class={cn(
 						'flex gap-2 max-w-[80%]',
-						message.parentId === data.parent.id && message.sender === 'PARENT'
+						(message.parentId === data.parent.id && message.sender === 'PARENT'
 							? 'ml-auto flex-row-reverse'
-							: 'flex-row'
+							: 'flex-row'),
+						(messages[index-1]?.sender === message.sender ? "mt-1" : "mt-4")
 					)}
 				>
 					<div
@@ -117,12 +128,12 @@
 						class={cn(
 							'rounded-lg p-3',
 							message.parentId === data.parent.id && message.sender === 'PARENT'
-								? 'bg-primary text-primary-foreground'
+								? `${$userSettings.theme === "DARK" ? "bg-blue-900 text-primary-background" : "bg-blue-700 text-primary-foreground"}`
 								: 'bg-muted'
 						)}
 					>
-						<p class="break-words">{message.content}</p>
-						<p class="text-xs opacity-70 mt-1">
+						<p class="fz-ms1 min-[375px]:fz-ms2 break-words">{message.content}</p>
+						<p class="fz-ms1 opacity-70 mt-1">
 							{formatDistanceToNow(new Date(message.createdAt), { addSuffix: true })}
 						</p>
 					</div>
@@ -131,16 +142,29 @@
 		</div>
 	</div>
 
-	<form
-		onsubmit={handleSubmit}
-		class="flex-none flex gap-2 p-4 bg-background border-t fixed bottom-14 left-0 right-0"
-	>
-		<Input
-			type="text"
-			bind:value={messageInput}
-			placeholder="Type your message..."
-			class="flex-1"
-		/>
-		<Button type="submit">Send</Button>
-	</form>
+	<div class={cn("fixed bottom-0 z-30 border-t border-gray-300 bg-blue-100",
+		$isMobileView ? "bottom-14 w-full" : "bottom-0 w-[calc(100%-4rem)] h-[73px] grid items-center",
+		$userSettings.theme === "DARK" ? "bg-blue-950 border-background" : "bg-blue-100 border-gray-300"
+	)}>
+		<div class="p-3">
+			<form onsubmit={handleSubmit} class="flex gap-2">
+				<Input
+					type="text"
+					bind:value={messageInput}
+					placeholder="Type your message..."
+					class={cn("text-[0.875rem] !ring-0 focus:border-blue-500 bg-background",
+						$userSettings.theme === 'DARK' ? "hover:bg-opacity-50 focus:bg-opacity-75" : "hover:bg-gray-100 focus:border-blue-500 focus:bg-blue-50"
+					)}
+				/>
+				<Button class={cn("!ring-0 text-[0.875rem] border border-blue-500 border-opacity-0 focus:border-opacity-100",
+					$userSettings.theme === 'DARK' ? "focus:bg-blue-200 focus:text-blue-600" : "focus:bg-blue-900 focus:text-blue-400"
+				)} type="submit">Send</Button>
+			</form>
+		</div>
+		{#if $isMobileView}
+				<div class="h-14 bg-background -mb-14"></div>
+		{/if}
+	</div>
 </div>
+
+<!-- TODO dark mode -->
