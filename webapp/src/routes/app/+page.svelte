@@ -3,6 +3,7 @@
 	import { goto } from '$app/navigation';
 	import { selectedChildIdStore } from '$lib/stores/child.store';
 	import { isMobileView } from '$lib/stores/viewport';
+	import { userSettings } from '$lib/stores/userSettings';
 	import { isSidebarOpen } from '$lib/stores/sidebar';
 	import { cn } from '$lib/components/coach/utils';
 	// import { notifications } from '$lib/paraglide/messages';
@@ -147,8 +148,9 @@
 	class="w-full cursor-pointer "
 	onclick={() => goto("/app/levels")}
 	type="button">
-		<div class={cn("flex flex-col items-center gap-4 p-6 bg-blue-100 hover:bg-blue-200 transition-colors duration-200",
-			$isMobileView ? "" : "items-start px-8"
+		<div class={cn("flex flex-col items-center gap-4 p-6  transition-colors duration-200",
+			$isMobileView ? "" : "items-start px-8",
+			$userSettings.theme === 'DARK' ? "bg-blue-950 bg-opacity-25 hover:bg-opacity-50" : "bg-blue-100 hover:bg-blue-200"
 		)}>
 			<div class={cn("flex flex-col items-center gap-2",
 				$isMobileView ? "" : "flex-row gap-8"
@@ -178,7 +180,9 @@
 						<span class="text-gray-500 fz-ms2 min-[375px]:fz-ms3">/{TOTAL_LEVELS}</span>
 					</div>
 				</div>
-				<div class="w-full h-2 rounded-full bg-muted">
+				<div class={cn("w-full h-2 rounded-full bg-muted",
+					$userSettings.theme === 'DARK' ? "bg-blue-950" : "bg-gray-300"
+				)}>
 					<div
 						class="h-full transition-all bg-blue-500 rounded-full"
 						style="width: {(selectedChild.progress / TOTAL_LEVELS) * 100}%"
@@ -201,22 +205,24 @@
 			</div>
 			<div class="flex flex-col align-center min-[768px]:mb-6">
 				<div class="z-10 mb-[-11px]">
-					<span class="ml-6 px-3 py-[2px] border border-white bg-blue-200 rounded-lg text-blue-950 font-medium fz-ms1 min-[320px]:fz-ms2">
+					<span class={cn("ml-6 px-3 py-[2px] border border-background rounded-lg text-blue-950 font-medium fz-ms1 min-[320px]:fz-ms2",
+						$userSettings.theme === 'DARK' ? "bg-blue-300" : "bg-blue-200"
+					)}>
 						Level {selectedChild.progress+1}
 					</span>
 				</div>
-				<div class="w-full flex justify-center px-4 pt-6 pb-8 bg-blue-950 rounded-[20px] min-[768px]:pt-8 min-[768px]:justify-start min-[768px]:pl-6">
-					<span class="text-center text-blue-500 font-sniglet-regular fz-ms6 min-[375px]:fz-ms7 min-[425px]:fz-ms9 min-[768px]:text-left">
+				<div class={cn("w-full flex justify-center px-4 pt-6 pb-8 rounded-[20px] min-[768px]:pt-8 min-[768px]:justify-start min-[768px]:pl-6 bg-gradient-to-b min-[768px]:bg-gradient-to-r",
+					$userSettings.theme === 'DARK' ? "from-blue-900 to-blue-950" : "from-blue-600 to-blue-900"
+				)}>
+					<span class="text-center text-blue-50 font-sniglet-regular fz-ms6 min-[375px]:fz-ms7 min-[425px]:fz-ms9 min-[768px]:text-left">
 						{data.levels[selectedChild.progress].languageContents[0].title}
-						<!-- <p>Aquatisch ademen: vervolg</p> -->
-						<!-- Lorem ipsum dolor sit amet consectetur, adipisicing elit. -->
-						<!-- titel vak is 118px high -->
-						<!-- button is 67.2px high-->
 					</span>
 				</div>
 				<div class="mt-[-27.6px] min-[375px]:mt-[-30.6px] flex justify-center min-[425px]:mt-[-33.6px] min-[768px]:mt-[-92.6px] min-[768px]:justify-end mr-6">
 					<button
-					class="px-4 py-2 bg-blue-500 hover:bg-blue-600 border-[2px] rounded-[20px] border-white cursor-pointer text-blue-50 font-sniglet-extrabold fz-ms6 min-[375px]:fz-ms7 min-[425px]:fz-ms8 transition-colors duration-200"
+					class={cn("px-4 py-2 border-[2px] rounded-[20px] border-blue-50 cursor-pointer text-blue-50 font-sniglet-extrabold fz-ms6 min-[375px]:fz-ms7 min-[425px]:fz-ms8 transition-colors duration-200",
+						$userSettings.theme === 'DARK' ? "bg-green-600 hover:bg-green-700" : "bg-green-500 hover:bg-green-600"
+					)}
 					onclick={() => goto(`/app/levels/${selectedChild.progress + 1}`)}
 					type="button">
 						START
@@ -241,7 +247,9 @@
 						{#if notification.type === "MESSAGE"}
 							<!-- Message notification (link to chat page) -->
 							<button
-							class="w-full rounded cursor-pointer hover:bg-blue-100"
+							class={cn("w-full rounded cursor-pointer",
+								$userSettings.theme === 'DARK' ? "hover:bg-blue-950": "hover:bg-blue-100"
+							)}
 							onclick={() => {
 								resetOtherNotificationBodies(notification.id);
 								markNotificationAsRead(notification.id);
@@ -264,8 +272,9 @@
 						{:else if notification.type === "FEEDBACK"}
 							<!-- Feedback notification (link to specified feedback) -->
 							<button
-							class={cn("w-full cursor-default rounded hover:bg-blue-100 transition-all duration-300",
-								notification.isBodyHidden ? "" : "bg-blue-50"
+							class={cn("w-full cursor-default rounded transition-all duration-200",
+								notification.isBodyHidden ? "" : `${$userSettings.theme === 'DARK' ? "bg-blue-950 bg-opacity-50" : "bg-blue-50"}`,
+								$userSettings.theme === 'DARK' ? "hover:bg-blue-950": "hover:bg-blue-100"
 							)}
 							onclick={() => {
 								markNotificationAsRead(notification.id);
@@ -277,7 +286,7 @@
 								}
 							}}
 							type="button">
-								<div class="flex flex-col min-[768px]:flex-row min-[768px]:gap-1 transition-all duration-300">
+								<div class="flex flex-col min-[768px]:flex-row min-[768px]:gap-1 transition-all duration-200">
 									<div class="flex gap-4 px-2 py-[6px] min-[768px]:flex-shrink-0">
 										<div class={cn("mt-2 h-2 w-2 bg-blue-500 rounded-full",
 											notification.isRead ? "opacity-0" : "opacity-100")}></div>
@@ -291,9 +300,12 @@
 											</span>
 										</div>
 									</div>
-									<a href="/app/levels/{notification.levelNumber}#feedback" class={cn("border-border border-l my-1 flex items-start flex-1 transition-all duration-300", notification.isBodyHidden ? "hidden" : "block")}>
-										<div class="h-full flex justify-start ml-6 min-[768px]:ml-0 px-2 py-1 mr-1 bg-blue-50 rounded border border-solid border-opacity-0 hover:border-opacity-100 hover:border-blue-500 transition-all duration-300">
-											<p class="text-left break-words transition-all duration-300 fz-ms1 text-main">
+									<a href="/app/levels/{notification.levelNumber}#feedback" class={cn("border-border min-[768px]:border-l my-1 flex items-start flex-1",
+										notification.isBodyHidden ? "hidden" : "block")}>
+										<div class={cn("h-full flex flex-1 justify-start ml-6 min-[768px]:ml-0 px-2 py-1 mr-1 hover:border-opacity-100 rounded border border-solid border-opacity-0 transition-all duration-200",
+											$userSettings.theme === 'DARK' ? "bg-[#0D1735] hover:border-blue-800": "bg-blue-50 hover:border-blue-500"
+										)}>
+											<p class="text-left break-words transition-all duration-200 fz-ms1 text-main">
 												{notification.body}
 											</p>
 										</div>
@@ -303,8 +315,9 @@
 						{:else}
 							<!-- Meta notification (no link) -->
 							<button
-							class={cn("w-full cursor-default rounded hover:bg-blue-100 transition-all duration-300",
-								notification.isBodyHidden ? "" : "bg-blue-50"
+							class={cn("w-full cursor-default rounded hover:bg-blue-100 transition-all duration-200",
+								notification.isBodyHidden ? "" : `${$userSettings.theme === 'DARK' ? "bg-blue-950 bg-opacity-50" : "bg-blue-50"}`,
+								$userSettings.theme === 'DARK' ? "hover:bg-blue-950": "hover:bg-blue-100"
 							)}
 							onclick={() => {
 								markNotificationAsRead(notification.id);
@@ -316,8 +329,8 @@
 								}
 							}}
 							type="button">
-							<div class="flex flex-col min-[768px]:flex-row min-[768px]:gap-1 transition-all duration-300">
-								<div class="flex flex-col min-[768px]:flex-row min-[768px]:gap-1 transition-all duration-300">
+							<div class="flex flex-col min-[768px]:flex-row min-[768px]:gap-1 transition-all duration-200">
+								<div class="flex flex-col min-[768px]:flex-row min-[768px]:gap-1 transition-all duration-200">
 									<div class="flex gap-4 px-2 py-[6px] min-[768px]:flex-shrink-0">
 										<div class={cn("mt-2 h-2 w-2 bg-blue-500 rounded-full",
 											notification.isRead ? "opacity-0" : "opacity-100")}></div>
@@ -329,9 +342,12 @@
 											</span>
 										</div>
 									</div>
-									<div class={cn("border-border border-l my-1 flex items-start flex-1 transition-all duration-300", notification.isBodyHidden ? "hidden" : "block")}>
-										<div class="h-full flex justify-start ml-6 min-[768px]:ml-0 px-2 py-1 mr-1 bg-blue-50 rounded border border-solid border-opacity-0 hover:border-opacity-100 hover:border-blue-500 transition-all duration-300">
-											<p class="text-left text-[14px] leading-[150%] text-main break-words transition-all duration-300">
+									<div class={cn("border-border min-[768px]:border-l my-1 flex items-start flex-1",
+										notification.isBodyHidden ? "hidden" : "block")}>
+										<div class={cn("h-full flex justify-start ml-6 min-[768px]:ml-0 px-2 py-1 mr-1 rounded border border-solid border-opacity-0 transition-all duration-200",
+											$userSettings.theme === 'DARK' ? "bg-[#0D1735]": "bg-blue-50"
+										)}>
+											<p class="text-left text-[14px] leading-[150%] text-main break-words transition-all duration-200">
 												{notification.body}
 											</p>
 										</div>
