@@ -17,6 +17,8 @@
     "email_address": "E-mailadres",
     "password": "Wachtwoord",
     "enter_password": "Voer je wachtwoord in",
+    "confirm_password": "Bevestig Wachtwoord",
+    "confirm_email": "Bevestig E-mailadres",
     "sign_in_button": "Inloggen",
     "messages": "Berichten",
     "parent_info": "Ouder Info",
