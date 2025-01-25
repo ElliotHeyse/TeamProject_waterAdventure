@@ -94,7 +94,8 @@ export const load: PageServerLoad = async ({ locals }) => {
 					feedback: submission.feedback,
 					medal: submission.medal,
 					updatedAt: submission.updatedAt,
-					levelNumber: submission.levelNumber
+					levelNumber: submission.levelNumber,
+					isRead: submission.isRead,
 				}))
 			})),
 			messages: parentUser.parent.messages.map(message => ({

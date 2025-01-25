@@ -1314,42 +1314,48 @@ async function main() {
 							videoUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
 							status: SubmissionStatus.REVIEWED,
 							feedback: "Wauw!",
-							medal: Medal.GOLD
+							medal: Medal.GOLD,
+							isRead: false
 						},
 						{
 							levelNumber: 2,
 							videoUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
 							status: SubmissionStatus.REVIEWED,
 							feedback: "Wauw!",
-							medal: Medal.SILVER
+							medal: Medal.SILVER,
+							isRead: false
 						},
 						{
 							levelNumber: 3,
 							videoUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
 							status: SubmissionStatus.REVIEWED,
 							feedback: "Wauw!",
-							medal: Medal.BRONZE
+							medal: Medal.BRONZE,
+							isRead: false
 						},
 						{
 							levelNumber: 4,
 							videoUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
 							status: SubmissionStatus.REVIEWED,
 							feedback: "Wauw!",
-							medal: Medal.NONE
+							medal: Medal.NONE,
+							isRead: false
 						},
 						{
 							levelNumber: 5,
 							videoUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
 							status: SubmissionStatus.REVIEWED,
 							feedback: "Wauw!",
-							medal: Medal.GOLD
+							medal: Medal.GOLD,
+							isRead: false
 						},
 						{
 							levelNumber: 6,
 							videoUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
 							status: SubmissionStatus.PENDING,
 							feedback: null,
-							medal: Medal.NONE
+							medal: Medal.NONE,
+							isRead: false
 						}
 					]
 				},
@@ -1408,97 +1414,44 @@ async function main() {
 							videoUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
 							status: SubmissionStatus.REVIEWED,
 							feedback: "Wauw!",
-							medal: Medal.GOLD
+							medal: Medal.GOLD,
+							isRead: false
 						},
 						{
 							levelNumber: 2,
 							videoUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
 							status: SubmissionStatus.REVIEWED,
 							feedback: "Wauw!",
-							medal: Medal.SILVER
+							medal: Medal.SILVER,
+							isRead: false
 						},
 						{
 							levelNumber: 3,
 							videoUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
 							status: SubmissionStatus.PENDING,
 							feedback: null,
-							medal: Medal.NONE
+							medal: Medal.NONE,
+							isRead: false
 						}
 					]
 				}
 			],
 			notifications: [
 				{
-					timestamp: new Date('2025-01-24T10:55:00Z'), // Just now
-					isRead: true,
+					timestamp: new Date('2025-01-03T10:55:00Z'), // Just now
+					isRead: false,
 					type: NotificationType.META,
 					title: 'Welkom bij Zwemfed!',
 					body: 'Welkom bij het Eerste Wateravontuur!! Neem gerust een kijkje in de app, of ga meteen samen aan de slag met het eerste level.',
 					levelNumber: null,
 				},
 				{
-					timestamp: new Date('2025-01-24T09:30:00Z'), // 1.5 hours ago
-					isRead: true,
-					type: NotificationType.MESSAGE,
-					title: null,
-					body: null,
-					levelNumber: null,
-				},
-				{
-					timestamp: new Date('2025-01-23T10:55:00Z'), // 1 day ago
-					isRead: true,
-					type: NotificationType.FEEDBACK,
-					title: null,
-					body: 'Goed gedaan! Goed begonnen met het eerste level!',
-					levelNumber: 1,
-				},
-				{
-					timestamp: new Date('2025-01-22T15:30:00Z'), // 2 days ago
-					isRead: false,
-					type: NotificationType.MESSAGE,
-					title: null,
-					body: null,
-					levelNumber: null,
-				},
-				{
-					timestamp: new Date('2025-01-17T10:55:00Z'), // 1 week ago
-					isRead: false,
-					type: NotificationType.FEEDBACK,
-					title: null,
-					body: 'Goed bezig! Je maakt al goede vooruitgang!',
-					levelNumber: 2,
-				},
-				{
-					timestamp: new Date('2025-01-10T10:55:00Z'), // 2 weeks ago
-					isRead: false,
-					type: NotificationType.MESSAGE,
-					title: null,
-					body: null,
-					levelNumber: null,
-				},
-				{
-					timestamp: new Date('2025-01-03T14:30:00Z'), // 3 weeks ago
+					timestamp: new Date('2025-01-13T14:30:00Z'), // 3 weeks ago
 					isRead: false,
 					type: NotificationType.META,
 					title: 'Gepland onderhoud',
 					body: 'De app zal op 14 januari 2025 van 9:00 tot 12:00 uur UTC worden onderhouden. Onze excuses voor het ongemak.',
 					levelNumber: null,
-				},
-				{
-					timestamp: new Date('2024-12-24T10:55:00Z'), // 1 month ago
-					isRead: false,
-					type: NotificationType.MESSAGE,
-					title: null,
-					body: null,
-					levelNumber: null,
-				},
-				{
-					timestamp: new Date('2024-12-01T10:55:00Z'), // ~2 months ago
-					isRead: false,
-					type: NotificationType.FEEDBACK,
-					title: null,
-					body: 'Let op details. Houd je vingers goed gesloten bij het duwen van het water. Ga zo door!',
-					levelNumber: 3,
 				}
 			]
 		},
@@ -1984,7 +1937,8 @@ async function main() {
 											videoUrl: submission.videoUrl,
 											status: submission.status,
 											feedback: submission.feedback,
-											medal: submission.medal
+											medal: submission.medal,
+											isRead: submission.isRead
 										}))
 									}
 								}))
@@ -2041,37 +1995,37 @@ async function main() {
 		const messageArray: SeedMessage[] = [
 			{
 				content: 'Welkom bij Zwemfed! Stel me gerust een vraag als je hulp of tips nodig hebt bij de oefeningen.',
-				isRead: true,
+				isRead: false,
 				sender: UserRole.COACH,
 				parentId: parentUser.parent.id
 			},
 			{
 				content: `Hi, ik ben ${parentUser.name}. Ik heb een vraag over de oefeningen.`,
-				isRead: true,
+				isRead: false,
 				sender: UserRole.PARENT,
 				parentId: parentUser.parent.id
 			},
 			{
 				content: `Hi ${parentUser.name}, zeker! Waarmee kan ik je helpen?`,
-				isRead: true,
+				isRead: false,
 				sender: UserRole.COACH,
 				parentId: parentUser.parent.id
 			},
 			{
 				content: 'Ik vind de uitleg bij level 3, oefening 2 niet zo duidelijk. Kan je dit wat beter toelichten?',
-				isRead: true,
+				isRead: false,
 				sender: UserRole.PARENT,
 				parentId: parentUser.parent.id
 			},
 			{
 				content: 'Is het de bedoeling dat ik mijn kind keihard het water in gooi en zo ver mogelijk laat stuiteren op het wateroppervlak?',
-				isRead: true,
+				isRead: false,
 				sender: UserRole.PARENT,
 				parentId: parentUser.parent.id
 			},
 			{
 				content: 'LMAO no balls',
-				isRead: true,
+				isRead: false,
 				sender: UserRole.COACH,
 				parentId: parentUser.parent.id
 			}
