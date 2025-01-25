@@ -163,12 +163,14 @@ export const actions = {
 										name: child.name,
 										dateOfBirth: new Date(child.dateOfBirth),
 										notes: '',
+										progress: 0,
 										levelProgress: {
-											create: {
-												levelNumber: child.level === 'BEGINNER' ? 1 : child.level === 'INTERMEDIATE' ? 2 : 3,
+											create: Array.from({ length: 7 }, (_, i) => ({
+												levelNumber: i + 1,
 												firstPartCompleted: false,
-												fullyCompleted: false
-											}
+												fullyCompleted: false,
+												completedAt: null
+											}))
 										}
 									}))
 								}
