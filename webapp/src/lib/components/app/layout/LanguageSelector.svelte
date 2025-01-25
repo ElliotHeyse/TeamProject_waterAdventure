@@ -3,11 +3,22 @@
 	import { i18n } from '$lib/i18n';
 	import type { AvailableLanguageTag } from '$lib/paraglide/runtime';
 	import { goto } from '$app/navigation';
+	import { browser } from '$app/environment';
+	import { onMount } from 'svelte';
+	import { writable } from 'svelte/store';
+
+	const currentLang = writable<AvailableLanguageTag>('en');
+
+	onMount(() => {
+		currentLang.set(i18n.strategy.getLanguageFromLocalisedPath(window.location.pathname) || 'en');
+	});
 
 	async function handleLanguageChange(newLang: AvailableLanguageTag) {
+		if (!browser) return;
+
 		const currentPath = window.location.pathname;
-		const currentLang = i18n.strategy.getLanguageFromLocalisedPath(currentPath) || 'en';
-		const canonicalPath = i18n.strategy.getCanonicalPath(currentPath, currentLang);
+		const currentLangValue = i18n.strategy.getLanguageFromLocalisedPath(currentPath) || 'en';
+		const canonicalPath = i18n.strategy.getCanonicalPath(currentPath, currentLangValue);
 
 		// Navigate to new language path
 		if (newLang === 'en') {
@@ -17,16 +28,14 @@
 			await goto(newPath, { invalidateAll: true });
 		}
 	}
-
-	const currentLang = i18n.strategy.getLanguageFromLocalisedPath(window.location.pathname) || 'en';
 </script>
 
-<Select.Root type="single" value={currentLang} onValueChange={(value) => handleLanguageChange(value as AvailableLanguageTag)}>
+<Select.Root type="single" value={$currentLang} onValueChange={(value) => handleLanguageChange(value as AvailableLanguageTag)}>
 	<Select.Trigger class="w-32 bg-white text-gray-900 border-2 border-gray-300 hover:bg-gray-50">
 		<div class="flex items-center justify-center font-medium">
-			{#if currentLang === 'en'}
+			{#if $currentLang === 'en'}
 				<span>English</span>
-			{:else if currentLang === 'nl'}
+			{:else if $currentLang === 'nl'}
 				<span>Nederlands</span>
 			{:else}
 				<span>Français</span>
@@ -38,4 +47,4 @@
 		<Select.Item value="nl" class="hover:bg-gray-100 text-gray-900 font-medium">Nederlands</Select.Item>
 		<Select.Item value="fr" class="hover:bg-gray-100 text-gray-900 font-medium">Français</Select.Item>
 	</Select.Content>
-</Select.Root> 
+</Select.Root>
