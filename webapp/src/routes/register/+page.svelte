@@ -5,6 +5,8 @@
 	import { Icon, UserPlus } from 'svelte-hero-icons';
 	import { Button } from '$lib/components/coach/ui/button';
 	import { cn } from '$lib/utils';
+	import * as m from '$lib/paraglide/messages.js';
+	import LanguageSelector from '$lib/components/app/layout/LanguageSelector.svelte';
 
 	// Form state
 	let name = $state('');
@@ -53,6 +55,12 @@
 </script>
 
 <div class="relative flex min-h-screen flex-col items-center justify-center">
+
+	<!-- Language selector -->
+	<div class="absolute top-4 right-4 z-50">
+		<LanguageSelector />
+	</div>
+
 	<!-- Background split -->
 	<div class="absolute inset-0">
 		<div class="h-1/2 bg-[#FF5555]"></div>
@@ -70,16 +78,16 @@
 				</div>
 				<h2 class="text-center text-2xl font-bold tracking-tight text-gray-900">
 					{#if showChildForm}
-						Add Your Child
+						{m.add_child()}
 					{:else}
-						Create Account
+						{m.create_account()}
 					{/if}
 				</h2>
 				<p class="text-center text-sm text-gray-600">
 					{#if showChildForm}
-						Add your child's information to get started with swimming lessons
+						{m.add_child_description()}
 					{:else}
-						Join WaterAdventure today!
+						{m.join_wateradventure()}
 					{/if}
 				</p>
 			</div>
@@ -94,9 +102,9 @@
 					<div class="rounded-md bg-red-50 p-4 text-sm text-red-700">
 						<p class="font-medium">
 							{#if showChildForm}
-								Failed to add child
+								{m.add_child_failed()}
 							{:else}
-								Registration failed
+								{m.registration_failed()}
 							{/if}
 						</p>
 						<p>{formData.error}</p>
@@ -107,7 +115,7 @@
 					{#if showChildForm}
 						<!-- Child Form -->
 						<div class="space-y-1">
-							<label for="childName" class="text-sm font-medium text-gray-700">Child's Full Name</label>
+							<label for="childName" class="text-sm font-medium text-gray-700">{m.childs_full_name()}</label>
 							<input
 								type="text"
 								id="childName"
@@ -124,7 +132,7 @@
 						</div>
 
 						<div class="space-y-1">
-							<label for="dateOfBirth" class="text-sm font-medium text-gray-700">Date of Birth</label>
+							<label for="dateOfBirth" class="text-sm font-medium text-gray-700">{m.date_of_birth()}</label>
 							<input
 								type="date"
 								id="dateOfBirth"
@@ -140,7 +148,7 @@
 						</div>
 
 						<div class="space-y-1">
-							<label for="level" class="text-sm font-medium text-gray-700">Swimming Level</label>
+							<label for="level" class="text-sm font-medium text-gray-700">{m.swimming_level()}</label>
 							<select
 								id="level"
 								name="level"
@@ -152,15 +160,15 @@
 									console.log('Level updated:', level);
 								}}
 							>
-								<option value="BEGINNER">Beginner</option>
-								<option value="INTERMEDIATE">Intermediate</option>
-								<option value="ADVANCED">Advanced</option>
+								<option value="BEGINNER">{m.beginner()}</option>
+								<option value="INTERMEDIATE">{m.intermediate()}</option>
+								<option value="ADVANCED">{m.advanced()}</option>
 							</select>
 						</div>
 					{:else}
 						<!-- Registration Form -->
 						<div class="space-y-1">
-							<label for="name" class="text-sm font-medium text-gray-700">Full Name</label>
+							<label for="name" class="text-sm font-medium text-gray-700">{m.full_name()}</label>
 							<input
 								type="text"
 								id="name"
@@ -174,7 +182,7 @@
 						</div>
 
 						<div class="space-y-1">
-							<label for="email" class="text-sm font-medium text-gray-700">Email Address</label>
+							<label for="email" class="text-sm font-medium text-gray-700">{m.email_address()}</label>
 							<input
 								type="email"
 								id="email"
@@ -183,12 +191,12 @@
 								required
 								value={email}
 								oninput={(e) => (email = e.currentTarget.value)}
-								placeholder="your@email.com"
+								placeholder={m.email_placeholder()}
 							/>
 						</div>
 
 						<div class="space-y-1">
-							<label for="confirmEmail" class="text-sm font-medium text-gray-700">Confirm Email</label>
+							<label for="confirmEmail" class="text-sm font-medium text-gray-700">{m.confirm_email()}</label>
 							<input
 								type="email"
 								id="confirmEmail"
@@ -197,12 +205,12 @@
 								required
 								value={confirmEmail}
 								oninput={(e) => (confirmEmail = e.currentTarget.value)}
-								placeholder="your@email.com"
+								placeholder={m.email_placeholder()}
 							/>
 						</div>
 
 						<div class="space-y-1">
-							<label for="password" class="text-sm font-medium text-gray-700">Password</label>
+							<label for="password" class="text-sm font-medium text-gray-700">{m.password()}</label>
 							<input
 								type="password"
 								id="password"
@@ -211,14 +219,12 @@
 								required
 								value={password}
 								oninput={(e) => (password = e.currentTarget.value)}
-								placeholder="Enter your password"
+								placeholder={m.password_placeholder()}
 							/>
 						</div>
 
 						<div class="space-y-1">
-							<label for="confirmPassword" class="text-sm font-medium text-gray-700"
-								>Confirm Password</label
-							>
+							<label for="confirmPassword" class="text-sm font-medium text-gray-700">{m.password()}</label>
 							<input
 								type="password"
 								id="confirmPassword"
@@ -227,12 +233,12 @@
 								required
 								value={confirmPassword}
 								oninput={(e) => (confirmPassword = e.currentTarget.value)}
-								placeholder="Enter your password"
+								placeholder={m.password_placeholder()}
 							/>
 						</div>
 
 						<div class="space-y-1">
-							<label for="phone" class="text-sm font-medium text-gray-700">Phone Number (Optional)</label>
+							<label for="phone" class="text-sm font-medium text-gray-700">{m.phone_optional()}</label>
 							<input
 								type="tel"
 								id="phone"
@@ -240,7 +246,7 @@
 								class={inputStyles}
 								value={phone}
 								oninput={(e) => (phone = e.currentTarget.value)}
-								placeholder="+1234567890"
+								placeholder={m.phone_placeholder()}
 							/>
 						</div>
 					{/if}
@@ -255,14 +261,14 @@
 						)}
 					>
 						{#if showChildForm}
-							Add Child
+							{m.add_child()}
 						{:else}
-							Create Account
+							{m.create_account()}
 						{/if}
 					</Button>
 
 					<a href="/login" class="text-center text-sm text-[#FF5555] hover:underline">
-						Already have an account? Sign in
+						{m.has_account()}
 					</a>
 				</div>
 			</form>

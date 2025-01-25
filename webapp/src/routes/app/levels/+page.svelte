@@ -8,8 +8,10 @@
 	import { isMobileView } from '$lib/stores/viewport';
 	import { isSidebarOpen } from '$lib/stores/sidebar';
 	import { selectedChildIdStore } from '$lib/stores/child.store';
+	import * as m from '$lib/paraglide/messages.js';
 	import type { ParentUser, Level, Pupil, Submission} from '../types';
 	import { cn } from '$lib/components/coach/utils';
+
 
 	interface GameLevel {
 		id: number;
@@ -141,7 +143,7 @@
 		<!-- <h1 class="pt-4 pb-6 text-4xl font-bold text-center text-foreground">Swimming Levels</h1> -->
 
 		<div class="relative flex flex-col items-center justify-center w-full overflow-hidden mt-[-2.8vw]">
-			<img src={g10} alt="Level background" class="object-contain w-full h-full" />
+			<img src={g10} alt={m.level_background_alt()} class="object-contain w-full h-full" />
 			<div class="absolute inset-0 w-full h-full">
 				{#each pageLevels as level}
 					<button

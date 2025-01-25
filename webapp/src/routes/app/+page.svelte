@@ -8,6 +8,7 @@
 	import { cn } from '$lib/components/coach/utils';
 	import { v4 as uuidv4 } from 'uuid';
 	import type { ParentUser, Level, Pupil, UserNotification, Submission, Message } from './types';
+	import * as m from '$lib/paraglide/messages.js';
 
 	// import badge from '$lib/img/badge-placeholder.svg';
 	import badge0 from '$lib/img//progressBadges/badge-level-0.svg';
@@ -59,11 +60,11 @@
 		pupil.submissions.forEach((submission: Submission) => {
 			if (submission.status === 'REVIEWED') {
 				result.push({
-					frontendId: uuidv4(), // generate new UUID for each notification
+					frontendId: uuidv4(),
 					timestamp: submission.updatedAt,
 					isRead: submission.isRead,
 					type: "FEEDBACK",
-					title: `New feedback: Level ${submission.levelNumber} - ${pupil.name}`,
+					title: m.new_feedback({ level: submission.levelNumber, name: pupil.name }),
 					body: submission.feedback,
 					levelNumber: submission.levelNumber,
 					pupilId: pupil.id,
@@ -80,11 +81,11 @@
 		parentUser.parent.messages.forEach((message: Message) => {
 			if (message.sender === "COACH") {
 				result.push({
-					frontendId: uuidv4(), // generate new UUID for each notification
+					frontendId: uuidv4(),
 					timestamp: message.createdAt,
 					isRead: message.isRead,
 					type: "MESSAGE",
-					title: "New message",
+					title: m.new_message(),
 					body: null,
 					levelNumber: null,
 					pupilId: null,
@@ -159,34 +160,32 @@
 		const then = typeof thenTimestamp === 'string' ? new Date(thenTimestamp).getTime() : thenTimestamp.getTime();
 		const diffInSeconds = Math.floor((now - then) / 1000);
 
-		// // Debug logging
-		// console.log('Formatting time for:', {
-		// 	timestamp: thenTimestamp,
-		// 	parsed: new Date(thenTimestamp),
-		// 	now: new Date(nowTimestamp),
-		// 	diffInSeconds
-		// });
-
 		if (diffInSeconds < 60) {
-			return 'just now';
+			return m.just_now();
 		}
 
-		const intervals = [
-			{ label: 'year', seconds: 31536000 },
-			{ label: 'month', seconds: 2592000 },
-			{ label: 'day', seconds: 86400 },
-			{ label: 'hour', seconds: 3600 },
-			{ label: 'minute', seconds: 60 }
-		];
-
-		for (const interval of intervals) {
-			const count = Math.floor(diffInSeconds / interval.seconds);
-			if (count > 0) {
-				return `${count} ${interval.label}${count !== 1 ? 's' : ''} ago`;
-			}
+		if (diffInSeconds < 3600) {
+			const minutes = Math.floor(diffInSeconds / 60);
+			return minutes === 1 ? m.minute_ago({ count: minutes }) : m.minutes_ago({ count: minutes });
 		}
 
-		return `${diffInSeconds} second${diffInSeconds !== 1 ? 's' : ''} ago`;
+		if (diffInSeconds < 86400) {
+			const hours = Math.floor(diffInSeconds / 3600);
+			return hours === 1 ? m.hour_ago({ count: hours }) : m.hours_ago({ count: hours });
+		}
+
+		if (diffInSeconds < 2592000) {
+			const days = Math.floor(diffInSeconds / 86400);
+			return days === 1 ? m.day_ago({ count: days }) : m.days_ago({ count: days });
+		}
+
+		if (diffInSeconds < 31536000) {
+			const months = Math.floor(diffInSeconds / 2592000);
+			return months === 1 ? m.month_ago({ count: months }) : m.months_ago({ count: months });
+		}
+
+		const years = Math.floor(diffInSeconds / 31536000);
+		return years === 1 ? m.year_ago({ count: years }) : m.years_ago({ count: years });
 	});
 
 	const handleBodyShow = function (notificationId: string) {
@@ -262,16 +261,16 @@
 				$isMobileView ? "" : "flex-row gap-8"
 			)}>
 				<div>
-					<img src={badge()} alt="Progress badge">
+					<img src={badge()} alt={m.profile_picture()}>
 				</div>
 				<div class={cn($isMobileView ? "" : "mt-[3px]")}>
 					<h1 class="text-main font-sniglet-regular fz-ms6 min-[320px]:fz-ms7 min-[375px]:fz-ms8">
 						{#if [0, 1, 2].includes(selectedChild.progress)}
-							BEGINNER
+							{m.beginner()}
 						{:else if [3, 4, 5].includes(selectedChild.progress)}
-							INTERMEDIATE
+							{m.intermediate()}
 						{:else}
-							ADVANCED
+							{m.advanced()}
 						{/if}
 					</h1>
 				</div>
@@ -279,7 +278,7 @@
 			<div class="w-full flex flex-col gap-[4px]">
 				<div class="flex justify-between">
 					<div>
-						<span class="text-gray-500 fz-ms2 min-[375px]:fz-ms3">Level</span>
+						<span class="text-gray-500 fz-ms2 min-[375px]:fz-ms3">{m.level()}</span>
 					</div>
 					<div class="flex gap-0">
 						<span class="font-bold text-main fz-ms2 min-[375px]:fz-ms3">{selectedChild.progress}</span>
@@ -303,7 +302,7 @@
 		{#if selectedChild.progress < TOTAL_LEVELS}
 		<div class="flex flex-col gap-3">
 			<div class="flex items-center gap-3">
-				<h2 class="font-semibold text-main fz-ms3 min-[320px]:fz-ms4 min-[375px]:fz-ms5">Next</h2>
+				<h2 class="font-semibold text-main fz-ms3 min-[320px]:fz-ms4 min-[375px]:fz-ms5">{m.next()}</h2>
 				<div class="grid w-full h-6 grid-rows-[1fr_1fr]">
 					<div class="w-full h-full border-gray-300 border-b-[0.5px]"></div>
 					<div class="w-full h-full border-t-[0.5px] border-gray-300"></div>
@@ -314,7 +313,7 @@
 					<span class={cn("ml-6 px-3 py-[2px] border border-background rounded-lg text-blue-950 font-medium fz-ms1 min-[320px]:fz-ms2",
 						$userSettings.theme === 'DARK' ? "bg-blue-300" : "bg-blue-200"
 					)}>
-						Level {selectedChild.progress+1}
+						{m.level()} {selectedChild.progress+1}
 					</span>
 				</div>
 				<div class={cn("w-full flex justify-center px-4 pt-6 pb-8 rounded-[20px] min-[768px]:pt-8 min-[768px]:justify-start min-[768px]:pl-6 bg-gradient-to-b min-[768px]:bg-gradient-to-r",
@@ -331,7 +330,7 @@
 					)}
 					onclick={() => goto(`/app/levels/${selectedChild.progress + 1}`)}
 					type="button">
-						START
+						{m.start()}
 					</button>
 				</div>
 			</div>
@@ -341,7 +340,7 @@
 		<!-- Notifications -->
 		<div class="flex flex-col gap-3">
 			<div class="flex items-center gap-3">
-				<h2 class="font-semibold text-main fz-ms3 min-[320px]:fz-ms4 min-[375px]:fz-ms5">Notifications</h2>
+				<h2 class="font-semibold text-main fz-ms3 min-[320px]:fz-ms4 min-[375px]:fz-ms5">{m.notifications()}</h2>
 				<div class="grid w-full h-6 grid-rows-[1fr_1fr]">
 					<div class="w-full h-full border-gray-300 border-b-[0.5px]"></div>
 					<div class="w-full h-full border-t-[0.5px] border-gray-300"></div>
@@ -398,7 +397,7 @@
 					{/each}
 				</div>
 			{:else}
-				<p class="text-center text-gray-500">No notifications yet</p>
+				<p class="text-center text-gray-500">{m.no_notifications()}</p>
 			{/if}
 		</div>
 	</div>

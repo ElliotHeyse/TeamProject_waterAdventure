@@ -18,7 +18,7 @@
 	import { i18n } from '$lib/i18n';
 	import { goto } from '$app/navigation';
 	import type { AvailableLanguageTag } from '$lib/paraglide/runtime';
-	import type { Language } from '$lib/i18n/i18n-types';
+	// import type { Language } from '$lib/i18n/i18n-types';
 	import { Badge } from '$lib/components/coach/ui/badge';
 	import { browser } from '$app/environment';
 	import { userSettings } from '$lib/stores/userSettings';
@@ -317,16 +317,16 @@
 	<div class="pt-8 px-4 flex justify-center">
 		<div class="u-brandgrid">
 			<a href={"https://www.zwemfed.be"}>
-				<img src={isDarkMode ? zfLogoDark : zfLogoLight} alt={"Zwemfed"} />
+				<img src={isDarkMode ? zfLogoDark : zfLogoLight} alt={m.zwemfed_alt()} />
 			</a>
 			<a href={"https://www.sportinnovatiecampus.be"}>
-				<img src={sicLogoBlue} alt={"Sportinnovatiecampus"} />
+				<img src={sicLogoBlue} alt={m.sic_alt()} />
 			</a>
 			<a href={"https://www.howest.be/nl/opleidingen/bachelor/sport-en-bewegen"}>
-				<img src={sbLogoBlue} alt={"Howest | Sport & Bewegen"} />
+				<img src={sbLogoBlue} alt={m.sb_alt()} />
 			</a>
 			<a href={"https://mct.be"}>
-				<img src={mctLogoBlue} alt={"Howest | Multimedia & Creative Technologies"} />
+				<img src={mctLogoBlue} alt={m.mct_alt()} />
 			</a>
 		</div>
 	</div>
