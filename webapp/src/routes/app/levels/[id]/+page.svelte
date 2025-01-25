@@ -178,10 +178,9 @@
 							{#if (exercise.exerciseNumber === 1 && levelProgress.firstPartCompleted)
 								|| (exercise.exerciseNumber === 2 && levelProgress.fullyCompleted)
 							}
-							<span class="fz-ms1 min-[320px]:fz-ms2 min-[375px]:fz-ms3 text-white">Voltooid</span>
+							<span class="fz-ms1 min-[320px]:fz-ms2 min-[375px]:fz-ms3 text-white">{m.completed()}</span>
 							{:else}
-							<span class="fz-ms1 min-[320px]:fz-ms2 min-[375px]:fz-ms3 text-white">Markeer als</span>
-							<span class="fz-ms1 min-[320px]:fz-ms2 min-[375px]:fz-ms3 text-white">voltooid</span>
+							<span class="fz-ms1 min-[320px]:fz-ms2 min-[375px]:fz-ms3 text-white">{m.mark_as_completed()}</span>
 							{/if}
 						</button>
 					</div>
@@ -210,7 +209,7 @@
 					<!-- important note(s) -->
 					{#if exercise.languageContents[0].important.length > 0}
 						<div class="flex flex-col gap-1">
-							<h4 class="font-sniglet-regular text-foreground fz-ms4 min-[375px]:fz-ms5 min-[425px]:fz-ms6">Important</h4>
+							<h4 class="font-sniglet-regular text-foreground fz-ms4 min-[375px]:fz-ms5 min-[425px]:fz-ms6">{m.important_section()}</h4>
 							{#if exercise.languageContents[0].important.length > 1}
 								<!-- test on level 2 -->
 								<ul class="space-y-2">
@@ -227,7 +226,7 @@
 					<!-- tips -->
 					{#if exercise.languageContents[0].tips.length > 0}
 						<div class="flex flex-col gap-1">
-							<h4 class="font-sniglet-regular text-foreground fz-ms4 min-[375px]:fz-ms5 min-[425px]:fz-ms6">Tips</h4>
+							<h4 class="font-sniglet-regular text-foreground fz-ms4 min-[375px]:fz-ms5 min-[425px]:fz-ms6">{m.tips_section()}</h4>
 							{#if exercise.languageContents[0].tips.length > 1}
 								<!-- test on level 2 -->
 								<ul class="flex flex-col gap-2 list-disc pl-4">
@@ -245,7 +244,7 @@
 					<!-- videos -->
 					{#if exercise.videos.length > 0}
 						<div class="flex flex-col gap-2">
-							<h4 class="fz-ms4 font-sniglet-regular text-foreground min-[375px]:fz-ms5 min-[425px]:fz-ms6">Voorbeeldvideo's</h4>
+							<h4 class="fz-ms4 font-sniglet-regular text-foreground min-[375px]:fz-ms5 min-[425px]:fz-ms6">{m.example_videos()}</h4>
 							<div class="flex flex-col gap-3 min-[425px]:gap-6
 								{(exercise.videos.length > 1) ? 'min-[768px]:grid min-[768px]:grid-cols-2 min-[768px]:gap-3' : 'min-[768px]:w-[min(100%,29.625rem)]'}">
 								{#each exercise.videos as video}
@@ -283,7 +282,7 @@
 						<h3 class={cn("fz-ms5 min-[375px]:fz-ms6 min-[577px]:fz-ms7 font-sniglet-extrabold",
 							$userSettings.theme === 'DARK' ? "text-foreground" : "text-blue-950"
 						)}>
-							Mijn inzending
+							{m.my_submission()}
 						</h3>
 						<div>
 							<div class="flex flex-col gap-2">
@@ -296,7 +295,7 @@
 								{#if selectedChild.submissions[0].status === 'REVIEWED'}
 									<div class="flex flex-col gap-1 min-[320px]:gap-2">
 										<div class="flex justify-between items-center">
-											<h4 id="feedback" class="fz-ms4 font-sniglet-regular text-foreground min-[375px]:fz-ms5 min-[425px]:fz-ms6">Feedback van je coach</h4>
+											<h4 id="feedback" class="fz-ms4 font-sniglet-regular text-foreground min-[375px]:fz-ms5 min-[425px]:fz-ms6">{m.coach_feedback()}</h4>
 											<span class={cn("px-1 py-[0.0625rem] rounded fz-ms1 text-right text-muted-foreground",
 												$userSettings.theme === 'DARK' ? "bg-gray-950" : "bg-gray-200"
 											)}>
@@ -339,7 +338,7 @@
 										</div>
 									</div>
 								{:else}
-									<h4 class="fz-ms4 font-sniglet-regular text-foreground min-[375px]:fz-ms5 min-[425px]:fz-ms6">Nog geen feedback</h4>
+									<h4 class="fz-ms4 font-sniglet-regular text-foreground min-[375px]:fz-ms5 min-[425px]:fz-ms6">{m.no_feedback_yet()}</h4>
 								{/if}
 							</div>
 						</div>
@@ -354,7 +353,7 @@
 						<h3 class={cn("fz-ms5 min-[375px]:fz-ms6 min-[577px]:fz-ms7 font-sniglet-extrabold",
 							$userSettings.theme === 'DARK' ? "text-foreground" : "text-blue-950"
 						)}>
-							Video inzenden
+							{m.submit_video()}
 						</h3>
 						<div>
 							<form onsubmit={handleSubmit}>
@@ -370,18 +369,18 @@
 									<span class={cn("fz-ms2 min-[425px]:text-[1rem] ",
 										$userSettings.theme === 'DARK' ? "text-gray-300" : "text-gray-600"
 									)}>
-										Upload een video van de oefeningen en misschien verdien je wel een medaille!
+										{m.upload_video_medal_prompt()}
 									</span>
 									<div class="flex flex-col gap-1 items-center">
 										<label for="video" class={cn("w-full cursor-pointer fz-ms2 min-[425px]:text-[1rem] text-center px-4 py-2 rounded text-white transition-all",
 											$userSettings.theme === 'DARK' ? "bg-green-700 hover:bg-green-800" : "bg-green-500 hover:bg-green-600"
 										)}>
-											Video kiezen
+											{m.choose_video()}
 										</label>
 										<span class={cn("fz-ms1 min-[425px]:fz-ms2",
 											$userSettings.theme === 'DARK' ? "text-gray-500" : "text-gray-400"
 										)}>
-											Ondersteunde formaten: MP4, MOV, AVI.
+											{m.supported_formats()}
 										</span>
 									</div>
 								</div>
@@ -394,7 +393,7 @@
 											$userSettings.theme === 'DARK' ? "bg-blue-700  hover:bg-blue-800" : "bg-blue-500  hover:bg-blue-600"
 										)}
 									>
-										Video indienen
+										{m.submit_video()}
 									</button>
 								</div>
 							</form>

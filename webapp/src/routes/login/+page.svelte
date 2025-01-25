@@ -6,6 +6,7 @@
 	import { Button } from '$lib/components/coach/ui/button';
 	import { cn } from '$lib/utils';
 	import * as m from '$lib/paraglide/messages.js';
+	import LanguageSelector from '$lib/components/app/layout/LanguageSelector.svelte';
 
 	// Login form state
 	let email = $state('');
@@ -33,6 +34,11 @@
 </script>
 
 <div class="relative flex min-h-screen flex-col items-center justify-center">
+	<!-- Language selector -->
+	<div class="absolute top-4 right-4 z-50">
+		<LanguageSelector />
+	</div>
+
 	<!-- Background split -->
 	<div class="absolute inset-0">
 		<div class="h-1/2 bg-[#FF5555]"></div>
@@ -54,7 +60,7 @@
 				<p class="text-center text-sm text-gray-600">
 					{m.welcome_back()}
 				</p>
-				<p class="text-center text-sm text-gray-500">Demo credentials: demo@demo.com / demo</p>
+				<p class="text-center text-sm text-gray-500">{m.demo_credentials()}</p>
 			</div>
 
 			<form method="POST" action="?/login" use:enhance={handleSubmit} class="space-y-6">
@@ -107,7 +113,7 @@
 					</Button>
 
 					<a href="/register" class="text-center text-sm text-[#FF5555] hover:underline">
-						Don't have an account yet? Register here
+						{m.no_account()}
 					</a>
 				</div>
 			</form>
