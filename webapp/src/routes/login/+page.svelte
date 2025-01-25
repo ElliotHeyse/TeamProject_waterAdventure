@@ -15,7 +15,7 @@
 	let formData = $state<{ error?: string } | undefined>(undefined);
 
 	const inputStyles =
-		'mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#FF5555] focus:ring-[#FF5555] px-2 py-2';
+		'mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#FF5555] focus:ring-[#FF5555] px-2 py-2 max-[375px]:fz-ms2';
 
 	const handleSubmit: SubmitFunction = () => {
 		return async ({ result }) => {
@@ -48,19 +48,19 @@
 	<!-- Content -->
 	<div class="relative w-full max-w-md px-4">
 		<div
-			class="overflow-hidden rounded-lg border border-gray-200 bg-white/95 p-8 shadow-xl backdrop-blur supports-[backdrop-filter]:bg-white/80"
+			class="overflow-hidden rounded-lg border border-gray-200 bg-white/95 shadow-xl backdrop-blur supports-[backdrop-filter]:bg-white/80 p-8 max-[425px]:p-6 max-[375px]:px-4"
 		>
 			<div class="mb-8 flex flex-col items-center space-y-2">
 				<div class="h-12 w-12 rounded-full bg-[#FF5555]/10 p-2 text-[#FF5555]">
 					<Icon src={UserCircle} class="h-full w-full" />
 				</div>
-				<h2 class="text-center text-2xl font-bold tracking-tight text-gray-900">
+				<h2 class="text-center text-2xl font-bold tracking-tight text-gray-900 max-[375px]:fz-ms5">
 					{m.sign_in()}
 				</h2>
 				<p class="text-center text-sm text-gray-600">
 					{m.welcome_back()}
 				</p>
-				<p class="text-center text-sm text-gray-500">{m.demo_credentials()}</p>
+				<!-- <p class="text-center text-sm text-gray-500">{m.demo_credentials()}</p> -->
 			</div>
 
 			<form method="POST" action="?/login" use:enhance={handleSubmit} class="space-y-6">
@@ -71,7 +71,7 @@
 					</div>
 				{/if}
 
-				<div class="space-y-4">
+				<div class="flex flex-col gap-4 max-[425px]:gap-3">
 					<div class="space-y-1">
 						<label for="email" class="text-sm font-medium text-gray-700">{m.email_address()}</label>
 						<input
