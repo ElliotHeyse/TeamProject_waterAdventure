@@ -10,6 +10,7 @@
 	import { userSettings } from '$lib/stores/userSettings';
 	import { isMobileView } from '$lib/stores/viewport';
 	import { isSidebarOpen } from '$lib/stores/sidebar';
+	import type { Message } from '../types';
 
 	const { data } = $props<{ data: PageData }>();
 	let messageInput = $state('');
@@ -85,9 +86,31 @@
 	}
 
 	$isSidebarOpen = (false);
+
+	let markAsReadSucces: number = 0;
+	let markAsReadError: number = 0;
+	console.log(data.messages);
+	if (data.messages) {
+		data.messages.forEach(async (message: Message) => {
+			if (message.sender === 'COACH' && !message.isRead) {
+				const response = await fetch("/api/mark-as-read/message", {
+					method: 'POST',
+					headers: {
+						'Content-Type': 'application/json'
+					},
+					body: JSON.stringify({ id: message.id })
+				});
+				if (response.ok) {
+					markAsReadSucces += 1;
+					console.info(`Message ${message.id} marked as read`);
+				} else {
+					markAsReadError += 1;
+				}
+			}
+		});
+	}
 </script>
 
-<!-- <div class="flex flex-col h-[calc(100vh-128px)]"> -->
 <div class="h-full flex flex-col pb-14">
 	<div class=" fixed w-full z-30 -mt-16">
 		<div class="bg-background h-16"></div>
