@@ -1314,42 +1314,48 @@ async function main() {
 							videoUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
 							status: SubmissionStatus.REVIEWED,
 							feedback: "Wauw!",
-							medal: Medal.GOLD
+							medal: Medal.GOLD,
+							isRead: true
 						},
 						{
 							levelNumber: 2,
 							videoUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
 							status: SubmissionStatus.REVIEWED,
 							feedback: "Wauw!",
-							medal: Medal.SILVER
+							medal: Medal.SILVER,
+							isRead: true
 						},
 						{
 							levelNumber: 3,
 							videoUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
 							status: SubmissionStatus.REVIEWED,
 							feedback: "Wauw!",
-							medal: Medal.BRONZE
+							medal: Medal.BRONZE,
+							isRead: true
 						},
 						{
 							levelNumber: 4,
 							videoUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
 							status: SubmissionStatus.REVIEWED,
 							feedback: "Wauw!",
-							medal: Medal.NONE
+							medal: Medal.NONE,
+							isRead: true
 						},
 						{
 							levelNumber: 5,
 							videoUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
 							status: SubmissionStatus.REVIEWED,
 							feedback: "Wauw!",
-							medal: Medal.GOLD
+							medal: Medal.GOLD,
+							isRead: false
 						},
 						{
 							levelNumber: 6,
 							videoUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
 							status: SubmissionStatus.PENDING,
 							feedback: null,
-							medal: Medal.NONE
+							medal: Medal.NONE,
+							isRead: false
 						}
 					]
 				},
@@ -1408,28 +1414,31 @@ async function main() {
 							videoUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
 							status: SubmissionStatus.REVIEWED,
 							feedback: "Wauw!",
-							medal: Medal.GOLD
+							medal: Medal.GOLD,
+							isRead: true
 						},
 						{
 							levelNumber: 2,
 							videoUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
 							status: SubmissionStatus.REVIEWED,
 							feedback: "Wauw!",
-							medal: Medal.SILVER
+							medal: Medal.SILVER,
+							isRead: false
 						},
 						{
 							levelNumber: 3,
 							videoUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
 							status: SubmissionStatus.PENDING,
 							feedback: null,
-							medal: Medal.NONE
+							medal: Medal.NONE,
+							isRead: false
 						}
 					]
 				}
 			],
 			notifications: [
 				{
-					timestamp: new Date('2025-01-24T10:55:00Z'), // Just now
+					timestamp: new Date('2025-01-14T10:55:00Z'), // Just now
 					isRead: true,
 					type: NotificationType.META,
 					title: 'Welkom bij Zwemfed!',
@@ -1984,7 +1993,8 @@ async function main() {
 											videoUrl: submission.videoUrl,
 											status: submission.status,
 											feedback: submission.feedback,
-											medal: submission.medal
+											medal: submission.medal,
+											isRead: submission.isRead
 										}))
 									}
 								}))

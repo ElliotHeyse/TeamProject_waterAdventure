@@ -11,8 +11,9 @@ export interface Submission {
     status: string,
     feedback: string,
     medal: string,
-    updatedAt: Date
-    levelNumber: number
+    updatedAt: Date,
+    levelNumber: number,
+    isRead: Boolean
 }
 
 export interface Pupil {

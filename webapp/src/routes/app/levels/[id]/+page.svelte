@@ -296,7 +296,7 @@
 								{#if selectedChild.submissions[0].status === 'REVIEWED'}
 									<div class="flex flex-col gap-1 min-[320px]:gap-2">
 										<div class="flex justify-between items-center">
-											<h4 class="fz-ms4 font-sniglet-regular text-foreground min-[375px]:fz-ms5 min-[425px]:fz-ms6">Feedback van je coach</h4>
+											<h4 id="feedback" class="fz-ms4 font-sniglet-regular text-foreground min-[375px]:fz-ms5 min-[425px]:fz-ms6">Feedback van je coach</h4>
 											<span class={cn("px-1 py-[0.0625rem] rounded fz-ms1 text-right text-muted-foreground",
 												$userSettings.theme === 'DARK' ? "bg-gray-950" : "bg-gray-200"
 											)}>
@@ -417,3 +417,9 @@
 		{/if}
 	</div>
 </div>
+
+<style>
+	* {
+		scroll-behavior: smooth;
+	}
+</style>
