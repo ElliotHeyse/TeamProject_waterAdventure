@@ -43,12 +43,12 @@
 					{m.delete_level()}
 				</span>
 			</DropdownMenu.Item>
-			<DropdownMenu.Item>
+			<!-- <DropdownMenu.Item>
 				<span class="flex items-center gap-2 text-blue-500">
 					<Icon src={Pencil} class="h-4 w-4" />
 					{m.edit_level()}
 				</span>
-			</DropdownMenu.Item>
+			</DropdownMenu.Item> -->
 		</DropdownMenu.Group>
 		<DropdownMenu.Separator />
 		<DropdownMenu.Item>
