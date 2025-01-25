@@ -76,17 +76,19 @@
 	const formatMessages = function(parentUser: ParentUser): FrontendNotification[] {
 		const result: FrontendNotification[] = [];
 		parentUser.parent.messages.forEach((message: Message) => {
-			result.push({
-				id: uuidv4(), // generate new UUID for each notification
-				timestamp: message.createdAt,
-				isRead: message.isRead,
-				type: "MESSAGE",
-				title: "New message",
-				body: null,
-				levelNumber: null,
-				pupilId: null,
-				isBodyHidden: true
-			});
+			if (message.sender === "COACH") {
+				result.push({
+					id: uuidv4(), // generate new UUID for each notification
+					timestamp: message.createdAt,
+					isRead: message.isRead,
+					type: "MESSAGE",
+					title: "New message",
+					body: null,
+					levelNumber: null,
+					pupilId: null,
+					isBodyHidden: true
+				});
+			}
 		});
 		return result;
 	}
@@ -134,7 +136,7 @@
 	}
 
 	// Construct frontend notifications
-	const notifications: FrontendNotification[] = constructFrontendNotifications(data.parentUser).sort((a: FrontendNotification, b: FrontendNotification) => b.timestamp.getTime() - a.timestamp.getTime());
+	const notifications: FrontendNotification[] = $state(constructFrontendNotifications(data.parentUser).sort((a: FrontendNotification, b: FrontendNotification) => b.timestamp.getTime() - a.timestamp.getTime()));
 	// console.info('NotificationData:', notifications);
 
 	let nowTimestamp = $state(new Date().toISOString());
@@ -183,12 +185,20 @@
 		return `${diffInSeconds} second${diffInSeconds !== 1 ? 's' : ''} ago`;
 	});
 
-	const resetOtherNotificationBodies = function (notificationId: string) {
+	const handleBodyShow = function (notificationId: string) {
+		// Hide all other notification bodies
+		console.info("Hiding other notification bodies");
 		notifications.forEach(notification => {
 			if (notification.id !== notificationId) {
 				notification.isBodyHidden = true;
 			}
 		});
+		// Toggle body visibility
+		console.info("Toggling body visibility for notification:", notificationId);
+		let currentNotification = $state(notifications.find(notification => notification.id === notificationId));
+		if (currentNotification) {
+			currentNotification.isBodyHidden = !currentNotification.isBodyHidden;
+		}
 	}
 
 	const markNotificationAsRead = async function (notificationId: string) {
@@ -320,15 +330,16 @@
 				</div>
 			</div>
 			{#if notifications.length != 0}
-				<div class="flex flex-col gap-3">
+				<div class="flex flex-col gap-4">
 					{#each notifications as notification, index}
 						<button
 						class={cn("w-full rounded",
 							notification.type === "MESSAGE" ? "cursor-pointer" : "cursor-default",
-							$userSettings.theme === 'DARK' ? "hover:bg-blue-950": "hover:bg-blue-100"
+							$userSettings.theme === 'DARK' ? "hover:bg-blue-950": "hover:bg-blue-100",
+							notification.isBodyHidden ? "" : `${$userSettings.theme === 'DARK' ? "bg-blue-950 bg-opacity-50" : "bg-blue-50"}`
 						)}
 						onclick={() => {
-							resetOtherNotificationBodies(notification.id);
+							handleBodyShow(notification.id);
 							markNotificationAsRead(notification.id);
 							notification.type === "MESSAGE" ? goto("/app/chat") : null;
 						}}
@@ -347,18 +358,10 @@
 									</div>
 								</div>
 								{#if notification.type != "MESSAGE"}
-									<!-- temp test -->
-									<!-- {#if (notification.type === 'FEEDBACK' && notification.pupilId === selectedChild.id)}
-										<div class="bg-green-500">feedback from selected child</div>
-									{:else}
-										<div class="bg-red-500">feedback from other child OR meta</div>
-									{/if} -->
-
-									<!-- this is the real code -->
 									<a
 									href="{(notification.type === 'FEEDBACK' && notification.pupilId === selectedChild.id) ? `/app/levels/${notification.levelNumber}#feedback` : ''}"
 									class={cn("border-border min-[768px]:border-l my-1 flex items-start flex-1",
-										notification.isBodyHidden ? "block" : "block"
+										notification.isBodyHidden ? "hidden" : "block"
 									)}>
 										<div class={cn("h-full flex flex-1 justify-start ml-6 min-[768px]:ml-0 px-2 py-1 mr-1 hover:border-opacity-100 rounded border border-solid border-opacity-0 transition-all duration-200",
 											(notification.type === 'FEEDBACK' && notification.pupilId === selectedChild.id) ? "cursor-pointer" : "cursor-default",

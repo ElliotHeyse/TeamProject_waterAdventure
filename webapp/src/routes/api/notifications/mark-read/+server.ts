@@ -8,7 +8,7 @@ export const POST: RequestHandler = async ({ request, locals }) => {
     }
 
     const { notificationId } = await request.json();
-
+    console.info("API[level-progress]: request received");
     try {
         await prisma.notification.update({
             where: {
