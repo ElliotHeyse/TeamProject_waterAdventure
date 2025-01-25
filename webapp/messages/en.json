@@ -195,6 +195,7 @@
     "tips_section": "Tips",
     "email_placeholder": "your@email.com",
     "password_placeholder": "Enter your password",
+    "confirm_password": "Confirm Password",
     "confirm_email": "Confirm Email",
     "send_message": "Send",
     "type_message_placeholder": "Type your message...",

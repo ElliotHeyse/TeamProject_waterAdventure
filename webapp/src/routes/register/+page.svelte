@@ -68,7 +68,7 @@
 	};
 </script>
 
-<div class="relative flex min-h-screen flex-col items-center justify-center">
+<div class="relative flex min-h-screen flex-col items-center justify-center py-16">
 
 	<!-- Language selector -->
 	<div class="absolute top-4 right-4 z-50">
@@ -84,7 +84,7 @@
 	<!-- Content -->
 	<div class="relative w-full max-w-md px-4">
 		<div
-			class="overflow-hidden rounded-lg border border-gray-200 bg-white/95 p-8 shadow-xl backdrop-blur supports-[backdrop-filter]:bg-white/80"
+			class="overflow-hidden rounded-lg border border-gray-200 bg-white/95 shadow-xl backdrop-blur supports-[backdrop-filter]:bg-white/80 p-8 max-[425px]:p-6 max-[375px]:px-4"
 		>
 			<div class="mb-8 flex flex-col items-center space-y-2">
 				<div class="h-12 w-12 rounded-full bg-[#FF5555]/10 p-2 text-[#FF5555]">
@@ -287,4 +287,4 @@
 			</form>
 		</div>
 	</div>
-</div> 
+</div>
