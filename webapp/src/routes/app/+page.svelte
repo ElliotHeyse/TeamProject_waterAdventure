@@ -233,13 +233,13 @@
 				});
 
 				if (!response.ok) {
-					console.error('API result: Failed to mark as read');
+					console.info('Failed to mark as read');
 				} else {
 					console.info('API result: Marked as read');
 					notification.isRead = true;
 				}
 			} catch (error) {
-				console.error('Error marking notification as read:', error);
+				console.warn('Something went wrong while marking as read');
 			}
 		}
 	}

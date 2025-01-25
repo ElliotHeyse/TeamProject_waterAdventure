@@ -9,7 +9,6 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 
     const { id: notificationId } = await request.json();
     console.info("API[mark-as-read/notification]: request received");
-    console.info("notificationId: ", notificationId);
     try {
         await prisma.notification.update({
             where: {

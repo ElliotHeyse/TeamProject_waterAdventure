@@ -89,7 +89,6 @@
 
 	let markAsReadSucces: number = 0;
 	let markAsReadError: number = 0;
-	console.log(data.messages);
 	if (data.messages) {
 		data.messages.forEach(async (message: Message) => {
 			if (message.sender === 'COACH' && !message.isRead) {
@@ -108,6 +107,9 @@
 				}
 			}
 		});
+		if (markAsReadSucces > 0) {
+			console.info(`${markAsReadSucces} messages marked as read`);
+		}
 	}
 </script>
 
