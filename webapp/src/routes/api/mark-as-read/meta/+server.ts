@@ -7,8 +7,9 @@ export const POST: RequestHandler = async ({ request, locals }) => {
         return new Response('Unauthorized', { status: 401 });
     }
 
-    const { notificationId } = await request.json();
-    console.info("API[level-progress]: request received");
+    const { id: notificationId } = await request.json();
+    console.info("API[mark-as-read/notification]: request received");
+    console.info("notificationId: ", notificationId);
     try {
         await prisma.notification.update({
             where: {
@@ -20,9 +21,10 @@ export const POST: RequestHandler = async ({ request, locals }) => {
             }
         });
 
-        return json({ success: true });
+        console.info("API[mark-as-read/notification]: succesfully marked notification as read");
+        return json({ success: true }, { status: 200 });
     } catch (error) {
-        console.error('Error marking notification as read:', error);
+        console.error('API[mark-as-read/notification]: Error marking notification as read:', error);
         return json({ success: false, error: 'Failed to mark notification as read' }, { status: 500 });
     }
-}; 
+};

@@ -22,7 +22,7 @@
 	const badges = [badge0, badge1, badge2, badge3, badge4, badge5, badge6, badge7];
 
 	interface FrontendNotification {
-		id: string,
+		frontendId: string,
 		timestamp: Date,
 		isRead: Boolean,
 		type: string,
@@ -30,7 +30,8 @@
 		body: string | null,
 		levelNumber: number | null,
 		pupilId: string | null,
-		isBodyHidden: Boolean
+		isBodyHidden: Boolean,
+		backendId: string
 	}
 
 	// region Child logic
@@ -50,7 +51,7 @@
 
 	const TOTAL_LEVELS = data.levels.length;
 
-	// region Notifications logic
+	// region Notification logic
 
 	// Format submissions to frontend model
 	const formatSubmissions = function(pupil: Pupil): FrontendNotification[] {
@@ -58,7 +59,7 @@
 		pupil.submissions.forEach((submission: Submission) => {
 			if (submission.status === 'REVIEWED') {
 				result.push({
-					id: uuidv4(), // generate new UUID for each notification
+					frontendId: uuidv4(), // generate new UUID for each notification
 					timestamp: submission.updatedAt,
 					isRead: submission.isRead,
 					type: "FEEDBACK",
@@ -66,7 +67,8 @@
 					body: submission.feedback,
 					levelNumber: submission.levelNumber,
 					pupilId: pupil.id,
-					isBodyHidden: true
+					isBodyHidden: true,
+					backendId: submission.id
 				});
 			}
 		});
@@ -78,7 +80,7 @@
 		parentUser.parent.messages.forEach((message: Message) => {
 			if (message.sender === "COACH") {
 				result.push({
-					id: uuidv4(), // generate new UUID for each notification
+					frontendId: uuidv4(), // generate new UUID for each notification
 					timestamp: message.createdAt,
 					isRead: message.isRead,
 					type: "MESSAGE",
@@ -86,7 +88,8 @@
 					body: null,
 					levelNumber: null,
 					pupilId: null,
-					isBodyHidden: true
+					isBodyHidden: true,
+					backendId: message.id
 				});
 			}
 		});
@@ -99,7 +102,7 @@
 		parentUser.notifications.forEach((notification: UserNotification) => {
 			if (notification.type === 'META') {
 				result.push({
-					id: uuidv4(), // generate new UUID for each notification
+					frontendId: uuidv4(), // generate new UUID for each notification
 					timestamp: notification.timestamp,
 					isRead: notification.isRead,
 					type: "META",
@@ -107,7 +110,8 @@
 					body: notification.body,
 					levelNumber: null,
 					pupilId: null,
-					isBodyHidden: true
+					isBodyHidden: true,
+					backendId: notification.id
 				});
 			}
 		});
@@ -120,16 +124,16 @@
 
 		// Format backend submissions
 		parentUser.parent.pupils.forEach((pupil: Pupil) => {
-			const subNotifications: FrontendNotification[] = formatSubmissions(pupil);
+			const subNotifications: FrontendNotification[] = $state(formatSubmissions(pupil));
 			result = result.concat(subNotifications);
 		});
 
 		// Format backend messages
-		const msgNotifications: FrontendNotification[] = formatMessages(parentUser);
+		const msgNotifications: FrontendNotification[] = $state(formatMessages(parentUser));
 		result = result.concat(msgNotifications);
 
 		// Format backend notifications (type META)
-		const notNotifications: FrontendNotification[] = formatNotifications(parentUser);
+		const notNotifications: FrontendNotification[] = $state(formatNotifications(parentUser));
 		result = result.concat(notNotifications);
 
 		return result;
@@ -187,43 +191,57 @@
 
 	const handleBodyShow = function (notificationId: string) {
 		// Hide all other notification bodies
-		console.info("Hiding other notification bodies");
+		// console.info("Hiding other notification bodies");
 		notifications.forEach(notification => {
-			if (notification.id !== notificationId) {
+			if (notification.frontendId !== notificationId) {
 				notification.isBodyHidden = true;
 			}
 		});
 		// Toggle body visibility
-		console.info("Toggling body visibility for notification:", notificationId);
-		let currentNotification = $state(notifications.find(notification => notification.id === notificationId));
+		// console.info("Toggling body visibility for notification:", notificationId);
+		let currentNotification = $state(notifications.find(notification => notification.frontendId === notificationId));
 		if (currentNotification) {
 			currentNotification.isBodyHidden = !currentNotification.isBodyHidden;
 		}
 	}
 
 	const markNotificationAsRead = async function (notificationId: string) {
-		// // Frontend: update read status
-		// const notification = notifications.find(notification => notification.id === notificationId);
-		// if (notification) {
-		// 	notification.isRead = true;
-		// }
+		const notification = $state(notifications.find(notification => notification.frontendId === notificationId));
+		if (notification && !notification.isRead) {
+			try {
+				let route: string = '';
+				switch (notification.type) {
+					case "FEEDBACK":
+						route = "/api/mark-as-read/submission";
+						break;
+					case "MESSAGE":
+						route = "/api/mark-as-read/message";
+						break;
+					case "META":
+						route = "/api/mark-as-read/meta";
+						break;
+					default:
+						route = "";
+				}
 
-		// // Update in the database
-		// try {
-		// 	const response = await fetch('/api/notifications/mark-read', {
-		// 		method: 'POST',
-		// 		headers: {
-		// 			'Content-Type': 'application/json'
-		// 		},
-		// 		body: JSON.stringify({ notificationId })
-		// 	});
+				const response = await fetch(route, {
+					method: 'POST',
+					headers: {
+						'Content-Type': 'application/json'
+					},
+					body: JSON.stringify({ id: notification.backendId })
+				});
 
-		// 	if (!response.ok) {
-		// 		console.error('Failed to mark notification as read');
-		// 	}
-		// } catch (error) {
-		// 	console.error('Error marking notification as read:', error);
-		// }
+				if (!response.ok) {
+					console.error('API result: Failed to mark as read');
+				} else {
+					console.info('API result: Marked as read');
+					notification.isRead = true;
+				}
+			} catch (error) {
+				console.error('Error marking notification as read:', error);
+			}
+		}
 	}
 
 	$isSidebarOpen = (false);
@@ -339,8 +357,8 @@
 							notification.isBodyHidden ? "" : `${$userSettings.theme === 'DARK' ? "bg-blue-950 bg-opacity-50" : "bg-blue-50"}`
 						)}
 						onclick={() => {
-							handleBodyShow(notification.id);
-							markNotificationAsRead(notification.id);
+							handleBodyShow(notification.frontendId);
+							markNotificationAsRead(notification.frontendId);
 							notification.type === "MESSAGE" ? goto("/app/chat") : null;
 						}}
 						type="button">
@@ -386,120 +404,3 @@
 	</div>
 	{/if}
 </div>
-
-
-<!-- <div> -->
-	<!-- temp previous code -->
-	<!-- {#if notification.type === "MESSAGE"} -->
-		<!-- Message notification (link to chat page) -->
-		<!-- <!-- <button --> -->
-		<!-- class={cn("w-full rounded cursor-pointer", -->
-			<!-- $userSettings.theme === 'DARK' ? "hover:bg-blue-950": "hover:bg-blue-100" -->
-		<!-- )} -->
-		<!-- onclick={() => { -->
-			<!-- resetOtherNotificationBodies(notification.id); -->
-			<!-- markNotificationAsRead(notification.id); -->
-			<!-- goto("/app/chat"); -->
-		<!-- }} -->
-		<!-- type="button"> -->
-			<!-- <div> -->
-				<!-- <div class="flex gap-4 px-2 py-[6px]"> -->
-					<!-- <div class={cn("mt-2 h-2 w-2 bg-blue-500 rounded-full", -->
-						<!-- notification.isRead ? "opacity-0" : "opacity-100")}></div> -->
-					<!-- <div class="flex flex-col items-start w-full gap-1"> -->
-						<!-- <span class="text-[14px] leading-[150%] font-medium text-main">{notification.title}</span> -->
-						<!-- <span class="text-[14px] leading-[150%] text-gray-500"> -->
-							<!-- {formatTimeAgo(notification.timestamp)} -->
-						<!-- </span> -->
-					<!-- </div> -->
-				<!-- </div> -->
-			<!-- </div> -->
-		<!-- </button> -->
-	<!-- {:else if notification.type === "FEEDBACK"} -->
-		<!-- <!-- Feedback notification (link to specified feedback) --> -->
-		<!-- <button -->
-		<!-- class={cn("w-full cursor-default rounded transition-all duration-200", -->
-			<!-- notification.isBodyHidden ? "" : `${$userSettings.theme === 'DARK' ? "bg-blue-950 bg-opacity-50" : "bg-blue-50"}`, -->
-			<!-- $userSettings.theme === 'DARK' ? "hover:bg-blue-950": "hover:bg-blue-100" -->
-		<!-- )} -->
-		<!-- onclick={() => { -->
-			<!-- markNotificationAsRead(notification.id); -->
-			<!-- resetOtherNotificationBodies(notification.id); -->
-			<!-- if (notification.isBodyHidden) { -->
-				<!-- notification.isBodyHidden = false; -->
-			<!-- } else { -->
-				<!-- notification.isBodyHidden = true; -->
-			<!-- } -->
-		<!-- }} -->
-		<!-- type="button"> -->
-			<!-- <div class="flex flex-col min-[768px]:flex-row min-[768px]:gap-1 transition-all duration-200"> -->
-				<!-- <div class="flex gap-4 px-2 py-[6px] min-[768px]:flex-shrink-0"> -->
-					<!-- <div class={cn("mt-2 h-2 w-2 bg-blue-500 rounded-full", -->
-						<!-- notification.isRead ? "opacity-0" : "opacity-100")}></div> -->
-					<!-- <div class="flex flex-col items-start gap-1"> -->
-						<!-- <span class="text-left text-[14px] leading-[150%] font-medium text-main"> -->
-							<!-- New feedback: Level {notification.levelNumber} -->
-						<!-- </span> -->
-						<!-- <span class="text-left text-[14px] leading-[150%] text-gray-500"> -->
-							<!-- {formatTimeAgo(notification.timestamp)} -->
-							<!-- <!-- update formatTimeAgo() logic --> -->
-						<!-- </span> -->
-					<!-- </div> -->
-				<!-- </div> -->
-				<!-- <a href="/app/levels/{notification.levelNumber}#feedback" class={cn("border-border min-[768px]:border-l my-1 flex items-start flex-1", -->
-					<!-- notification.isBodyHidden ? "hidden" : "block")}> -->
-					<!-- <div class={cn("h-full flex flex-1 justify-start ml-6 min-[768px]:ml-0 px-2 py-1 mr-1 hover:border-opacity-100 rounded border border-solid border-opacity-0 transition-all duration-200", -->
-						<!-- $userSettings.theme === 'DARK' ? "bg-[#0D1735] hover:border-blue-800": "bg-blue-50 hover:border-blue-500" -->
-					<!-- )}> -->
-						<!-- <p class="text-left break-words transition-all duration-200 fz-ms1 text-main"> -->
-							<!-- {notification.body} -->
-						<!-- </p> -->
-					<!-- </div> -->
-				<!-- </a> -->
-			<!-- </div> -->
-		<!-- </button> -->
-	<!-- {:else} -->
-		<!-- <!-- Meta notification (no link) --> -->
-		<!-- <button -->
-		<!-- class={cn("w-full cursor-default rounded hover:bg-blue-100 transition-all duration-200", -->
-			<!-- notification.isBodyHidden ? "" : `${$userSettings.theme === 'DARK' ? "bg-blue-950 bg-opacity-50" : "bg-blue-50"}`, -->
-			<!-- $userSettings.theme === 'DARK' ? "hover:bg-blue-950": "hover:bg-blue-100" -->
-		<!-- )} -->
-		<!-- onclick={() => { -->
-			<!-- markNotificationAsRead(notification.id); -->
-			<!-- resetOtherNotificationBodies(notification.id); -->
-			<!-- if (notification.isBodyHidden) { -->
-				<!-- notification.isBodyHidden = false; -->
-			<!-- } else { -->
-				<!-- notification.isBodyHidden = true; -->
-			<!-- } -->
-		<!-- }} -->
-		<!-- type="button"> -->
-			<!-- <div class="flex flex-col min-[768px]:flex-row min-[768px]:gap-1 transition-all duration-200"> -->
-				<!-- <div class="flex flex-col min-[768px]:flex-row min-[768px]:gap-1 transition-all duration-200"> -->
-					<!-- <div class="flex gap-4 px-2 py-[6px] min-[768px]:flex-shrink-0"> -->
-						<!-- <div class={cn("mt-2 h-2 w-2 bg-blue-500 rounded-full", -->
-							<!-- notification.isRead ? "opacity-0" : "opacity-100")}></div> -->
-						<!-- <div class="flex flex-col items-start gap-1"> -->
-							<!-- <span class="text-left text-[14px] leading-[150%] font-medium text-main">{notification.title}</span> -->
-							<!-- <span class="text-left text-[14px] leading-[150%] text-gray-500"> -->
-								<!-- {formatTimeAgo(notification.timestamp)} -->
-								<!-- <!-- update formatTimeAgo() logic --> -->
-							<!-- </span> -->
-						<!-- </div> -->
-					<!-- </div> -->
-					<!-- <div class={cn("border-border min-[768px]:border-l my-1 flex items-start flex-1", -->
-						<!-- notification.isBodyHidden ? "hidden" : "block")}> -->
-						<!-- <div class={cn("h-full flex justify-start ml-6 min-[768px]:ml-0 px-2 py-1 mr-1 rounded border border-solid border-opacity-0 transition-all duration-200", -->
-							<!-- $userSettings.theme === 'DARK' ? "bg-[#0D1735]": "bg-blue-50" -->
-						<!-- )}> -->
-							<!-- <p class="text-left text-[14px] leading-[150%] text-main break-words transition-all duration-200"> -->
-								<!-- {notification.body} -->
-							<!-- </p> -->
-						<!-- </div> -->
-					<!-- </div> -->
-				<!-- </div> -->
-			<!-- </div> -->
-		<!-- </button> -->
-	<!-- {/if} -->
-<!-- </div> -->
