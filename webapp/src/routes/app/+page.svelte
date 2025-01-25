@@ -387,7 +387,7 @@
 												? `bg-[#0D1735] ${(notification.type === 'FEEDBACK' && notification.pupilId === selectedChild.id) ? 'hover:border-blue-800' : ''}`
 												: `bg-blue-50 ${(notification.type === 'FEEDBACK' && notification.pupilId === selectedChild.id) ? 'hover:border-blue-500' : ''}`
 										)}>
-											<p class="text-left break-words transition-all duration-200 fz-ms1 text-main">
+											<p class="text-left break-words transition-all duration-200 fz-ms1 min-[577px]:fz-ms2 text-main">
 												{notification.body}
 											</p>
 										</div>

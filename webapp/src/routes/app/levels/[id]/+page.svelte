@@ -407,7 +407,6 @@
 									}"
 								>
 									{message}
-									Indienen mislukt
 								</div>
 							{/if}
 						</div>
