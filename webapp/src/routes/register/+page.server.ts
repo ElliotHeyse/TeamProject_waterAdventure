@@ -26,11 +26,37 @@ export const load: PageServerLoad = async ({ locals }) => {
 	return { form: null };
 };
 
+interface ChildData {
+	name: string;
+	dateOfBirth: string;
+	level: 'BEGINNER' | 'INTERMEDIATE' | 'ADVANCED';
+}
+
+function getChildrenFromFormData(formData: FormData): ChildData[] {
+	const children: ChildData[] = [];
+	let index = 0;
+
+	while (true) {
+		const name = formData.get(`childName${index}`)?.toString().trim();
+		const dateOfBirth = formData.get(`dateOfBirth${index}`)?.toString();
+		const level = formData.get(`level${index}`)?.toString() as 'BEGINNER' | 'INTERMEDIATE' | 'ADVANCED';
+
+		if (!name || !dateOfBirth || !level) break;
+
+		children.push({ name, dateOfBirth, level });
+		index++;
+	}
+
+	return children;
+}
+
 export const actions = {
 	register: async ({ request, cookies, locals }) => {
 		try {
 			console.log('Starting registration process');
 			const formData = await request.formData();
+			
+			// Parent data
 			const email = formData.get('email')?.toString().trim();
 			const confirmEmail = formData.get('confirmEmail')?.toString().trim();
 			const password = formData.get('password')?.toString();
@@ -38,9 +64,13 @@ export const actions = {
 			const name = formData.get('name')?.toString().trim();
 			const phone = formData.get('phone')?.toString().trim();
 
+			// Get children data
+			const children = getChildrenFromFormData(formData);
+
+			// Validate parent data
 			if (!email || !confirmEmail || !password || !confirmPassword || !name) {
 				return fail(400, {
-					error: 'All fields are required.',
+					error: 'All parent fields are required.',
 					name,
 					email,
 					phone
@@ -63,6 +93,27 @@ export const actions = {
 					email,
 					phone
 				});
+			}
+
+			// Validate children data
+			if (children.length === 0) {
+				return fail(400, {
+					error: 'At least one child is required.',
+					name,
+					email,
+					phone
+				});
+			}
+
+			for (const child of children) {
+				if (!child.name || !child.dateOfBirth || !child.level) {
+					return fail(400, {
+						error: 'All child fields are required for each child.',
+						name,
+						email,
+						phone
+					});
+				}
 			}
 
 			const existingUser = await prisma.user.findUnique({ where: { email } });
@@ -95,7 +146,7 @@ export const actions = {
 
 			const hashedPassword = await bcrypt.hash(password, 10);
 
-			// Create User and Parent within a transaction
+			// Create User, Parent, and all Children within a single transaction
 			const user = await prisma.$transaction(async (prisma) => {
 				const user = await prisma.user.create({
 					data: {
@@ -106,12 +157,30 @@ export const actions = {
 						parent: {
 							create: {
 								coachId: coach.id,
-								phone: phone || null
+								phone: phone || null,
+								pupils: {
+									create: children.map(child => ({
+										name: child.name,
+										dateOfBirth: new Date(child.dateOfBirth),
+										notes: '',
+										levelProgress: {
+											create: {
+												levelNumber: child.level === 'BEGINNER' ? 1 : child.level === 'INTERMEDIATE' ? 2 : 3,
+												firstPartCompleted: false,
+												fullyCompleted: false
+											}
+										}
+									}))
+								}
 							}
 						}
 					},
 					include: {
-						parent: true
+						parent: {
+							include: {
+								pupils: true
+							}
+						}
 					}
 				});
 				return user;
@@ -123,15 +192,15 @@ export const actions = {
 				locals.parent = user.parent;
 			}
 
-			// Create a temporary session for the registration process
+			// Create session
 			const token = randomBytes(32).toString('hex');
-			const thirtyMinutesFromNow = new Date(Date.now() + 30 * 60 * 1000);
+			const twoDaysFromNow = new Date(Date.now() + 2 * 24 * 60 * 60 * 1000);
 
 			const session = await prisma.session.create({
 				data: {
 					token,
 					userId: user.id,
-					expiresAt: thirtyMinutesFromNow
+					expiresAt: twoDaysFromNow
 				}
 			});
 
@@ -140,120 +209,19 @@ export const actions = {
 				httpOnly: true,
 				sameSite: 'strict',
 				secure: process.env.NODE_ENV === 'production',
-				maxAge: 30 * 60 // 30 minutes
+				maxAge: 60 * 60 * 24 * 2 // 2 days
 			});
 
-			// Add to registration state with 30-minute expiry
-			registrationState.set(user.id, Date.now() + 30 * 60 * 1000);
+			console.log('Registration successful, user and pupils created:', {
+				userId: user.id,
+				email: user.email,
+				pupilCount: user.parent?.pupils.length
+			});
 
-			console.log('Registration successful, user created:', { id: user.id, email: user.email });
 			return { success: true };
 		} catch (error) {
 			console.error('Registration error:', error);
 			return fail(500, { error: 'Registration failed' });
-		}
-	},
-
-	addChild: async ({ request, cookies, locals }) => {
-		console.log('addChild handler called');
-
-		if (!locals.user || !locals.parent) {
-			console.log('No user or parent in locals');
-			return fail(403, { error: 'Not authorized' });
-		}
-
-		// Check registration state
-		const expiryTime = registrationState.get(locals.user.id);
-		if (!expiryTime || Date.now() > expiryTime) {
-			console.log('Registration state expired or not found');
-			registrationState.delete(locals.user.id);
-			return fail(403, { error: 'Registration session expired' });
-		}
-
-		try {
-			// Get fresh parent data to ensure we have the latest
-			const parent = await prisma.parent.findUnique({
-				where: { userId: locals.user.id }
-			});
-
-			if (!parent) {
-				console.log('Parent not found in database');
-				return fail(500, { error: 'Parent not found' });
-			}
-
-			if (!parent.coachId) {
-				console.log('No coach assigned to parent. Parent data:', parent);
-				return fail(500, { error: 'No coach assigned to parent. Please try registering again.' });
-			}
-
-			console.log('Processing form data');
-			const formData = await request.formData();
-			console.log('Raw form data:', Object.fromEntries(formData.entries()));
-
-			const name = formData.get('childName')?.toString().trim();
-			const dateOfBirth = formData.get('dateOfBirth')?.toString();
-			const level = formData.get('level')?.toString() as 'BEGINNER' | 'INTERMEDIATE';
-
-			console.log('Form data received:', { name, dateOfBirth, level });
-
-			if (!name || !dateOfBirth || !level) {
-				console.log('Validation failed:', { name, dateOfBirth, level });
-				return fail(400, {
-					error: 'All fields are required.',
-					name,
-					dateOfBirth,
-					level
-				});
-			}
-
-			console.log('Creating pupil with data:', {
-				name,
-				dateOfBirth,
-				parentId: parent.id
-			});
-
-			const pupil = await prisma.pupil.create({
-				data: {
-					name,
-					dateOfBirth: new Date(dateOfBirth),
-					parentId: parent.id,
-					notes: '',
-					levelProgress: {
-						create: {
-							levelNumber: level === 'INTERMEDIATE' ? 2 : 1,
-							firstPartCompleted: false,
-							fullyCompleted: false
-						}
-					}
-				}
-			});
-
-			// Extend session to full duration
-			const twoDaysFromNow = new Date(Date.now() + 2 * 24 * 60 * 60 * 1000);
-			const sessionToken = cookies.get('session');
-
-			if (sessionToken) {
-				await prisma.session.update({
-					where: { token: sessionToken },
-					data: { expiresAt: twoDaysFromNow }
-				});
-
-				cookies.set('session', sessionToken, {
-					path: '/',
-					httpOnly: true,
-					sameSite: 'strict',
-					secure: process.env.NODE_ENV === 'production',
-					maxAge: 60 * 60 * 24 * 2 // 2 days
-				});
-			}
-
-			// Remove from registration state
-			registrationState.delete(locals.user.id);
-
-			return { success: true };
-		} catch (error) {
-			console.error('Add Child Error:', error);
-			return fail(500, { error: 'Failed to add child' });
 		}
 	}
 } satisfies Actions;

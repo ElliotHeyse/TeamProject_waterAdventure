@@ -2,11 +2,17 @@
 	import { enhance } from '$app/forms';
 	import { goto } from '$app/navigation';
 	import type { SubmitFunction } from '@sveltejs/kit';
-	import { Icon, UserPlus } from 'svelte-hero-icons';
+	import { Icon, UserPlus, PlusCircle, XCircle } from 'svelte-hero-icons';
 	import { Button } from '$lib/components/coach/ui/button';
 	import { cn } from '$lib/utils';
 	import * as m from '$lib/paraglide/messages.js';
 	import LanguageSelector from '$lib/components/app/layout/LanguageSelector.svelte';
+
+	interface Child {
+		name: string;
+		dateOfBirth: string;
+		level: 'BEGINNER' | 'INTERMEDIATE' | 'ADVANCED';
+	}
 
 	// Form state
 	let name = $state('');
@@ -15,17 +21,37 @@
 	let password = $state('');
 	let confirmPassword = $state('');
 	let phone = $state('');
+	let children = $state<Child[]>([{ name: '', dateOfBirth: '', level: 'BEGINNER' }]);
 	let error = $state('');
 	let formData = $state<{ error?: string } | undefined>(undefined);
 
-	// Child form state
-	let showChildForm = $state(false);
-	let childName = $state('');
-	let dateOfBirth = $state('');
-	let level = $state<'BEGINNER' | 'INTERMEDIATE' | 'ADVANCED'>('BEGINNER');
-
 	const inputStyles =
 		'mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#FF5555] focus:ring-[#FF5555] px-2 py-2';
+
+	function addChild() {
+		children = [...children, { name: '', dateOfBirth: '', level: 'BEGINNER' }];
+	}
+
+	function removeChild(index: number) {
+		if (children.length > 1) {
+			children = children.filter((_, i) => i !== index);
+		}
+	}
+
+	function updateChildName(index: number, value: string) {
+		children[index].name = value;
+		children = [...children];
+	}
+
+	function updateChildDateOfBirth(index: number, value: string) {
+		children[index].dateOfBirth = value;
+		children = [...children];
+	}
+
+	function updateChildLevel(index: number, value: string) {
+		children[index].level = value as 'BEGINNER' | 'INTERMEDIATE' | 'ADVANCED';
+		children = [...children];
+	}
 
 	const handleSubmit: SubmitFunction = () => {
 		return async ({ result }) => {
@@ -36,19 +62,7 @@
 				console.error('Form submission failed:', error);
 				formData = result.data;
 			} else if (result.type === 'success') {
-				if (!showChildForm) {
-					// Parent registration successful, show child form
-					showChildForm = true;
-					error = '';
-					formData = undefined;
-					console.log('Parent registration successful, showing child form');
-					return;
-				} else {
-					// Child registration successful, redirect to app
-					console.log('Child registration successful, redirecting to app');
-					goto('/app');
-					return;
-				}
+				goto('/app');
 			}
 		};
 	};
@@ -77,96 +91,26 @@
 					<Icon src={UserPlus} class="h-full w-full" />
 				</div>
 				<h2 class="text-center text-2xl font-bold tracking-tight text-gray-900">
-					{#if showChildForm}
-						{m.add_child()}
-					{:else}
-						{m.create_account()}
-					{/if}
+					{m.create_account()}
 				</h2>
 				<p class="text-center text-sm text-gray-600">
-					{#if showChildForm}
-						{m.add_child_description()}
-					{:else}
-						{m.join_wateradventure()}
-					{/if}
+					{m.join_wateradventure()}
 				</p>
 			</div>
 
-			<form
-				method="POST"
-				action={showChildForm ? '?/addChild' : '?/register'}
-				use:enhance={handleSubmit}
-				class="space-y-6"
-			>
+			<form method="POST" action="?/register" use:enhance={handleSubmit} class="space-y-6">
 				{#if formData?.error}
 					<div class="rounded-md bg-red-50 p-4 text-sm text-red-700">
-						<p class="font-medium">
-							{#if showChildForm}
-								{m.add_child_failed()}
-							{:else}
-								{m.registration_failed()}
-							{/if}
-						</p>
+						<p class="font-medium">{m.registration_failed()}</p>
 						<p>{formData.error}</p>
 					</div>
 				{/if}
 
 				<div class="space-y-4">
-					{#if showChildForm}
-						<!-- Child Form -->
-						<div class="space-y-1">
-							<label for="childName" class="text-sm font-medium text-gray-700">{m.childs_full_name()}</label>
-							<input
-								type="text"
-								id="childName"
-								name="childName"
-								class={inputStyles}
-								required
-								value={childName}
-								oninput={(e) => {
-									childName = e.currentTarget.value;
-									console.log('Child name updated:', childName);
-								}}
-								placeholder="John Doe Jr."
-							/>
-						</div>
+					<!-- Parent Information Section -->
+					<div class="space-y-4">
+						<h3 class="text-lg font-medium text-gray-900">{m.parent_information()}</h3>
 
-						<div class="space-y-1">
-							<label for="dateOfBirth" class="text-sm font-medium text-gray-700">{m.date_of_birth()}</label>
-							<input
-								type="date"
-								id="dateOfBirth"
-								name="dateOfBirth"
-								class={inputStyles}
-								required
-								value={dateOfBirth}
-								oninput={(e) => {
-									dateOfBirth = e.currentTarget.value;
-									console.log('Date of birth updated:', dateOfBirth);
-								}}
-							/>
-						</div>
-
-						<div class="space-y-1">
-							<label for="level" class="text-sm font-medium text-gray-700">{m.swimming_level()}</label>
-							<select
-								id="level"
-								name="level"
-								class={inputStyles}
-								required
-								value={level}
-								onchange={(e) => {
-									level = e.currentTarget.value as typeof level;
-									console.log('Level updated:', level);
-								}}
-							>
-								<option value="BEGINNER">{m.beginner()}</option>
-								<option value="INTERMEDIATE">{m.intermediate()}</option>
-								<option value="ADVANCED">{m.advanced()}</option>
-							</select>
-						</div>
-					{:else}
-						<!-- Registration Form -->
 						<div class="space-y-1">
 							<label for="name" class="text-sm font-medium text-gray-700">{m.full_name()}</label>
 							<input
@@ -224,7 +168,7 @@
 						</div>
 
 						<div class="space-y-1">
-							<label for="confirmPassword" class="text-sm font-medium text-gray-700">{m.password()}</label>
+							<label for="confirmPassword" class="text-sm font-medium text-gray-700">{m.confirm_password()}</label>
 							<input
 								type="password"
 								id="confirmPassword"
@@ -249,25 +193,94 @@
 								placeholder={m.phone_placeholder()}
 							/>
 						</div>
-					{/if}
+					</div>
+
+					<!-- Children Information Section -->
+					<div class="space-y-4 pt-6">
+						<div class="flex items-center justify-between">
+							<h3 class="text-lg font-medium text-gray-900">{m.child_information()}</h3>
+							<button
+								type="button"
+								class="inline-flex items-center text-sm text-[#FF5555] hover:text-[#FF5555]/90"
+								onclick={addChild}
+							>
+								<Icon src={PlusCircle} class="mr-1 h-5 w-5" />
+								{m.add_child()}
+							</button>
+						</div>
+
+						{#each children as child, index}
+							<div class="relative space-y-4 rounded-lg border border-gray-200 bg-gray-50 p-4">
+								{#if children.length > 1}
+									<button
+										type="button"
+										class="absolute right-2 top-2 text-gray-400 hover:text-gray-600"
+										onclick={() => removeChild(index)}
+									>
+										<Icon src={XCircle} class="h-5 w-5" />
+									</button>
+								{/if}
+
+								<div class="space-y-1">
+									<label
+										for="childName{index}"
+										class="text-sm font-medium text-gray-700">{m.childs_full_name()}</label
+									>
+									<input
+										type="text"
+										id="childName{index}"
+										name="childName{index}"
+										class={inputStyles}
+										required
+										value={child.name}
+										oninput={(e) => updateChildName(index, e.currentTarget.value)}
+										placeholder="John Doe Jr."
+									/>
+								</div>
+
+								<div class="space-y-1">
+									<label
+										for="dateOfBirth{index}"
+										class="text-sm font-medium text-gray-700">{m.date_of_birth()}</label
+									>
+									<input
+										type="date"
+										id="dateOfBirth{index}"
+										name="dateOfBirth{index}"
+										class={inputStyles}
+										required
+										value={child.dateOfBirth}
+										oninput={(e) => updateChildDateOfBirth(index, e.currentTarget.value)}
+									/>
+								</div>
+
+								<div class="space-y-1">
+									<label
+										for="level{index}"
+										class="text-sm font-medium text-gray-700">{m.swimming_level()}</label
+									>
+									<select
+										id="level{index}"
+										name="level{index}"
+										class={inputStyles}
+										required
+										value={child.level}
+										onchange={(e) => updateChildLevel(index, e.currentTarget.value)}
+									>
+										<option value="BEGINNER">{m.beginner()}</option>
+										<option value="INTERMEDIATE">{m.intermediate()}</option>
+										<option value="ADVANCED">{m.advanced()}</option>
+									</select>
+								</div>
+							</div>
+						{/each}
+					</div>
 				</div>
 
-				<div class="flex flex-col space-y-4">
-					<Button
-						type="submit"
-						class={cn(
-							'w-full bg-[#FF5555] text-white hover:bg-[#FF5555]/90',
-							'focus-visible:ring-[#FF5555]'
-						)}
-					>
-						{#if showChildForm}
-							{m.add_child()}
-						{:else}
-							{m.create_account()}
-						{/if}
-					</Button>
+				<Button type="submit" class="w-full">{m.create_account()}</Button>
 
-					<a href="/login" class="text-center text-sm text-[#FF5555] hover:underline">
+				<div class="text-center">
+					<a href="/login" class="text-sm text-[#FF5555] hover:underline">
 						{m.has_account()}
 					</a>
 				</div>
