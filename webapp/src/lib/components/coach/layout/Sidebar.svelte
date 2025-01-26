@@ -18,12 +18,14 @@
 	import * as DropdownMenu from '$lib/components/coach/ui/dropdown-menu';
 	import { LogOut, Settings } from 'lucide-svelte';
 	import { goto } from '$app/navigation';
+	import { getGravatarUrl } from '$lib/utils/gravatar';
 
 	let { isSidebarOpen } = $props<{ isSidebarOpen: boolean }>();
 	let isDarkMode = $state(false);
 
 	const data = $state(page.data);
 	const coachName = $state(data.coach?.user?.name || 'Unknown Coach');
+	const coachEmail = $state(data.coach?.user?.email || '');
 
 	async function handleLogout() {
 		await goto('/logout');
@@ -113,8 +115,12 @@
 			<DropdownMenu.Trigger class="w-full">
 				{#if isSidebarOpen}
 					<div class="bg-muted/80 flex items-center gap-3 rounded-lg px-3 py-2.5">
-						<div class="bg-primary/10 text-primary h-8 w-8 rounded-full">
-							<Icon src={UserCircle} class="h-8 w-8" />
+						<div class="bg-primary/10 text-primary h-8 w-8 rounded-full overflow-hidden">
+							<img
+								src={getGravatarUrl(coachEmail, 32)}
+								alt={`${coachName}'s profile picture`}
+								class="h-full w-full object-cover"
+							/>
 						</div>
 						<div class="min-w-0 flex-1">
 							<div class="text-foreground truncate text-sm font-medium">{coachName}</div>
@@ -123,8 +129,12 @@
 					</div>
 				{:else}
 					<div class="flex justify-center">
-						<div class="bg-primary/10 text-primary h-8 w-8 rounded-full">
-							<Icon src={UserCircle} class="h-8 w-8" />
+						<div class="bg-primary/10 text-primary h-8 w-8 rounded-full overflow-hidden">
+							<img
+								src={getGravatarUrl(coachEmail, 32)}
+								alt={`${coachName}'s profile picture`}
+								class="h-full w-full object-cover"
+							/>
 						</div>
 					</div>
 				{/if}
