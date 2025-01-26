@@ -14,8 +14,8 @@
 	let error = $state('');
 	let formData = $state<{ error?: string } | undefined>(undefined);
 
-	const inputStyles =
-		'mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#FF5555] focus:ring-[#FF5555] px-2 py-2 max-[375px]:fz-ms2';
+	const inputStyles = 'mt-1 block w-full rounded-md shadow-sm px-2 py-2 border-[#FF5555] border-2 border-opacity-0 focus-visible:outline-none focus-visible:border-opacity-100 focus-visible:bg-[#FFF9F9] fz-ms2 min-[425px]:fz-ms3';
+	const labelStyles = 'font-medium text-gray-700 fz-ms1 min-[375px]:fz-ms2';
 
 	const handleSubmit: SubmitFunction = () => {
 		return async ({ result }) => {
@@ -48,9 +48,9 @@
 	<!-- Content -->
 	<div class="relative w-full max-w-md px-4">
 		<div
-			class="overflow-hidden rounded-lg border border-gray-200 bg-white/95 shadow-xl backdrop-blur supports-[backdrop-filter]:bg-white/80 p-8 max-[425px]:p-6 max-[375px]:px-4"
+			class="overflow-hidden rounded-lg border border-gray-200 bg-white/95 shadow-xl backdrop-blur supports-[backdrop-filter]:bg-white/80 p-4 min-[375px]:p-6 min-[425px]:p-8"
 		>
-			<div class="mb-8 flex flex-col items-center space-y-2">
+			<div class="flex flex-col items-center gap-1 mb-6 min-[375px]:mb-8">
 				<div class="h-12 w-12 rounded-full bg-[#FF5555]/10 p-2 text-[#FF5555]">
 					<Icon src={UserCircle} class="h-full w-full" />
 				</div>
@@ -73,7 +73,7 @@
 
 				<div class="flex flex-col gap-4 max-[425px]:gap-3">
 					<div class="space-y-1">
-						<label for="email" class="text-sm font-medium text-gray-700">{m.email_address()}</label>
+						<label for="email" class={labelStyles}>{m.email_address()}</label>
 						<input
 							type="email"
 							id="email"
@@ -87,7 +87,7 @@
 					</div>
 
 					<div class="space-y-1">
-						<label for="password" class="text-sm font-medium text-gray-700">{m.password()}</label>
+						<label for="password" class={labelStyles}>{m.password()}</label>
 						<input
 							type="password"
 							id="password"
@@ -104,15 +104,12 @@
 				<div class="flex flex-col space-y-4">
 					<Button
 						type="submit"
-						class={cn(
-							'w-full bg-[#FF5555] text-white hover:bg-[#FF5555]/90',
-							'focus-visible:ring-[#FF5555]'
-						)}
+						class='w-full bg-[#FF5555] text-white hover:bg-[#ee4444] focus-visible:bg-[#ffbbbb] focus-visible:ring-[#FF5555] focus-visible:ring-2 focus-visible:text-[#ee4444]'
 					>
 						{m.sign_in_button()}
 					</Button>
 
-					<a href="/register" class="text-center text-sm text-[#FF5555] hover:underline">
+					<a href="/register" class="rounded-md text-center text-[#FF5555] hover:underline outline-none border-[#FF5555] border-opacity-0 focus-visible:border-opacity-100 focus-visible:bg-[#FF5555]/10 focus-visible:ring-[#FF5555] focus-visible:ring-2 w-full fz-ms1 min-[320px]:fz-ms2">
 						{m.no_account()}
 					</a>
 				</div>
