@@ -14,7 +14,8 @@
 	let error = $state('');
 	let formData = $state<{ error?: string } | undefined>(undefined);
 
-	const inputStyles = 'mt-1 block w-full rounded-md shadow-sm px-2 py-2 border-[#FF5555] border-2 border-opacity-0 focus-visible:outline-none focus-visible:border-opacity-100 focus-visible:bg-[#FFF9F9] fz-ms2 min-[425px]:fz-ms3';
+	const inputStyles =
+		'mt-1 block w-full rounded-md shadow-sm px-2 py-2 border-[#FF5555] border-2 border-opacity-0 focus-visible:outline-none focus-visible:border-opacity-100 focus-visible:bg-[#FFF9F9] fz-ms2 min-[425px]:fz-ms3';
 	const labelStyles = 'font-medium text-gray-700 fz-ms1 min-[375px]:fz-ms2';
 
 	const handleSubmit: SubmitFunction = () => {
@@ -51,8 +52,12 @@
 			class="overflow-hidden rounded-lg border border-gray-200 bg-white/95 shadow-xl backdrop-blur supports-[backdrop-filter]:bg-white/80 p-4 min-[375px]:p-6 min-[425px]:p-8"
 		>
 			<div class="flex flex-col items-center gap-1 mb-6 min-[375px]:mb-8">
-				<div class="h-12 w-12 rounded-full bg-[#FF5555]/10 p-2 text-[#FF5555]">
-					<Icon src={UserCircle} class="h-full w-full" />
+				<div class="bg-primary/10 text-primary h-12 w-12 rounded-full">
+					<img
+						src="https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y"
+						alt="Default avatar"
+						class="h-full w-full"
+					/>
 				</div>
 				<h2 class="text-center text-2xl font-bold tracking-tight text-gray-900 max-[375px]:fz-ms5">
 					{m.sign_in()}
@@ -104,12 +109,15 @@
 				<div class="flex flex-col space-y-4">
 					<Button
 						type="submit"
-						class='w-full bg-[#FF5555] text-white hover:bg-[#ee4444] focus-visible:bg-[#ffbbbb] focus-visible:ring-[#FF5555] focus-visible:ring-2 focus-visible:text-[#ee4444]'
+						class="w-full bg-[#FF5555] text-white hover:bg-[#ee4444] focus-visible:bg-[#ffbbbb] focus-visible:ring-[#FF5555] focus-visible:ring-2 focus-visible:text-[#ee4444]"
 					>
 						{m.sign_in_button()}
 					</Button>
 
-					<a href="/register" class="rounded-md text-center text-[#FF5555] hover:underline outline-none border-[#FF5555] border-opacity-0 focus-visible:border-opacity-100 focus-visible:bg-[#FF5555]/10 focus-visible:ring-[#FF5555] focus-visible:ring-2 w-full fz-ms1 min-[320px]:fz-ms2">
+					<a
+						href="/register"
+						class="rounded-md text-center text-[#FF5555] hover:underline outline-none border-[#FF5555] border-opacity-0 focus-visible:border-opacity-100 focus-visible:bg-[#FF5555]/10 focus-visible:ring-[#FF5555] focus-visible:ring-2 w-full fz-ms1 min-[320px]:fz-ms2"
+					>
 						{m.no_account()}
 					</a>
 				</div>

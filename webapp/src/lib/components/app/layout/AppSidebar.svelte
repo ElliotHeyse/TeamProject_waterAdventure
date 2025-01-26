@@ -2,25 +2,16 @@
 	import { page } from '$app/state';
 	import { Button } from '$lib/components/coach/ui/button';
 	import { cn } from '$lib/components/coach/utils';
-	import {
-		HomeModern,
-		UserCircle,
-		AcademicCap,
-		ChatBubbleLeftRight,
-		Cog6Tooth,
-		Icon
-	} from 'svelte-hero-icons';
+	import { HomeModern, AcademicCap, ChatBubbleLeftRight, Cog6Tooth, Icon } from 'svelte-hero-icons';
 	import { LogOut, Settings } from 'lucide-svelte';
-	import { onMount } from 'svelte';
 	import logoIcon from '$lib/img/logo-icon.svg';
 	import { isSidebarOpen } from '$lib/stores/sidebar';
 	import { isMobileView } from '$lib/stores/viewport';
 	import * as DropdownMenu from '$lib/components/coach/ui/dropdown-menu';
 	import { goto } from '$app/navigation';
-	import { userSettings } from '$lib/stores/userSettings';
+	import { getGravatarUrl } from '$lib/utils/gravatar';
 
 	const data = $state(page.data);
-	const parentName = $state(data.parent?.user?.name || 'Unknown Parent');
 
 	async function handleLogout() {
 		await goto('/logout');
@@ -86,25 +77,29 @@
 			<DropdownMenu.Root>
 				<DropdownMenu.Trigger class="w-full h-16">
 					{#if $isSidebarOpen}
-						<div
-							class="flex items-center justify-start w-full gap-3 py-3 pl-3 rounded-lg bg-muted/80"
-						>
-							<div
-								class="flex justify-center w-8 h-8 rounded-full bg-primary/10 text-primary align-center"
-							>
-								<Icon src={UserCircle} class="w-8 h-8" />
+						<div class="bg-muted/80 flex items-center gap-3 rounded-lg px-3 py-2.5">
+							<div class="bg-primary/10 text-primary h-8 w-8 rounded-full overflow-hidden">
+								<img
+									src={getGravatarUrl(data.parentUser.email, 32)}
+									alt={`${data.parentUser.name}'s profile picture`}
+									class="h-full w-full object-cover"
+								/>
 							</div>
-							<div class="flex flex-col items-start flex-1 min-w-0 align-start">
-								<div class="text-sm font-medium truncate text-foreground">{parentName}</div>
-								<div class="text-xs truncate text-muted-foreground">Parent</div>
+							<div class="min-w-0 flex-1">
+								<div class="text-foreground truncate text-sm font-medium">
+									{data.parentUser.name}
+								</div>
+								<div class="text-muted-foreground truncate text-xs">Parent</div>
 							</div>
 						</div>
 					{:else}
-						<div class="flex items-center justify-start w-full gap-3 py-3 pl-3 rounded-lg">
-							<div
-								class="flex justify-center w-8 h-8 rounded-full bg-primary/10 text-primary align-center"
-							>
-								<Icon src={UserCircle} class="w-8 h-8" />
+						<div class="flex justify-center">
+							<div class="bg-primary/10 text-primary h-8 w-8 rounded-full overflow-hidden">
+								<img
+									src={getGravatarUrl(data.parentUser.email, 32)}
+									alt={`${data.parentUser.name}'s profile picture`}
+									class="h-full w-full object-cover"
+								/>
 							</div>
 						</div>
 					{/if}
