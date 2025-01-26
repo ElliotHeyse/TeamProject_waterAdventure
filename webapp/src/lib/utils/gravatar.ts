@@ -8,7 +8,7 @@
 export function getGravatarUrl(email: string, size: number = 80, defaultImage: string = 'mp'): string {
     // Trim whitespace and convert to lowercase
     const normalizedEmail = email?.trim().toLowerCase() || '';
-    
+
     // If no email is provided, return the default image
     if (!normalizedEmail) {
         return `https://www.gravatar.com/avatar/00000000000000000000000000000000?s=${size}&d=${defaultImage}`;
@@ -22,7 +22,7 @@ export function getGravatarUrl(email: string, size: number = 80, defaultImage: s
     }
     // Pad or truncate to 32 characters
     hash = hash.padEnd(32, '0').slice(0, 32);
-    
+
     // Construct and return the Gravatar URL
     return `https://www.gravatar.com/avatar/${hash}?s=${size}&d=${defaultImage}`;
 }
