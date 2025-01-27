@@ -227,10 +227,15 @@
     "medal_bronze": "Brons",
     "medal_none": "Geen Medaille",
     "logout": "Uitloggen",
-    "level_name": "Niveau Naam",
-    "your_swimming_coach": "Je Zwemcoach",
+    "level_name": "Niveau {name}",
+    "your_swimming_coach": "Je zwemcoach",
     "account_menu": "Account Menu",
     "notifications_overview": "Meldingen Overzicht",
-    "review_submissions_overview": "Inzendingen Overzicht",
-    "child_profile_levels": "Niveau Voortgang"
+    "review_submissions_overview": "Beoordelingen Overzicht",
+    "child_profile_levels": "Niveau Voortgang",
+    "notification_new_submission": "Nieuwe inzending ontvangen",
+    "notification_message": "Nieuw bericht ontvangen",
+    "notification_review": "Nieuwe beoordeling beschikbaar",
+    "submissions_overview": "Inzendingen Overzicht",
+    "child_profile": "Kindprofiel"
 }

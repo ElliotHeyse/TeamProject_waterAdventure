@@ -239,5 +239,12 @@
     "account_menu": "Account Menu",
     "notifications_overview": "Notifications Overview",
     "review_submissions_overview": "Review Submissions Overview",
-    "child_profile_levels": "Level Progress"
+    "child_profile_levels": "Level Progress",
+    "feedback_from_coach": "Feedback from your coach",
+    "notification_new_submission": "New submission received",
+    "notification_message": "New message received",
+    "notification_review": "New review available",
+    "submissions_overview": "Submissions Overview",
+    "child_profile": "Child Profile",
+    "level_name": "Level {name}"
 }

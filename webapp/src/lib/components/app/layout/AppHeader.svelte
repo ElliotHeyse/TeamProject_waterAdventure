@@ -23,6 +23,7 @@
 	import { invalidateAll, goto } from '$app/navigation';
 	import { selectedChildIdStore } from '$lib/stores/child.store';
 	import { getGravatarUrl } from '$lib/utils/gravatar';
+	import * as m from '$lib/paraglide/messages.js';
 
 	// region Types
 
@@ -271,15 +272,15 @@
 						</div>
 					</DropdownMenu.Trigger>
 					<DropdownMenu.Content class="w-56">
-						<DropdownMenu.Label>My Account</DropdownMenu.Label>
+						<DropdownMenu.Label>{m.account_settings()}</DropdownMenu.Label>
 						<DropdownMenu.Separator />
 						<DropdownMenu.Item onSelect={() => goto('/app/settings')} class="cursor-pointer">
 							<Settings class="mr-2 h-4 w-4" />
-							<span>Settings</span>
+							{m.settings()}
 						</DropdownMenu.Item>
 						<DropdownMenu.Item onSelect={handleLogout} class="cursor-pointer">
 							<LogOut class="mr-2 h-4 w-4" />
-							<span>Log out</span>
+							{m.logout()}
 						</DropdownMenu.Item>
 					</DropdownMenu.Content>
 				</DropdownMenu.Root>
