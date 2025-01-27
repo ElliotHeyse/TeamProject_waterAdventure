@@ -55,7 +55,7 @@
 
 	const handleSubmit: SubmitFunction = () => {
 		return async ({ result }) => {
-			console.log('Form submission result:', result);
+			/* console.log('Form submission result:', result); */
 
 			if (result.type === 'failure') {
 				error = result.data?.error || 'An unknown error occurred';

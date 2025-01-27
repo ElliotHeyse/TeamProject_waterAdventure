@@ -53,7 +53,7 @@ function getChildrenFromFormData(formData: FormData): ChildData[] {
 export const actions = {
 	register: async ({ request, cookies, locals }) => {
 		try {
-			console.log('Starting registration process');
+			/* console.log('Starting registration process'); */
 			const formData = await request.formData();
 			
 			// Parent data
@@ -175,6 +175,16 @@ export const actions = {
 									}))
 								}
 							}
+						},
+						notifications: {
+							create: {
+								timestamp: new Date(),
+								isRead: false,
+								type: 'META',
+								title: `Welkom ${name}!`,
+								body: 'Welkom bij WaterAdventure! Je kunt nu beginnen met de zwemlessen.',
+								levelNumber: null
+							}
 						}
 					},
 					include: {
@@ -214,11 +224,11 @@ export const actions = {
 				maxAge: 60 * 60 * 24 * 2 // 2 days
 			});
 
-			console.log('Registration successful, user and pupils created:', {
+			/* console.log('Registration successful, user and pupils created:', {
 				userId: user.id,
 				email: user.email,
 				pupilCount: user.parent?.pupils.length
-			});
+			}); */
 
 			return { success: true };
 		} catch (error) {
