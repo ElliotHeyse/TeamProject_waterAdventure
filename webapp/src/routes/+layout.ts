@@ -70,3 +70,6 @@ export const load = (async ({ url }) => {
 	}
 
 }) satisfies LayoutLoad;
+
+// export let ssr = false;
+// export let prerender = false;

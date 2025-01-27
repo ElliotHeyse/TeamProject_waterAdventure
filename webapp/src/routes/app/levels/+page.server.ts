@@ -75,6 +75,7 @@ export const load: PageServerLoad = async ({ locals, url }) => {
 				id: pupil.id,
 				name: pupil.name,
 				progress: pupil.progress,
+				profilePicture: pupil.profilePicture,
 				levelProgress: pupil.levelProgress.map(levelProgress => ({
 					id: levelProgress.id,
 					firstPartCompleted: levelProgress.firstPartCompleted,

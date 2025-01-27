@@ -128,12 +128,7 @@
 	}
 
 	async function handleLogout() {
-		const response = await fetch('/api/auth/logout', {
-			method: 'POST'
-		});
-		if (response.ok) {
-			goto('/');
-		}
+		goto('/logout');
 	}
 </script>
 

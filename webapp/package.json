@@ -6,7 +6,7 @@
 	"scripts": {
 		"dev": "vite dev",
 		"build": "vite build",
-		"preview": "bun build/server.js",
+		"preview": "vite preview",
 		"start": "bun ./server",
 		"check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
 		"check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",

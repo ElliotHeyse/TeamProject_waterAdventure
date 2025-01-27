@@ -25,7 +25,7 @@
 	let exercises = $state(data.level.exercises);
 
 	// get level progress from the selected child on this level
-	let levelProgress = $derived(selectedChild.levelProgress[0]);
+	let levelProgress = $state(selectedChild.levelProgress[0]);
 
 	let message = $state<string | null>(null);
 	let success = $state(false);

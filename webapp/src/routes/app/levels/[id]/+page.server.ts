@@ -93,6 +93,7 @@ export const load: PageServerLoad = async ({ params, locals }) => {
 			pupils: parentUser.parent.pupils.map(pupil => ({
 				id: pupil.id,
 				name: pupil.name,
+				profilePicture: pupil.profilePicture,
 				progress: pupil.progress,
 				levelProgress: pupil.levelProgress.map(levelProgress => ({
 					id: levelProgress.id,
