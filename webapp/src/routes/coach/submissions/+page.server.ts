@@ -1,6 +1,7 @@
 import { prisma } from '$lib/server/db';
 import type { PageServerLoad } from './$types';
 import type { Submission as PrismaSubmission, Pupil, Level, LevelLanguageContent } from '@prisma/client';
+import { error, redirect } from '@sveltejs/kit';
 
 type SubmissionWithRelations = PrismaSubmission & {
 	pupil: Pupil;
@@ -10,8 +11,20 @@ type SubmissionWithRelations = PrismaSubmission & {
 };
 
 export const load: PageServerLoad = async ({ locals }) => {
+	// if (!locals.user) {
+	// 	throw new Error('Not authenticated');
+	// }
+
 	if (!locals.user) {
-		throw new Error('Not authenticated');
+		try {
+		  // Show unauthorized error
+		  throw error(401, 'Unauthorized');
+		} catch (e) {
+		  // Wait 3 seconds
+		  await new Promise(resolve => setTimeout(resolve, 3000));
+		  // Redirect to login
+		  throw redirect(302, '/login');
+		}
 	}
 
 	const coach = await prisma.coach.findUnique({

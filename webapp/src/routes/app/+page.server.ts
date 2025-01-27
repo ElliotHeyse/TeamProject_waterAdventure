@@ -1,4 +1,5 @@
 import { error } from '@sveltejs/kit';
+import { redirect } from '@sveltejs/kit';
 import type { PageServerLoad } from './$types';
 import { prisma } from '$lib/server/db';
 import { userInfo } from 'os';
@@ -9,8 +10,19 @@ import { title } from 'process';
 
 export const load: PageServerLoad = async ({ locals }) => {
 	// region AUTHENTICATION
+	// if (!locals.user) {
+	// 	throw error(401, 'Unauthorized');
+	// }
 	if (!locals.user) {
-		throw error(401, 'Unauthorized');
+		try {
+		  // Show unauthorized error
+		  throw error(401, 'Unauthorized');
+		} catch (e) {
+		  // Wait 3 seconds
+		  await new Promise(resolve => setTimeout(resolve, 3000));
+		  // Redirect to login
+		  throw redirect(302, '/login');
+		}
 	}
 
 	try {
