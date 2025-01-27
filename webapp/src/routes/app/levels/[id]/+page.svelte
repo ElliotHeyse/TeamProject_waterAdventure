@@ -354,7 +354,7 @@
 													$userSettings.theme === 'DARK' ? 'bg-gray-950' : 'bg-gray-200'
 												)}
 											>
-												{selectedChild.submissions[0].updatedAt.toLocaleDateString('nl-BE', {
+												{selectedChild.submissions[0].feedbackTimestamp.toLocaleDateString('nl-BE', {
 													year: 'numeric',
 													month: 'numeric',
 													day: 'numeric'

@@ -60,9 +60,10 @@
 		const result: FrontendNotification[] = [];
 		pupil.submissions.forEach((submission: Submission) => {
 			if (submission.status === 'REVIEWED') {
+				console.log(`pupil: ${pupil.name}, submission: ${submission.status} - ${submission.feedbackTimestamp} - ${submission.updatedAt}`);
 				result.push({
 					frontendId: uuidv4(),
-					timestamp: submission.updatedAt,
+					timestamp: submission.feedbackTimestamp,
 					isRead: submission.isRead,
 					type: 'FEEDBACK',
 					title: m.new_feedback({ level: submission.levelNumber, name: pupil.name }),
