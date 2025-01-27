@@ -23,6 +23,7 @@
 	import medalGold from '$lib/img/medail-gold.svg';
 	import medalSilver from '$lib/img/medail-silver.svg';
 	import medalBronze from '$lib/img/medail-bronze.svg';
+	import { getGravatarUrl } from '$lib/utils/gravatar';
 
 	let { data } = $props<{ data: PageData }>();
 	let isEditing = $state(false);
@@ -41,8 +42,6 @@
 			day: 'numeric'
 		});
 	}
-
-	const defaultProfilePicture = 'https://api.dicebear.com/7.x/avataaars/svg';
 
 	function handleSubmit(event: SubmitEvent) {
 		const form = event.target as HTMLFormElement;
@@ -66,7 +65,7 @@
 				class="relative h-20 w-20 shrink-0 overflow-hidden rounded-full border-2 border-primary/10"
 			>
 				<img
-					src={data.pupil.profilePicture || `${defaultProfilePicture}?seed=${data.pupil.id}`}
+					src={getGravatarUrl(data.pupil.email, 160)}
 					alt={`${data.pupil.name}'s ${m.profile_picture()}`}
 					class="h-full w-full object-cover"
 				/>

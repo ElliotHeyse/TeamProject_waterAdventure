@@ -25,8 +25,8 @@
 	let error = $state('');
 	let formData = $state<{ error?: string } | undefined>(undefined);
 
-	const inputStyles =
-		'mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#FF5555] focus:ring-[#FF5555] px-2 py-2';
+	const inputStyles = 'mt-1 block w-full rounded-md shadow-sm px-2 py-2 border-[#FF5555] border-2 border-opacity-0 focus-visible:outline-none focus-visible:border-opacity-100 focus-visible:bg-[#FFF9F9] fz-ms2 min-[425px]:fz-ms3';
+	const labelStyles = 'font-medium text-gray-700 fz-ms1 min-[375px]:fz-ms2';
 
 	function addChild() {
 		children = [...children, { name: '', dateOfBirth: '', level: 'BEGINNER' }];
@@ -84,17 +84,18 @@
 	<!-- Content -->
 	<div class="relative w-full max-w-md px-4">
 		<div
-			class="overflow-hidden rounded-lg border border-gray-200 bg-white/95 shadow-xl backdrop-blur supports-[backdrop-filter]:bg-white/80 p-8 max-[425px]:p-6 max-[375px]:px-4"
+			class="overflow-hidden rounded-lg border border-gray-200 bg-white/95 shadow-xl backdrop-blur supports-[backdrop-filter]:bg-white/80 p-4 min-[375px]:p-6 min-[425px]:p-8"
 		>
-			<div class="mb-8 flex flex-col items-center space-y-2">
+			<div class="flex flex-col items-center gap-1 mb-6 min-[375px]:mb-8">
+				<!-- Replace the existing header section to match login spacing -->
 				<div class="h-12 w-12 rounded-full bg-[#FF5555]/10 p-2 text-[#FF5555]">
-					<Icon src={UserPlus} class="h-full w-full" />
+				  <Icon src={UserPlus} class="h-full w-full" />
 				</div>
-				<h2 class="text-center text-2xl font-bold tracking-tight text-gray-900">
-					{m.create_account()}
+				<h2 class="text-center text-2xl font-bold tracking-tight text-gray-900 max-[375px]:fz-ms5">
+				  {m.create_account()}
 				</h2>
 				<p class="text-center text-sm text-gray-600">
-					{m.join_wateradventure()}
+				  {m.join_wateradventure()}
 				</p>
 			</div>
 
@@ -106,83 +107,83 @@
 					</div>
 				{/if}
 
-				<div class="space-y-4">
+				<div class="space-y-2">
 					<!-- Parent Information Section -->
-					<div class="space-y-4">
-						<h3 class="text-lg font-medium text-gray-900">{m.parent_information()}</h3>
+					<h3 class="mb-4 font-medium text-gray-900 fz-ms3 min-[1000px]:fz-ms4">{m.parent_information()}</h3>
+					<div class="flex flex-col gap-8">
+						<div class="flex flex-col gap-4">
+							<div class="space-y-1">
+								<label for="name" class={labelStyles}>{m.full_name()}</label>
+								<input
+									type="text"
+									id="name"
+									name="name"
+									class={inputStyles}
+									required
+									value={name}
+									oninput={(e) => (name = e.currentTarget.value)}
+									placeholder="John Doe"
+								/>
+							</div>
+							<div class="space-y-1">
+								<label for="email" class={labelStyles}>{m.email_address()}</label>
+								<input
+									type="email"
+									id="email"
+									name="email"
+									class={inputStyles}
+									required
+									value={email}
+									oninput={(e) => (email = e.currentTarget.value)}
+									placeholder={m.email_placeholder()}
+								/>
+							</div>
+							<div class="space-y-1">
+								<label for="confirmEmail" class={labelStyles}>{m.confirm_email()}</label>
+								<input
+									type="email"
+									id="confirmEmail"
+									name="confirmEmail"
+									class={inputStyles}
+									required
+									value={confirmEmail}
+									oninput={(e) => (confirmEmail = e.currentTarget.value)}
+									placeholder={m.email_placeholder()}
+								/>
+							</div>
+						</div>
 
-						<div class="space-y-1">
-							<label for="name" class="text-sm font-medium text-gray-700">{m.full_name()}</label>
-							<input
-								type="text"
-								id="name"
-								name="name"
-								class={inputStyles}
-								required
-								value={name}
-								oninput={(e) => (name = e.currentTarget.value)}
-								placeholder="John Doe"
-							/>
+						<div class="flex flex-col gap-4">
+							<div class="space-y-1">
+								<label for="password" class={labelStyles}>{m.password()}</label>
+								<input
+									type="password"
+									id="password"
+									name="password"
+									class={inputStyles}
+									required
+									value={password}
+									oninput={(e) => (password = e.currentTarget.value)}
+									placeholder={m.password_placeholder()}
+								/>
+							</div>
+							<div class="space-y-1">
+								<label for="confirmPassword" class={labelStyles}>{m.confirm_password()}</label>
+								<input
+									type="password"
+									id="confirmPassword"
+									name="confirmPassword"
+									class={inputStyles}
+									required
+									value={confirmPassword}
+									oninput={(e) => (confirmPassword = e.currentTarget.value)}
+									placeholder={m.password_placeholder()}
+								/>
+							</div>
 						</div>
 
 						<div class="space-y-1">
-							<label for="email" class="text-sm font-medium text-gray-700">{m.email_address()}</label>
-							<input
-								type="email"
-								id="email"
-								name="email"
-								class={inputStyles}
-								required
-								value={email}
-								oninput={(e) => (email = e.currentTarget.value)}
-								placeholder={m.email_placeholder()}
-							/>
-						</div>
-
-						<div class="space-y-1">
-							<label for="confirmEmail" class="text-sm font-medium text-gray-700">{m.confirm_email()}</label>
-							<input
-								type="email"
-								id="confirmEmail"
-								name="confirmEmail"
-								class={inputStyles}
-								required
-								value={confirmEmail}
-								oninput={(e) => (confirmEmail = e.currentTarget.value)}
-								placeholder={m.email_placeholder()}
-							/>
-						</div>
-
-						<div class="space-y-1">
-							<label for="password" class="text-sm font-medium text-gray-700">{m.password()}</label>
-							<input
-								type="password"
-								id="password"
-								name="password"
-								class={inputStyles}
-								required
-								value={password}
-								oninput={(e) => (password = e.currentTarget.value)}
-								placeholder={m.password_placeholder()}
-							/>
-						</div>
-
-						<div class="space-y-1">
-							<label for="confirmPassword" class="text-sm font-medium text-gray-700">{m.confirm_password()}</label>
-							<input
-								type="password"
-								id="confirmPassword"
-								name="confirmPassword"
-								class={inputStyles}
-								required
-								value={confirmPassword}
-								oninput={(e) => (confirmPassword = e.currentTarget.value)}
-								placeholder={m.password_placeholder()}
-							/>
-						</div>
-
-						<div class="space-y-1">
-							<label for="phone" class="text-sm font-medium text-gray-700">{m.phone_optional()}</label>
+							<label for="phone" class={labelStyles}>{m.phone_optional()}</label>
 							<input
 								type="tel"
 								id="phone"
@@ -198,10 +199,10 @@
 					<!-- Children Information Section -->
 					<div class="space-y-4 pt-6">
 						<div class="flex items-center justify-between">
-							<h3 class="text-lg font-medium text-gray-900">{m.child_information()}</h3>
+							<h3 class="font-medium text-gray-900 fz-ms3 min-[375px]:fz-ms4">{m.child_information()}</h3>
 							<button
 								type="button"
-								class="inline-flex items-center text-sm text-[#FF5555] hover:text-[#FF5555]/90"
+								class="fz-ms1 min-[375px]:fz-ms2 px-2 py-1 inline-flex items-center rounded-md text-center text-[#FF5555] hover:underline outline-none border-[#FF5555] border-opacity-0 focus-visible:border-opacity-100 focus-visible:bg-[#FF5555]/10 focus-visible:ring-[#FF5555] focus-visible:ring-2"
 								onclick={addChild}
 							>
 								<Icon src={PlusCircle} class="mr-1 h-5 w-5" />
@@ -214,7 +215,7 @@
 								{#if children.length > 1}
 									<button
 										type="button"
-										class="absolute right-2 top-2 text-gray-400 hover:text-gray-600"
+										class="absolute right-2 top-2 text-gray-400 focus:text-[#FF5555] focus:font-bold !ring-0 outline-none"
 										onclick={() => removeChild(index)}
 									>
 										<Icon src={XCircle} class="h-5 w-5" />
@@ -224,7 +225,7 @@
 								<div class="space-y-1">
 									<label
 										for="childName{index}"
-										class="text-sm font-medium text-gray-700">{m.childs_full_name()}</label
+										class={labelStyles}>{m.childs_full_name()}</label
 									>
 									<input
 										type="text"
@@ -241,7 +242,7 @@
 								<div class="space-y-1">
 									<label
 										for="dateOfBirth{index}"
-										class="text-sm font-medium text-gray-700">{m.date_of_birth()}</label
+										class={labelStyles}>{m.date_of_birth()}</label
 									>
 									<input
 										type="date"
@@ -257,7 +258,7 @@
 								<div class="space-y-1">
 									<label
 										for="level{index}"
-										class="text-sm font-medium text-gray-700">{m.swimming_level()}</label
+										class={labelStyles}>{m.swimming_level()}</label
 									>
 									<select
 										id="level{index}"
@@ -277,10 +278,15 @@
 					</div>
 				</div>
 
-				<Button type="submit" class="w-full">{m.create_account()}</Button>
+				<div class="flex flex-col space-y-4">
+					<Button
+						type="submit"
+						class='w-full bg-[#FF5555] text-white hover:bg-[#ee4444] focus-visible:bg-[#ffbbbb] focus-visible:ring-[#FF5555] focus-visible:ring-2 focus-visible:text-[#ee4444]'
+					>
+					{m.create_account()}
+					</Button>
 
-				<div class="text-center">
-					<a href="/login" class="text-sm text-[#FF5555] hover:underline">
+					<a href="/login" class="rounded-md text-center text-sm text-[#FF5555] hover:underline outline-none border-[#FF5555] border-opacity-0 focus-visible:border-opacity-100 focus-visible:bg-[#FF5555]/10 focus-visible:ring-[#FF5555] focus-visible:ring-2 w-full">
 						{m.has_account()}
 					</a>
 				</div>
