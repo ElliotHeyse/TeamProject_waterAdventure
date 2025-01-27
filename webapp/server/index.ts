@@ -6,17 +6,27 @@ import { prisma } from '../src/lib/server/db.js';
 import webpush from 'web-push';
 import { $ } from "bun";
 
-console.log('Loading assets');
-await $`mkdir -p build/client/src`;
+// Ensure build directory exists
 await $`mkdir -p build/client/src/lib`;
-await $`cp -r src/lib/img build/client/src/lib/`;
-await $`cp -r src/lib/beeldmateriaalZwemfed build/client/src/lib/`;
+
+// Copy static assets
+try {
+    await $`cp -r src/lib/img build/client/src/lib/`;
+    await $`cp -r src/lib/beeldmateriaalZwemfed build/client/src/lib/`;
+} catch (error) {
+    console.warn('Warning: Some assets might not exist:', error);
+}
 
 async function main() {
     const app = express();
     const server = createServer(app);
 
-    const io = new Server(server);
+    const io = new Server(server, {
+        cors: {
+            origin: "http://localhost:5173",
+            methods: ["GET", "POST"]
+        }
+    });
 
     io.on('connection', (socket) => {
         console.log('Client connected');
@@ -78,12 +88,26 @@ async function main() {
                         }
                     }
                 }
-                // Broadcast message to all clients
-                io.emit('message', savedMessage);
+
+                // Create a unique room name for this conversation
+                const roomName = `chat_${savedMessage.coachId}_${savedMessage.parentId}`;
+
+                // Emit the message only to clients in this room
+                io.to(roomName).emit('message', savedMessage);
             } catch (error) {
                 console.error('Error saving message:', error);
                 socket.emit('error', 'Failed to save message');
             }
+        });
+
+        socket.on('join_chat', ({ coachId, parentId }) => {
+            if (!coachId || !parentId) return;
+
+            // Create a unique room name for this conversation
+            const roomName = `chat_${coachId}_${parentId}`;
+
+            // Join the room
+            socket.join(roomName);
         });
 
         socket.on('disconnect', () => {
@@ -93,10 +117,10 @@ async function main() {
 
     app.use(handler);
 
-    const port = process.env.PORT || 3000;
-    server.listen(port, () => {
-        console.log(`Server is running on port ${port}`);
+    const PORT = 3000;
+    server.listen(PORT, () => {
+        console.log(`Server is running on port ${PORT}`);
     });
 }
 
-await main();
+main().catch(console.error);

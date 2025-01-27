@@ -57,6 +57,14 @@
 		if (response.ok) {
 			messages = await response.json();
 		}
+
+		// Join the chat room for this conversation
+		if (socket) {
+			socket.emit('join_chat', {
+				coachId: data.coach.id,
+				parentId: parent.id
+			});
+		}
 	}
 
 	onMount(() => {
@@ -71,7 +79,8 @@
 		socket.on('message', (message) => {
 			if (
 				selectedParent &&
-				(message.parentId === selectedParent.id || message.coachId === data.coach.id)
+				message.parentId === selectedParent.id &&
+				message.coachId === data.coach.id
 			) {
 				messages = [...messages, message];
 			}
@@ -83,6 +92,13 @@
 
 		socket.on('connect', () => {
 			console.log('Connected to chat server');
+			// Re-join chat room if we have a selected parent
+			if (selectedParent) {
+				socket.emit('join_chat', {
+					coachId: data.coach.id,
+					parentId: selectedParent.id
+				});
+			}
 		});
 
 		socket.on('disconnect', () => {

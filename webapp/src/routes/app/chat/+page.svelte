@@ -50,9 +50,20 @@
 			path: '/socket.io'
 		});
 
+		// Join the chat room
+		socket.emit('join_chat', {
+			coachId: data.coach.id,
+			parentId: data.parent.id
+		});
+
 		// Listen for incoming messages
 		socket.on('message', (message) => {
-			messages = [...messages, message];
+			if (
+				message.parentId === data.parent.id &&
+				message.coachId === data.coach.id
+			) {
+				messages = [...messages, message];
+			}
 		});
 
 		// Handle errors
@@ -63,6 +74,11 @@
 		// Initialize connection
 		socket.on('connect', () => {
 			console.log('Connected to chat server');
+			// Re-join chat room on reconnect
+			socket.emit('join_chat', {
+				coachId: data.coach.id,
+				parentId: data.parent.id
+			});
 		});
 
 		socket.on('disconnect', () => {
