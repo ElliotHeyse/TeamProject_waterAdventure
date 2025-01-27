@@ -354,11 +354,14 @@
 													$userSettings.theme === 'DARK' ? 'bg-gray-950' : 'bg-gray-200'
 												)}
 											>
-												{selectedChild.submissions[0].feedbackTimestamp.toLocaleDateString('nl-BE', {
-													year: 'numeric',
-													month: 'numeric',
-													day: 'numeric'
-												})}
+												{selectedChild.submissions && selectedChild.submissions[0] && selectedChild.submissions[0].feedbackTimestamp 
+													? new Date(selectedChild.submissions[0].feedbackTimestamp).toLocaleDateString('nl-BE', {
+														year: 'numeric',
+														month: 'numeric',
+														day: 'numeric'
+													})
+													: '-'
+												}
 											</span>
 										</div>
 										<div

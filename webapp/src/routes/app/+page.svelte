@@ -24,7 +24,7 @@
 
 	interface FrontendNotification {
 		frontendId: string;
-		timestamp: Date;
+		timestamp: Date | null;
 		isRead: Boolean;
 		type: string;
 		title: string;
@@ -63,7 +63,7 @@
 				console.log(`pupil: ${pupil.name}, submission: ${submission.status} - ${submission.feedbackTimestamp} - ${submission.updatedAt}`);
 				result.push({
 					frontendId: uuidv4(),
-					timestamp: submission.feedbackTimestamp,
+					timestamp: submission.feedbackTimestamp ? new Date(submission.feedbackTimestamp) : null,
 					isRead: submission.isRead,
 					type: 'FEEDBACK',
 					title: m.new_feedback({ level: submission.levelNumber, name: pupil.name }),
@@ -84,7 +84,7 @@
 			if (message.sender === 'COACH') {
 				result.push({
 					frontendId: uuidv4(),
-					timestamp: message.createdAt,
+					timestamp: message.createdAt ? new Date(message.createdAt) : null,
 					isRead: message.isRead,
 					type: 'MESSAGE',
 					title: m.new_message(),
@@ -105,8 +105,8 @@
 		parentUser.notifications.forEach((notification: UserNotification) => {
 			if (notification.type === 'META') {
 				result.push({
-					frontendId: uuidv4(), // generate new UUID for each notification
-					timestamp: notification.timestamp,
+					frontendId: uuidv4(),
+					timestamp: notification.timestamp ? new Date(notification.timestamp) : null,
 					isRead: notification.isRead,
 					type: 'META',
 					title: notification.title,
@@ -145,8 +145,12 @@
 	// Construct frontend notifications
 	const notifications: FrontendNotification[] = $state(
 		constructFrontendNotifications(data.parentUser).sort(
-			(a: FrontendNotification, b: FrontendNotification) =>
-				b.timestamp.getTime() - a.timestamp.getTime()
+			(a: FrontendNotification, b: FrontendNotification) => {
+				if (!a.timestamp && !b.timestamp) return 0;
+				if (!a.timestamp) return 1;
+				if (!b.timestamp) return -1;
+				return b.timestamp.getTime() - a.timestamp.getTime();
+			}
 		)
 	);
 	// console.info('NotificationData:', notifications);
@@ -162,7 +166,9 @@
 		return () => clearInterval(interval);
 	});
 
-	const formatTimeAgo = $derived((thenTimestamp: Date | string) => {
+	const formatTimeAgo = $derived((thenTimestamp: Date | string | null | undefined) => {
+		if (!thenTimestamp) return m.just_now();
+		
 		const now = new Date(nowTimestamp).getTime();
 		const then =
 			typeof thenTimestamp === 'string'

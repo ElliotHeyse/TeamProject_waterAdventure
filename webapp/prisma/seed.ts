@@ -1963,7 +1963,8 @@ async function main() {
 											status: submission.status,
 											feedback: submission.feedback,
 											medal: submission.medal,
-											isRead: submission.isRead
+											isRead: submission.isRead,
+											feedbackTimestamp: submission.feedbackTimestamp ? new Date(submission.feedbackTimestamp) : null
 										}))
 									}
 								}))
