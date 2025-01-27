@@ -6,7 +6,8 @@
 	"scripts": {
 		"dev": "vite dev",
 		"build": "vite build",
-		"preview": "vite preview",
+		"preview": "bun build/server.js",
+		"start": "bun ./server",
 		"check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
 		"check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
 		"prisma:generate": "prisma generate",
@@ -50,6 +51,7 @@
 		"bcrypt": "^5.1.1",
 		"crypto-js": "^4.2.0",
 		"date-fns": "^4.1.0",
+		"express": "^4.21.2",
 		"lucide-svelte": "^0.471.0",
 		"shadcn-svelte": "next",
 		"socket.io": "^4.8.1",
