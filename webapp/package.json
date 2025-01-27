@@ -41,7 +41,7 @@
 	},
 	"dependencies": {
 		"@inlang/paraglide-sveltekit": "0.15.4",
-		"@prisma/client": "^6.1.0",
+		"@prisma/client": "^6.2.1",
 		"@sveltejs/adapter-node": "^5.2.11",
 		"@tanstack/table-core": "^8.20.5",
 		"@types/crypto-js": "^4.2.2",
