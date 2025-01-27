@@ -5,6 +5,7 @@
 	import type { PageData } from './$types';
 	import type { Parent, Pupil, User } from '@prisma/client';
 	import { onMount } from 'svelte';
+	import { getGravatarUrl } from '$lib/utils/gravatar';
 
 	const { data } = $props<{ data: PageData }>();
 	let parents: (Parent & { user: User; pupils: Pupil[] })[] = $state(data.parents);
@@ -131,19 +132,13 @@
 					}}
 					onclick={() => selectParent(parent)}
 				>
-					<div class="flex items-start gap-3">
-						<div
-							class="bg-primary/10 text-primary flex h-10 w-10 items-center justify-center rounded-full text-sm font-medium"
-						>
-							{getInitials(parent.user.name)}
-						</div>
-						<div class="min-w-0 flex-1">
-							<div class="flex items-center justify-between">
-								<p class="text-foreground font-medium">{parent.user.name}</p>
-							</div>
-							<p class="text-muted-foreground text-sm">
+					<div class="flex items-center gap-2">
+						<img src={getGravatarUrl(parent.user.email, 40)} alt="" />
+						<div class="flex flex-col min-w-0 flex-1">
+							<span class="text-sm font-medium">{parent.user.name}</span>
+							<span class="text-xs text-muted-foreground truncate">
 								{parent.pupils.map((p: { id: string; name: string }) => p.name).join(', ')}
-							</p>
+							</span>
 						</div>
 					</div>
 				</button>
@@ -163,12 +158,16 @@
 
 			<div bind:this={scrollContainer} class="flex-1 space-y-4 overflow-y-auto p-4">
 				{#each messages as message}
-					<div class="flex" class:justify-end={message.coachId === data.coach.id && message.sender === 'COACH'}>
+					<div
+						class="flex"
+						class:justify-end={message.coachId === data.coach.id && message.sender === 'COACH'}
+					>
 						<div
 							class="max-w-[70%] rounded-lg p-3 shadow-sm"
 							class:bg-muted={message.coachId !== data.coach.id || message.sender !== 'COACH'}
 							class:bg-primary={message.coachId === data.coach.id && message.sender === 'COACH'}
-							class:text-primary-foreground={message.coachId === data.coach.id && message.sender === 'COACH'}
+							class:text-primary-foreground={message.coachId === data.coach.id &&
+								message.sender === 'COACH'}
 						>
 							<p class="text-sm font-medium">
 								{message.coachId === data.coach.id && message.sender === 'COACH'

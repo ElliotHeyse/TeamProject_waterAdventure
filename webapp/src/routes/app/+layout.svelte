@@ -3,7 +3,7 @@
 	import { userSettings } from '$lib/stores/userSettings';
 	import { onMount } from 'svelte';
 
-	export let data;
+	let { children } = $props();
 
 	onMount(() => {
 		userSettings.load();
@@ -11,5 +11,5 @@
 </script>
 
 <AppLayout>
-	<slot />
+	{@render children()}
 </AppLayout>
