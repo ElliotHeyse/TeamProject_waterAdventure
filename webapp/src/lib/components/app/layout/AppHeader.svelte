@@ -30,6 +30,7 @@
 		id: string;
 		name: string;
 		progress: Number;
+		profilePicture: number;
 	}
 	interface UserNotification {
 		timestamp: Date;
@@ -100,6 +101,7 @@
 
 	// Get children from the current page data
 	const data = $state(page.data);
+
 	let children = $state<Pupil[]>([]);
 	let selectedChildId = $state($selectedChildIdStore);
 	let selectedChild = $state<Pupil | null>(null);
@@ -196,6 +198,13 @@
 								isLevelPage() && 'opacity-50 cursor-not-allowed'
 							)}
 						>
+							<div class="bg-primary/10 text-primary h-5 w-5 rounded-full overflow-hidden">
+								<img
+									src={`/src/lib/img/profile-pictures/profile${selectedChild?.profilePicture}.svg`}
+									alt={`${selectedChild?.name}'s profile picture`}
+									class="h-full w-full object-cover"
+								/>
+							</div>
 							<span class="text-sm font-medium">{selectedChild?.name || 'Select child'}</span>
 							<ChevronDown class="w-4 h-4" />
 						</Button>
@@ -205,7 +214,17 @@
 							<DropdownMenu.Label>Children</DropdownMenu.Label>
 							<DropdownMenu.Separator />
 							{#each children as child}
-								<DropdownMenu.Item onclick={() => handleChildSelect(child.id)}>
+								<DropdownMenu.Item
+									onclick={() => handleChildSelect(child.id)}
+									class="flex items-center gap-2"
+								>
+									<div class="bg-primary/10 text-primary h-8 w-8 rounded-full overflow-hidden">
+										<img
+											src={`/src/lib/img/profile-pictures/profile${child.profilePicture}.svg`}
+											alt={`${child.name}'s profile picture`}
+											class="h-full w-full object-cover"
+										/>
+									</div>
 									{child.name}
 								</DropdownMenu.Item>
 							{/each}

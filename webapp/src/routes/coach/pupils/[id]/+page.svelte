@@ -65,8 +65,8 @@
 				class="relative h-20 w-20 shrink-0 overflow-hidden rounded-full border-2 border-primary/10"
 			>
 				<img
-					src={getGravatarUrl(data.pupil.email, 160)}
-					alt={`${data.pupil.name}'s ${m.profile_picture()}`}
+					src={`/src/lib/img/profile-pictures/profile${data.pupil.profilePicture}.svg`}
+					alt={`${data.pupil.name}'s profile picture`}
 					class="h-full w-full object-cover"
 				/>
 			</div>

@@ -30,6 +30,7 @@ interface ChildData {
 	name: string;
 	dateOfBirth: string;
 	level: 'BEGINNER' | 'INTERMEDIATE' | 'ADVANCED';
+	profilePicture: number;
 }
 
 function getChildrenFromFormData(formData: FormData): ChildData[] {
@@ -40,10 +41,11 @@ function getChildrenFromFormData(formData: FormData): ChildData[] {
 		const name = formData.get(`childName${index}`)?.toString().trim();
 		const dateOfBirth = formData.get(`dateOfBirth${index}`)?.toString();
 		const level = formData.get(`level${index}`)?.toString() as 'BEGINNER' | 'INTERMEDIATE' | 'ADVANCED';
+		const profilePicture = parseInt(formData.get(`profilePicture${index}`)?.toString() || '1');
 
 		if (!name || !dateOfBirth || !level) break;
 
-		children.push({ name, dateOfBirth, level });
+		children.push({ name, dateOfBirth, level, profilePicture });
 		index++;
 	}
 
@@ -55,7 +57,7 @@ export const actions = {
 		try {
 			/* console.log('Starting registration process'); */
 			const formData = await request.formData();
-			
+
 			// Parent data
 			const email = formData.get('email')?.toString().trim();
 			const confirmEmail = formData.get('confirmEmail')?.toString().trim();
@@ -63,6 +65,7 @@ export const actions = {
 			const confirmPassword = formData.get('confirmPassword')?.toString();
 			const name = formData.get('name')?.toString().trim();
 			const phone = formData.get('phone')?.toString().trim();
+			const profilePicture = formData.get('profilePicture')?.toString().trim();
 
 			// Get children data
 			const children = getChildrenFromFormData(formData);
@@ -164,6 +167,7 @@ export const actions = {
 										dateOfBirth: new Date(child.dateOfBirth),
 										notes: '',
 										progress: 0,
+										profilePicture: child.profilePicture,
 										levelProgress: {
 											create: Array.from({ length: 7 }, (_, i) => ({
 												levelNumber: i + 1,

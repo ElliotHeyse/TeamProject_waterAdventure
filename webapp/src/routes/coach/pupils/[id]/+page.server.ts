@@ -14,6 +14,7 @@ export const load = (async ({ params }: { params: { id: string } }) => {
 			name: true,
 			notes: true,
 			createdAt: true,
+			profilePicture: true,
 			parent: {
 				select: {
 					id: true,

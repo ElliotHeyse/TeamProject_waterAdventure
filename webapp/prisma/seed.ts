@@ -1264,6 +1264,7 @@ async function main() {
 					dateOfBirth: new Date(2018, 2, 13),
 					progress: 6,
 					notes: 'Born water baby, loves swimming and making great progress in all exercises.',
+					profilePicture: 1,
 					levelProgress: [
 						{
 							levelNumber: 1,
@@ -1364,6 +1365,7 @@ async function main() {
 					dateOfBirth: new Date(2020, 3, 26),
 					progress: 3,
 					notes: 'Slow learner, but shows grit. Slowly overcoming water anxiety.',
+					profilePicture: 2,
 					levelProgress: [
 						{
 							levelNumber: 1,
@@ -1465,6 +1467,7 @@ async function main() {
 					dateOfBirth: new Date(2022, 10, 21),
 					progress: 0,
 					notes: 'New pupil.',
+					profilePicture: 3,
 					levelProgress: [
 						{
 							levelNumber: 1,
@@ -1516,6 +1519,7 @@ async function main() {
 					dateOfBirth: new Date(2020, 8, 7),
 					progress: 4,
 					notes: 'Funny dude',
+					profilePicture: 4,
 					levelProgress: [
 						{
 							levelNumber: 1,
@@ -1677,6 +1681,7 @@ async function main() {
 						dateOfBirth: new Date(2022, 8, 7),
 						progress: 4,
 						notes: 'Nothing special to note.',
+						profilePicture: 5,
 						levelProgress: [
 							{
 								levelNumber: 1,
@@ -1757,6 +1762,7 @@ async function main() {
 						dateOfBirth: new Date(2020, 5, 18),
 						progress: 2,
 						notes: 'Slowly overcoming water anxiety.',
+						profilePicture: 6,
 						levelProgress: [
 							{
 								levelNumber: 1,
