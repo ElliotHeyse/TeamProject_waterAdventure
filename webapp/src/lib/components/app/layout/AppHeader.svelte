@@ -82,10 +82,12 @@
 	$effect(() => {
 		const path = page.url.pathname;
 		const segments = path.split('/').filter(Boolean);
-		breadcrumbs = segments.map((segment, index) => ({
-			label: segment.charAt(0).toUpperCase() + segment.slice(1),
-			href: '/' + segments.slice(0, index + 1).join('/')
-		}));
+		breadcrumbs = segments
+			.map((segment, index) => ({
+				label: segment.charAt(0).toUpperCase() + segment.slice(1),
+				href: '/' + segments.slice(0, index + 1).join('/')
+			}))
+			.filter((breadcrumb) => !['nl', 'fr', 'en'].includes(breadcrumb.label.toLowerCase()));
 	});
 
 	let breadcrumbs = $state<Array<{ label: string; href: string }>>([]);

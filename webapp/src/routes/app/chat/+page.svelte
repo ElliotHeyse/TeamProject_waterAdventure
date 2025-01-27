@@ -11,6 +11,7 @@
 	import { isMobileView } from '$lib/stores/viewport';
 	import { isSidebarOpen } from '$lib/stores/sidebar';
 	import type { Message } from '../types';
+	import { getGravatarUrl } from '$lib/utils/gravatar';
 
 	const { data } = $props<{ data: PageData }>();
 	let messageInput = $state('');
@@ -38,6 +39,11 @@
 			.toUpperCase();
 	}
 
+	$isSidebarOpen = false;
+
+	let markAsReadSucces: number = 0;
+	let markAsReadError: number = 0;
+
 	onMount(() => {
 		// Connect to Socket.IO server
 		socket = io({
@@ -62,6 +68,31 @@
 		socket.on('disconnect', () => {
 			console.log('Disconnected from chat server');
 		});
+
+		// Mark unread messages as read
+		if (data.messages) {
+			data.messages.forEach(async (message: Message) => {
+				if (message.sender === 'COACH' && !message.isRead) {
+					try {
+						const response = await fetch('/api/mark-as-read/message', {
+							method: 'POST',
+							headers: {
+								'Content-Type': 'application/json'
+							},
+							body: JSON.stringify({ id: message.id })
+						});
+						if (response.ok) {
+							markAsReadSucces++;
+						} else {
+							markAsReadError++;
+						}
+					} catch (error) {
+						console.error('Error marking message as read:', error);
+						markAsReadError++;
+					}
+				}
+			});
+		}
 	});
 
 	onDestroy(() => {
@@ -84,46 +115,24 @@
 		socket.emit('message', message);
 		messageInput = '';
 	}
-
-	$isSidebarOpen = (false);
-
-	let markAsReadSucces: number = 0;
-	let markAsReadError: number = 0;
-	if (data.messages) {
-		data.messages.forEach(async (message: Message) => {
-			if (message.sender === 'COACH' && !message.isRead) {
-				const response = await fetch("/api/mark-as-read/message", {
-					method: 'POST',
-					headers: {
-						'Content-Type': 'application/json'
-					},
-					body: JSON.stringify({ id: message.id })
-				});
-				if (response.ok) {
-					markAsReadSucces += 1;
-					console.info(`Message ${message.id} marked as read`);
-				} else {
-					markAsReadError += 1;
-				}
-			}
-		});
-		if (markAsReadSucces > 0) {
-			console.info(`${markAsReadSucces} messages marked as read`);
-		}
-	}
 </script>
 
 <div class="h-full flex flex-col pb-14">
 	<div class=" fixed w-full z-30 -mt-16">
 		<div class="bg-background h-16"></div>
-		<div class={cn("flex gap-2 p-2 z-30 border-b",
-			$userSettings.theme === "DARK" ? "bg-blue-950 border-background" : "bg-blue-100 border-gray-300"
-		)}>
-			<div
-				class="h-10 w-10 rounded-full bg-primary flex items-center justify-center text-primary-foreground"
-			>
-				{getInitials(data.coach.user.name)}
-			</div>
+		<div
+			class={cn(
+				'flex gap-2 p-2 z-30 border-b',
+				$userSettings.theme === 'DARK'
+					? 'bg-blue-950 border-background'
+					: 'bg-blue-100 border-gray-300'
+			)}
+		>
+			<img
+				src={getGravatarUrl(data.coach.user.email, 40)}
+				alt={data.coach.user.name}
+				class="h-10 w-10 rounded-full"
+			/>
 			<div>
 				<p class="fz-ms2 font-semibold">{data.coach.user.name}</p>
 				<p class="fz-ms1 text-muted-foreground">Your Swimming Coach</p>
@@ -131,32 +140,38 @@
 		</div>
 	</div>
 
-	<div bind:this={scrollContainer} class={cn("flex-1 overflow-y-auto px-4 pt-[72px] pb-4",
-		$isMobileView ? "pb-[4.5rem]" : "pb-[2rem]"
-	)}>
+	<div
+		bind:this={scrollContainer}
+		class={cn(
+			'flex-1 overflow-y-auto px-4 pt-[72px] pb-4',
+			$isMobileView ? 'pb-[4.5rem]' : 'pb-[2rem]'
+		)}
+	>
 		<div class="flex flex-col">
 			{#each messages as message, index}
 				<div
 					class={cn(
 						'flex gap-2 max-w-[80%]',
-						(message.parentId === data.parent.id && message.sender === 'PARENT'
+						message.parentId === data.parent.id && message.sender === 'PARENT'
 							? 'ml-auto flex-row-reverse'
-							: 'flex-row'),
-						(messages[index-1]?.sender === message.sender ? "mt-1" : "mt-4")
+							: 'flex-row',
+						messages[index - 1]?.sender === message.sender ? 'mt-1' : 'mt-4'
 					)}
 				>
-					<div
-						class="h-8 w-8 rounded-full bg-primary flex items-center justify-center text-primary-foreground text-sm shrink-0"
-					>
-						{message.parentId === data.parent.id && message.sender === 'PARENT'
-							? getInitials(message.parent.user.name)
-							: getInitials(message.coach.user.name)}
-					</div>
+					<img
+						src={message.parentId === data.parent.id && message.sender === 'PARENT'
+							? getGravatarUrl(message.parent.user.email, 32)
+							: getGravatarUrl(message.coach.user.email, 32)}
+						alt={message.parentId === data.parent.id && message.sender === 'PARENT'
+							? message.parent.user.name
+							: message.coach.user.name}
+						class="h-8 w-8 rounded-full shrink-0"
+					/>
 					<div
 						class={cn(
 							'rounded-lg p-3',
 							message.parentId === data.parent.id && message.sender === 'PARENT'
-								? `${$userSettings.theme === "DARK" ? "bg-blue-900 text-primary-background" : "bg-blue-700 text-primary-foreground"}`
+								? `${$userSettings.theme === 'DARK' ? 'bg-blue-900 text-primary-background' : 'bg-blue-700 text-primary-foreground'}`
 								: 'bg-muted'
 						)}
 					>
@@ -170,29 +185,43 @@
 		</div>
 	</div>
 
-	<div class={cn("fixed bottom-0 z-30 border-t border-gray-300 bg-blue-100",
-		$isMobileView ? "bottom-14 w-full" : "bottom-0 w-[calc(100%-4rem)] h-[73px] grid items-center",
-		$userSettings.theme === "DARK" ? "bg-blue-950 border-background" : "bg-blue-100 border-gray-300"
-	)}>
+	<div
+		class={cn(
+			'fixed bottom-0 z-30 border-t border-gray-300 bg-blue-100',
+			$isMobileView
+				? 'bottom-14 w-full'
+				: 'bottom-0 w-[calc(100%-4rem)] h-[73px] grid items-center',
+			$userSettings.theme === 'DARK'
+				? 'bg-blue-950 border-background'
+				: 'bg-blue-100 border-gray-300'
+		)}
+	>
 		<div class="p-3">
 			<form onsubmit={handleSubmit} class="flex gap-2">
 				<Input
 					type="text"
 					bind:value={messageInput}
 					placeholder="Type your message..."
-					class={cn("text-[0.875rem] !ring-0 focus:border-blue-500 bg-background",
-						$userSettings.theme === 'DARK' ? "hover:bg-opacity-50 focus:bg-opacity-75" : "hover:bg-gray-100 focus:border-blue-500 focus:bg-blue-50"
+					class={cn(
+						'text-[0.875rem] !ring-0 focus:border-blue-500 bg-background',
+						$userSettings.theme === 'DARK'
+							? 'hover:bg-opacity-50 focus:bg-opacity-75'
+							: 'hover:bg-gray-100 focus:border-blue-500 focus:bg-blue-50'
 					)}
 				/>
-				<Button class={cn("!ring-0 text-[0.875rem] border border-blue-500 border-opacity-0 focus:border-opacity-100",
-					$userSettings.theme === 'DARK' ? "focus:bg-blue-200 focus:text-blue-600" : "focus:bg-blue-900 focus:text-blue-400"
-				)} type="submit">Send</Button>
+				<Button
+					class={cn(
+						'!ring-0 text-[0.875rem] border border-blue-500 border-opacity-0 focus:border-opacity-100',
+						$userSettings.theme === 'DARK'
+							? 'focus:bg-blue-200 focus:text-blue-600'
+							: 'focus:bg-blue-900 focus:text-blue-400'
+					)}
+					type="submit">Send</Button
+				>
 			</form>
 		</div>
 		{#if $isMobileView}
-				<div class="h-14 bg-background -mb-14"></div>
+			<div class="h-14 bg-background -mb-14"></div>
 		{/if}
 	</div>
 </div>
-
-<!-- TODO dark mode -->
