@@ -68,7 +68,8 @@ export const load = (async ({ locals }) => {
 			prisma.message.count({
 				where: {
 					coachId: coach.id,
-					isRead: false
+					isRead: false,
+					sender: 'PARENT'
 				}
 			}),
 

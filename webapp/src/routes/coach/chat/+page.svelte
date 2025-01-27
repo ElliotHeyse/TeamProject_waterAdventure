@@ -8,7 +8,7 @@
 	import { getGravatarUrl } from '$lib/utils/gravatar';
 
 	const { data } = $props<{ data: PageData }>();
-	let parents: (Parent & { user: User; pupils: Pupil[] })[] = $state(data.parents);
+	let parents: (Parent & { user: User; pupils: Pupil[]; unreadCount: number })[] = $state(data.parents);
 
 	let messages = $state<
 		{
@@ -20,6 +20,7 @@
 			parent: { user: { name: string } };
 			coach: { user: { name: string } };
 			sender: string;
+			isRead: boolean;
 		}[]
 	>([]);
 
@@ -56,6 +57,25 @@
 		const response = await fetch(`/api/messages?parentId=${parent.id}&coachId=${data.coach.id}`);
 		if (response.ok) {
 			messages = await response.json();
+
+			// Mark messages from this parent as read
+			const unreadMessages = messages.filter(m => m.sender === 'PARENT' && !m.isRead);
+			if (unreadMessages.length > 0) {
+				await fetch('/api/mark-messages-read', {
+					method: 'POST',
+					headers: {
+						'Content-Type': 'application/json'
+					},
+					body: JSON.stringify({
+						messageIds: unreadMessages.map(m => m.id)
+					})
+				});
+
+				// Update the unread count in the UI
+				parents = parents.map((p) =>
+					p.id === parent.id ? { ...p, unreadCount: 0 } : p
+				);
+			}
 		}
 
 		// Join the chat room for this conversation
@@ -77,12 +97,23 @@
 		});
 
 		socket.on('message', (message) => {
-			if (
-				selectedParent &&
-				message.parentId === selectedParent.id &&
-				message.coachId === data.coach.id
-			) {
-				messages = [...messages, message];
+			if (message.coachId === data.coach.id) {
+				// Update messages if we're in the chat
+				if (selectedParent && message.parentId === selectedParent.id) {
+					messages = [...messages, message];
+				}
+
+				// Only increment unread count for new messages from parent
+				if (message.sender === 'PARENT') {
+					const isCurrentChat = selectedParent?.id === message.parentId;
+					if (!isCurrentChat) {
+						parents = parents.map(p =>
+							p.id === message.parentId
+								? { ...p, unreadCount: (p.unreadCount || 0) + 1 }
+								: p
+						);
+					}
+				}
 			}
 		});
 
@@ -148,7 +179,7 @@
 					}}
 					onclick={() => selectParent(parent)}
 				>
-					<div class="flex items-center gap-2">
+					<div class="flex items-center gap-2 relative">
 						<img src={getGravatarUrl(parent.user.email, 40)} alt="" />
 						<div class="flex flex-col min-w-0 flex-1">
 							<span class="text-sm font-medium">{parent.user.name}</span>
@@ -156,6 +187,13 @@
 								{parent.pupils.map((p: { id: string; name: string }) => p.name).join(', ')}
 							</span>
 						</div>
+						{#if parent.unreadCount > 0}
+							<div class="absolute -right-2 top-1/2 -translate-y-1/2">
+								<span class="bg-[#FF5555] text-white text-xs min-w-[20px] h-5 flex items-center justify-center rounded-full px-1.5 font-medium">
+									{parent.unreadCount}
+								</span>
+							</div>
+						{/if}
 					</div>
 				</button>
 			{/each}
