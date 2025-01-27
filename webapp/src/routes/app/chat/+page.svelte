@@ -7,16 +7,30 @@
 	import { cn } from '$lib/utils';
 	import { formatDistanceToNow } from 'date-fns';
 	import { io, type Socket } from 'socket.io-client';
+	import { userSettings } from '$lib/stores/userSettings';
+	import { isMobileView } from '$lib/stores/viewport';
+	import { isSidebarOpen } from '$lib/stores/sidebar';
+	import type { Message } from '../types';
+	import { getGravatarUrl } from '$lib/utils/gravatar';
+	import * as m from '$lib/paraglide/messages.js';
 
-	export let data: PageData;
-
-	let messageInput: string = '';
-	let scrollContainer: HTMLDivElement;
+	const { data } = $props<{ data: PageData }>();
+	let messageInput = $state('');
+	let messages = $state(data.messages);
+	let scrollContainer: HTMLDivElement | null = $state(null);
 	let socket: Socket;
 
-	$: if (scrollContainer) {
-		scrollContainer.scrollTop = scrollContainer.scrollHeight;
-	}
+	// Handle scrolling whenever messages change
+	$effect(() => {
+		if (scrollContainer && messages?.length > 0) {
+			requestAnimationFrame(() => {
+				scrollContainer?.scrollTo({
+					top: scrollContainer.scrollHeight,
+					behavior: 'smooth'
+				});
+			});
+		}
+	});
 
 	function getInitials(name: string) {
 		return name
@@ -26,16 +40,31 @@
 			.toUpperCase();
 	}
 
+	$isSidebarOpen = false;
+
+	let markAsReadSucces: number = 0;
+	let markAsReadError: number = 0;
+
 	onMount(() => {
 		// Connect to Socket.IO server
 		socket = io({
 			path: '/socket.io'
 		});
 
+		// Join the chat room
+		socket.emit('join_chat', {
+			coachId: data.coach.id,
+			parentId: data.parent.id
+		});
+
 		// Listen for incoming messages
 		socket.on('message', (message) => {
-			data.messages = [...data.messages, message];
-			scrollContainer.scrollTop = scrollContainer.scrollHeight;
+			if (
+				message.parentId === data.parent.id &&
+				message.coachId === data.coach.id
+			) {
+				messages = [...messages, message];
+			}
 		});
 
 		// Handle errors
@@ -46,11 +75,41 @@
 		// Initialize connection
 		socket.on('connect', () => {
 			console.log('Connected to chat server');
+			// Re-join chat room on reconnect
+			socket.emit('join_chat', {
+				coachId: data.coach.id,
+				parentId: data.parent.id
+			});
 		});
 
 		socket.on('disconnect', () => {
 			console.log('Disconnected from chat server');
 		});
+
+		// Mark unread messages as read
+		if (data.messages) {
+			data.messages.forEach(async (message: Message) => {
+				if (message.sender === 'COACH' && !message.isRead) {
+					try {
+						const response = await fetch('/api/mark-as-read/message', {
+							method: 'POST',
+							headers: {
+								'Content-Type': 'application/json'
+							},
+							body: JSON.stringify({ id: message.id })
+						});
+						if (response.ok) {
+							markAsReadSucces++;
+						} else {
+							markAsReadError++;
+						}
+					} catch (error) {
+						console.error('Error marking message as read:', error);
+						markAsReadError++;
+					}
+				}
+			});
+		}
 	});
 
 	onDestroy(() => {
@@ -75,63 +134,111 @@
 	}
 </script>
 
-<div class="px-4 py-4 lg:px-8">
-	<Card class="h-[calc(100vh-2rem)]">
-		<CardHeader>
-			<CardTitle class="flex items-center gap-4">
-				<div
-					class="h-10 w-10 rounded-full bg-primary flex items-center justify-center text-primary-foreground"
-				>
-					{getInitials(data.coach.user.name)}
-				</div>
-				<div>
-					<p class="text-lg font-semibold">{data.coach.user.name}</p>
-					<p class="text-sm text-muted-foreground">Your Swimming Coach</p>
-				</div>
-			</CardTitle>
-		</CardHeader>
-		<CardContent class="flex flex-col h-[calc(100%-5rem)]">
-			<div bind:this={scrollContainer} class="flex-1 overflow-y-auto pr-4">
-				<div class="flex flex-col gap-4">
-					{#each data.messages as message}
-						<div
-							class={cn(
-								'flex gap-2 max-w-[80%]',
-								message.isFromParent ? 'ml-auto flex-row-reverse' : 'flex-row'
-							)}
-						>
-							<div
-								class="h-8 w-8 rounded-full bg-primary flex items-center justify-center text-primary-foreground text-sm"
-							>
-								{message.isFromParent
-									? getInitials(message.parent.user.name)
-									: getInitials(message.coach.user.name)}
-							</div>
-							<div
-								class={cn(
-									'rounded-lg p-3',
-									message.isFromParent ? 'bg-muted' : 'bg-primary text-primary-foreground'
-								)}
-							>
-								<p>{message.content}</p>
-								<p class="text-xs opacity-70 mt-1">
-									{formatDistanceToNow(new Date(message.createdAt), { addSuffix: true })}
-								</p>
-							</div>
-						</div>
-					{/each}
-				</div>
+<div class="h-full flex flex-col pb-14">
+	<div class=" fixed w-full z-30 -mt-16">
+		<div class="bg-background h-16"></div>
+		<div
+			class={cn(
+				'flex gap-2 p-2 z-30 border-b',
+				$userSettings.theme === 'DARK'
+					? 'bg-blue-950 border-background'
+					: 'bg-blue-100 border-gray-300'
+			)}
+		>
+			<img
+				src={getGravatarUrl(data.coach.user.email, 40)}
+				alt={data.coach.user.name}
+				class="h-10 w-10 rounded-full"
+			/>
+			<div>
+				<p class="fz-ms2 font-semibold">{data.coach.user.name}</p>
+				<p class="fz-ms1 text-muted-foreground">{m.your_swimming_coach()}</p>
 			</div>
+		</div>
+	</div>
 
-			<form on:submit={handleSubmit} class="flex gap-2 mt-4">
+	<div
+		bind:this={scrollContainer}
+		class={cn(
+			'flex-1 overflow-y-auto px-4 pt-[72px] pb-4',
+			$isMobileView ? 'pb-[4.5rem]' : 'pb-[2rem]'
+		)}
+	>
+		<div class="flex flex-col">
+			{#each messages as message, index}
+				<div
+					class={cn(
+						'flex gap-2 max-w-[80%]',
+						message.parentId === data.parent.id && message.sender === 'PARENT'
+							? 'ml-auto flex-row-reverse'
+							: 'flex-row',
+						messages[index - 1]?.sender === message.sender ? 'mt-1' : 'mt-4'
+					)}
+				>
+					<img
+						src={message.parentId === data.parent.id && message.sender === 'PARENT'
+							? getGravatarUrl(message.parent.user.email, 32)
+							: getGravatarUrl(message.coach.user.email, 32)}
+						alt={message.parentId === data.parent.id && message.sender === 'PARENT'
+							? message.parent.user.name
+							: message.coach.user.name}
+						class="h-8 w-8 rounded-full shrink-0"
+					/>
+					<div
+						class={cn(
+							'rounded-lg p-3',
+							message.parentId === data.parent.id && message.sender === 'PARENT'
+								? `${$userSettings.theme === 'DARK' ? 'bg-blue-900 text-primary-background' : 'bg-blue-700 text-primary-foreground'}`
+								: 'bg-muted'
+						)}
+					>
+						<p class="fz-ms1 min-[375px]:fz-ms2 break-words">{message.content}</p>
+						<p class="fz-ms1 opacity-70 mt-1">
+							{formatDistanceToNow(new Date(message.createdAt), { addSuffix: true })}
+						</p>
+					</div>
+				</div>
+			{/each}
+		</div>
+	</div>
+
+	<div
+		class={cn(
+			'fixed bottom-0 z-30 border-t border-gray-300 bg-blue-100',
+			$isMobileView
+				? 'bottom-14 w-full'
+				: 'bottom-0 w-[calc(100%-4rem)] h-[73px] grid items-center',
+			$userSettings.theme === 'DARK'
+				? 'bg-blue-950 border-background'
+				: 'bg-blue-100 border-gray-300'
+		)}
+	>
+		<div class="p-3">
+			<form onsubmit={handleSubmit} class="flex gap-2">
 				<Input
 					type="text"
 					bind:value={messageInput}
-					placeholder="Type your message..."
-					class="flex-1"
+					placeholder={m.type_message()}
+					class={cn(
+						'text-[0.875rem] !ring-0 focus:border-blue-500 bg-background',
+						$userSettings.theme === 'DARK'
+							? 'hover:bg-opacity-50 focus:bg-opacity-75'
+							: 'hover:bg-gray-100 focus:border-blue-500 focus:bg-blue-50'
+					)}
 				/>
-				<Button type="submit">Send</Button>
+				<Button
+					class={cn(
+						'!ring-0 text-[0.875rem] border border-blue-500 border-opacity-0 focus:border-opacity-100',
+						$userSettings.theme === 'DARK'
+							? 'focus:bg-blue-200 focus:text-blue-600'
+							: 'focus:bg-blue-900 focus:text-blue-400'
+					)}
+					type="submit">{m.send()}</Button
+				>
 			</form>
-		</CardContent>
-	</Card>
+		</div>
+		{#if $isMobileView}
+			<div class="h-14 bg-background -mb-14"></div>
+		{/if}
+	</div>
 </div>

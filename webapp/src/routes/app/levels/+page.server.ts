@@ -1,107 +1,169 @@
 import { prisma } from '$lib/server/db';
 import type { PageServerLoad } from './$types';
 import { error } from '@sveltejs/kit';
+import { redirect } from '@sveltejs/kit';
 
 export const load: PageServerLoad = async ({ locals, url }) => {
+	// if (!locals.user) {
+	// 	throw error(401, 'Unauthorized');
+	// }
 	if (!locals.user) {
-		throw error(401, 'Unauthorized');
+		try {
+		  // Show unauthorized error
+		  throw error(401, 'Unauthorized');
+		} catch (e) {
+		  // Wait 3 seconds
+		  await new Promise(resolve => setTimeout(resolve, 3000));
+		  // Redirect to login
+		  throw redirect(302, '/login');
+		}
 	}
 
-	// Get the parent with all their pupils
-	const parent = await prisma.parent.findUnique({
+	// region DATA ACCESS
+
+	// Get the parent user, with their notifications, settings, messages and pupils, with their levelProgress and submissions
+	const parentUser = await prisma.user.findUnique({
 		where: {
-			userId: locals.user.id
+			id: locals.user.id
 		},
 		include: {
-			pupils: true
+			parent: {
+				include: {
+					pupils: {
+						include: {
+							levelProgress: true,
+							submissions: true
+						}
+					},
+					messages: true
+				}
+			},
+			settings: true,
+			notifications: true
 		}
 	});
 
-	if (!parent || parent.pupils.length === 0) {
+	if (!parentUser || !parentUser.parent) {
+		console.warn('No parent found', locals.user.id);
+		throw error(404, 'No parent found');
+	} else if (!parentUser.parent.pupils || parentUser.parent.pupils.length === 0) {
+		console.warn('No pupils found for parent', locals.user.id);
 		throw error(404, 'No pupils found');
 	}
 
-	// Get selected pupil from URL or default to first pupil
-	const selectedPupilId = url.searchParams.get('child') || parent.pupils[0].id;
-	const pupil = parent.pupils.find(p => p.id === selectedPupilId);
-
-	if (!pupil) {
-		throw error(404, 'Selected pupil not found');
-	}
-
-	// Get all swimming lessons with their submissions and level progress
-	const lessons = await prisma.lesson.findMany({
-		where: {
-			isSwimmingLesson: true,
-		},
-		orderBy: {
-			order: 'asc'
-		},
+	// Get all levels, with their languageContents and exercises, with their videos and languageContents
+	const levels = await prisma.level.findMany({
 		include: {
-			submissions: {
-				where: {
-					pupilId: pupil.id
-				},
-				orderBy: {
-					createdAt: 'desc'
-				},
-				take: 1
-			},
-			levelProgress: {
-				where: {
-					pupilId: pupil.id
+			languageContents: true,
+			exercises: {
+				include: {
+					videos: true,
+					languageContents: true
 				}
 			}
+		},
+		orderBy: {
+			levelNumber: 'asc'
 		}
 	});
 
-	// Find the first incomplete level's order
-	let currentLevelOrder = 1;
-	for (const lesson of lessons) {
-		const submission = lesson.submissions[0];
-		if (!submission || (submission.status !== 'REVIEWED' && submission.status !== 'PENDING')) {
-			currentLevelOrder = lesson.order;
-			break;
-		}
-		currentLevelOrder = lesson.order + 1;
+	if (!levels || levels.length === 0) {
+		console.warn('No levels found');
+		throw error(404, 'No levels found');
 	}
 
-	// Transform lessons into level data
-	const levels = lessons.map(lesson => {
-		const submission = lesson.submissions[0];
-		const allPartsCompleted = lesson.levelProgress.every(p => p.completed);
+	// region DATA PROCESSING
 
-		let status: 'locked' | 'current' | 'completed' = 'locked';
-		let medal: 'gold' | 'silver' | 'bronze' | null = null;
+	// Trim the parent user object to only include the necessary data
+	const parentUserTrimmed = {
+		id: parentUser.id,
+		email: parentUser.email,
+		name: parentUser.name,
+		parent: {
+			id: parentUser.parent.id,
+			phone: parentUser.parent.phone,
+			coachId: parentUser.parent.coachId,
+			pupils: parentUser.parent.pupils.map(pupil => ({
+				id: pupil.id,
+				name: pupil.name,
+				progress: pupil.progress,
+				profilePicture: pupil.profilePicture,
+				levelProgress: pupil.levelProgress.map(levelProgress => ({
+					id: levelProgress.id,
+					firstPartCompleted: levelProgress.firstPartCompleted,
+					fullyCompleted: levelProgress.fullyCompleted,
+					levelNumber: levelProgress.levelNumber
+				})),
+				submissions: pupil.submissions.map(submission => ({
+					id: submission.id,
+					videoUrl: submission.videoUrl,
+					status: submission.status,
+					feedback: submission.feedback,
+					medal: submission.medal,
+					updatedAt: submission.updatedAt,
+					levelNumber: submission.levelNumber
+				}))
+			})),
+			messages: parentUser.parent.messages.map(message => ({
+				id: message.id,
+				content: message.content,
+				isRead: message.isRead,
+				sender: message.sender,
+				createdAt: message.createdAt,
+				coachId: message.coachId
+			}))
+		},
+		settings: {
+			pushNotifications: parentUser.settings?.pushNotifications,
+			emailNotifications: parentUser.settings?.emailNotifications,
+			theme: parentUser.settings?.theme,
+			language: parentUser.settings?.language
+		},
+		notifications: parentUser.notifications.map(notification => ({
+			id: notification.id,
+			timestamp: notification.timestamp,
+			isRead: notification.isRead,
+			type: notification.type,
+			title: notification.title,
+			body: notification.body,
+			levelNumber: notification.levelNumber
+		}))
+	};
 
-		// Determine status
-		if (submission?.status === 'REVIEWED') {
-			status = 'completed';
-			// Get medal directly from submission
-			if (submission.medal !== 'NONE') {
-				medal = submission.medal.toLowerCase() as 'gold' | 'silver' | 'bronze';
-			}
-		} else if (submission?.status === 'PENDING') {
-			status = 'completed'; // Show as completed when video is submitted but pending review
-		} else if (lesson.order === currentLevelOrder) {
-			status = 'current';
-		}
-
-		return {
-			id: lesson.order,
-			status,
-			medal
-		};
-	});
-
-	// Get all children for the header dropdown
-	const children = parent.pupils.map(pupil => ({
-		id: pupil.id,
-		name: pupil.name
+	// Trim the levels object to only include the necessary data
+	const levelsTrimmed = levels.map(level => ({
+		id: level.id,
+		duration: level.duration,
+		levelNumber: level.levelNumber,
+		exercises: level.exercises.map(exercise => ({
+			id: exercise.id,
+			exerciseNumber: exercise.exerciseNumber,
+			videos: exercise.videos.map(video => ({
+				id: video.id,
+				path: video.path,
+				title: video.title
+			})),
+			languageContents: exercise.languageContents.map(languageContent => ({
+				id: languageContent.id,
+				language: languageContent.language,
+				location: languageContent.location,
+				title: languageContent.title,
+				description: languageContent.description,
+				important: languageContent.important,
+				tips: languageContent.tips
+			}))
+		})),
+		languageContents: level.languageContents.map(languageContent => ({
+			id: languageContent.id,
+			language: languageContent.language,
+			title: languageContent.title,
+			objectives: languageContent.objectives,
+		}))
 	}));
 
+	// region DATA RETURN
 	return {
-		levels: levels.sort((a, b) => a.id - b.id), // Sort in ascending order
-		children // Add children to the response for the header dropdown
-	};
-}; 
+		parentUser: parentUserTrimmed,
+		levels: levelsTrimmed
+	}
+};

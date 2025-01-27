@@ -2,7 +2,17 @@
 	import logo from '$lib/img/logo-dark.svg';
 	import logoLight from '$lib/img/logo-light.svg';
 	import { page } from '$app/state';
-	import { Bell, ChevronRight, Sun, Moon, Menu, ChevronDown } from 'lucide-svelte';
+	import {
+		Bell,
+		ChevronRight,
+		ChevronLeft,
+		Sun,
+		Moon,
+		Menu,
+		ChevronDown,
+		Settings,
+		LogOut
+	} from 'lucide-svelte';
 	import * as Breadcrumb from '$lib/components/coach/ui/breadcrumb';
 	import * as DropdownMenu from '$lib/components/coach/ui/dropdown-menu';
 	import { Button } from '$lib/components/coach/ui/button';
@@ -10,15 +20,56 @@
 	import { isSidebarOpen } from '$lib/stores/sidebar';
 	import { isMobileView } from '$lib/stores/viewport';
 	import { userSettings } from '$lib/stores/userSettings';
-	import { invalidateAll } from '$app/navigation';
+	import { invalidateAll, goto } from '$app/navigation';
 	import { selectedChildIdStore } from '$lib/stores/child.store';
+	import { getGravatarUrl } from '$lib/utils/gravatar';
+	import * as m from '$lib/paraglide/messages.js';
 
-	interface Child {
+	// region Types
+
+	interface Pupil {
 		id: string;
 		name: string;
-		currentLevel: string;
-		currentLevelOrder: number;
+		progress: Number;
+		profilePicture: number;
 	}
+	interface UserNotification {
+		timestamp: Date;
+		isRead: Boolean;
+		type: string;
+		title: string;
+		body: string;
+		levelNumber: Number;
+	}
+	interface ParentUser {
+		id: string;
+		email: string;
+		name: string;
+		parent: {
+			id: string;
+			phone: string;
+			coachId: string;
+			pupils: Pupil[];
+		};
+		settings: {
+			pushNotifications: Boolean;
+			emailNotifications: Boolean;
+			theme: string;
+			language: string;
+		};
+		notifications: UserNotification[];
+	}
+	interface LanguageContent {
+		language: string;
+		title: string;
+		objectives: string[];
+	}
+	interface Level {
+		duration: Number;
+		levelNumber: Number;
+		languageContents: LanguageContent[];
+	}
+
 	interface Notification {
 		id: number;
 		message: string;
@@ -27,29 +78,48 @@
 
 	let notifications = $state<Notification[]>([]);
 
+	// region Logic
+
 	// Generate breadcrumb items based on current path
 	$effect(() => {
 		const path = page.url.pathname;
 		const segments = path.split('/').filter(Boolean);
-		breadcrumbs = segments.map((segment, index) => ({
-			label: segment.charAt(0).toUpperCase() + segment.slice(1),
-			href: '/' + segments.slice(0, index + 1).join('/')
-		}));
+		breadcrumbs = segments
+			.map((segment, index) => ({
+				label: segment.charAt(0).toUpperCase() + segment.slice(1),
+				href: '/' + segments.slice(0, index + 1).join('/')
+			}))
+			.filter((breadcrumb) => !['nl', 'fr', 'en'].includes(breadcrumb.label.toLowerCase()));
 	});
 
 	let breadcrumbs = $state<Array<{ label: string; href: string }>>([]);
 
+	// configure Light/dark mode
 	async function toggleDarkMode() {
-		const newMode = $userSettings.themeMode === 'LIGHT' ? 'DARK' : 'LIGHT';
-		await userSettings.updateSettings({ themeMode: newMode });
+		const newMode = $userSettings.theme === 'LIGHT' ? 'DARK' : 'LIGHT';
+		await userSettings.updateSettings({ theme: newMode });
 	}
 
+	// Get children from the current page data
 	const data = $state(page.data);
-	const children = $state<Child[]>(data.children);
+
+	let children = $state<Pupil[]>([]);
 	let selectedChildId = $state($selectedChildIdStore);
-	let selectedChild = $state(
-		children.find((child) => child.id === selectedChildId) || children[0] || null
-	);
+	let selectedChild = $state<Pupil | null>(null);
+
+	// Update children and selected child when data changes
+	$effect(() => {
+		children = data?.parentUser?.parent?.pupils || [];
+		selectedChild = children.find((child) => child.id === selectedChildId) || children[0] || null;
+	});
+
+	// Check if we're on a specific level page (numbers 1-7)
+	const isLevelPage = $derived(() => {
+		const path = page.url.pathname;
+		// Match only numbered level pages, accounting for optional language prefix
+		const levelPattern = /^(?:\/(?:nl|fr))?\/app\/levels\/\d+$/;
+		return levelPattern.test(path);
+	});
 
 	async function handleChildSelect(childId: string) {
 		selectedChildIdStore.set(childId);
@@ -57,53 +127,108 @@
 
 		invalidateAll();
 	}
+
+	async function handleLogout() {
+		goto('/logout');
+	}
 </script>
 
 <header
-	class="border-border bg-background/95 supports-[backdrop-filter]:bg-background/60 sticky top-0 z-10 border-b backdrop-blur"
+	class="border-border bg-background/95 supports-[backdrop-filter]:bg-background/60 sticky top-0 border-b backdrop-blur z-50"
 >
 	<div class="h-16">
-		<div class="flex h-full items-center gap-4 px-4">
+		<div class="flex items-center justify-between h-full gap-4 px-4">
 			<div class={cn($isMobileView ? 'block' : 'hidden')}>
 				<img
-					src={$userSettings.themeMode === 'DARK' ? logoLight : logo}
+					src={$userSettings.theme === 'DARK' ? logoLight : logo}
 					alt="WaterAdventure"
 					class="h-8"
 				/>
 			</div>
 
-			<button
-				class={cn(
-					'text-muted-foreground hover:bg-muted hover:text-foreground rounded-lg p-2',
-					$isMobileView ? 'hidden' : 'block'
-				)}
-				onclick={() => isSidebarOpen.update((open) => !open)}
-			>
-				{#if $isSidebarOpen}
-					<Menu class="h-5 w-5" />
-				{:else}
-					<ChevronRight class="h-5 w-5" />
-				{/if}
-			</button>
+			<!-- <div class={cn("flex items-center flex-nowrap gap-4", $isMobileView ? 'hidden' : 'block')}> -->
+			<div class="flex items-center gap-4 {isMobileView ? 'block' : 'hidden'}">
+				<!-- <div class="flex items-center gap-4"> -->
+				<!-- collapse/show sidebar button -->
+				<button
+					class={cn(
+						'text-muted-foreground hover:bg-muted hover:text-foreground rounded-lg p-2',
+						$isMobileView ? 'hidden' : 'block'
+					)}
+					onclick={() => isSidebarOpen.update((open) => !open)}
+				>
+					{#if $isSidebarOpen}
+						<ChevronLeft class="w-5 h-5" />
+					{:else}
+						<Menu class="w-5 h-5" />
+					{/if}
+				</button>
 
-			<nav class={cn('flex', $isMobileView ? 'hidden' : 'block')} aria-label="Breadcrumb">
-				<Breadcrumb.Root>
-					<Breadcrumb.List>
-						{#each breadcrumbs as { label, href }, i}
-							<Breadcrumb.Item>
-								{#if i === breadcrumbs.length - 1}
-									<Breadcrumb.Page>{label}</Breadcrumb.Page>
-								{:else}
-									<Breadcrumb.Link {href}>{label}</Breadcrumb.Link>
-									<Breadcrumb.Separator />
-								{/if}
-							</Breadcrumb.Item>
-						{/each}
-					</Breadcrumb.List>
-				</Breadcrumb.Root>
-			</nav>
+				<nav class={cn('flex', $isMobileView ? 'hidden' : 'block')} aria-label="Breadcrumb">
+					<Breadcrumb.Root>
+						<Breadcrumb.List>
+							{#each breadcrumbs as { label, href }, i}
+								<Breadcrumb.Item>
+									{#if i === breadcrumbs.length - 1}
+										<Breadcrumb.Page>{label}</Breadcrumb.Page>
+									{:else}
+										<Breadcrumb.Link {href}>{label}</Breadcrumb.Link>
+										<Breadcrumb.Separator />
+									{/if}
+								</Breadcrumb.Item>
+							{/each}
+						</Breadcrumb.List>
+					</Breadcrumb.Root>
+				</nav>
+			</div>
 
-			<div class="ml-auto flex items-center space-x-4">
+			<div class="flex items-center gap-4">
+				<!-- Child selector dropdown -->
+				<DropdownMenu.Root>
+					<DropdownMenu.Trigger disabled={isLevelPage()}>
+						<Button
+							variant="ghost"
+							size="sm"
+							class={cn(
+								'flex items-center gap-2 px-3 h-8 border',
+								isLevelPage() && 'opacity-50 cursor-not-allowed'
+							)}
+						>
+							<div class="bg-primary/10 text-primary h-5 w-5 rounded-full overflow-hidden">
+								<img
+									src={`/src/lib/img/profile-pictures/profile${selectedChild?.profilePicture}.svg`}
+									alt={`${selectedChild?.name}'s profile picture`}
+									class="h-full w-full object-cover"
+								/>
+							</div>
+							<span class="text-sm font-medium">{selectedChild?.name || 'Select child'}</span>
+							<ChevronDown class="w-4 h-4" />
+						</Button>
+					</DropdownMenu.Trigger>
+					{#if !isLevelPage()}
+						<DropdownMenu.Content class="w-56">
+							<DropdownMenu.Label>Children</DropdownMenu.Label>
+							<DropdownMenu.Separator />
+							{#each children as child}
+								<DropdownMenu.Item
+									onclick={() => handleChildSelect(child.id)}
+									class="flex items-center gap-2"
+								>
+									<div class="bg-primary/10 text-primary h-8 w-8 rounded-full overflow-hidden">
+										<img
+											src={`/src/lib/img/profile-pictures/profile${child.profilePicture}.svg`}
+											alt={`${child.name}'s profile picture`}
+											class="h-full w-full object-cover"
+										/>
+									</div>
+									{child.name}
+								</DropdownMenu.Item>
+							{/each}
+						</DropdownMenu.Content>
+					{/if}
+				</DropdownMenu.Root>
+
+				<!-- toggle dark mode button -->
 				<button
 					class={cn(
 						'text-muted-foreground hover:bg-muted hover:text-foreground rounded-lg p-2',
@@ -111,41 +236,52 @@
 					)}
 					onclick={toggleDarkMode}
 				>
-					{#if $userSettings.themeMode === 'DARK'}
-						<Sun class="h-5 w-5" />
+					{#if $userSettings.theme === 'DARK'}
+						<Sun class="w-5 h-5" />
 					{:else}
-						<Moon class="h-5 w-5" />
+						<Moon class="w-5 h-5" />
 					{/if}
 				</button>
 
+				<!-- toggle notifications button -->
 				<button
-					class={cn('hover:bg-muted relative rounded-lg p-2', $isMobileView ? 'hidden' : 'block')}
+					class={cn(
+						'text-muted-foreground hover:bg-muted hover:text-foreground rounded-lg p-2',
+						$isMobileView ? 'hidden' : 'block'
+					)}
 				>
-					<Bell class="text-muted-foreground h-5 w-5" />
+					<Bell class="w-5 h-5 text-muted-foreground" />
 					{#if notifications.length > 0}
 						<span
-							class="bg-destructive text-destructive-foreground absolute right-0 top-0 flex h-4 w-4 items-center justify-center rounded-full text-xs"
+							class="absolute top-0 right-0 flex items-center justify-center w-4 h-4 text-xs rounded-full bg-destructive text-destructive-foreground"
 						>
 							{notifications.length}
 						</span>
 					{/if}
 				</button>
 
+				<!-- User profile dropdown -->
 				<DropdownMenu.Root>
-					<DropdownMenu.Trigger>
-						<Button variant="ghost" size="sm" class="flex items-center gap-2 px-3 h-8 border">
-							<span class="text-sm font-medium">{selectedChild?.name || 'Select child'}</span>
-							<ChevronDown class="h-4 w-4" />
-						</Button>
+					<DropdownMenu.Trigger class="flex items-center gap-2">
+						<div class="bg-primary/10 text-primary h-8 w-8 rounded-full overflow-hidden">
+							<img
+								src={getGravatarUrl(data.parentUser.email, 32)}
+								alt={`${data.parentUser.name}'s profile picture`}
+								class="h-full w-full object-cover"
+							/>
+						</div>
 					</DropdownMenu.Trigger>
 					<DropdownMenu.Content class="w-56">
-						<DropdownMenu.Label>Children</DropdownMenu.Label>
+						<DropdownMenu.Label>{m.account_settings()}</DropdownMenu.Label>
 						<DropdownMenu.Separator />
-						{#each children as child}
-							<DropdownMenu.Item onclick={() => handleChildSelect(child.id)}>
-								{child.name}
-							</DropdownMenu.Item>
-						{/each}
+						<DropdownMenu.Item onSelect={() => goto('/app/settings')} class="cursor-pointer">
+							<Settings class="mr-2 h-4 w-4" />
+							{m.settings()}
+						</DropdownMenu.Item>
+						<DropdownMenu.Item onSelect={handleLogout} class="cursor-pointer">
+							<LogOut class="mr-2 h-4 w-4" />
+							{m.logout()}
+						</DropdownMenu.Item>
 					</DropdownMenu.Content>
 				</DropdownMenu.Root>
 			</div>

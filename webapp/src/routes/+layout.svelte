@@ -9,7 +9,7 @@
 
 	import '../lib/styles/app.css';
 
-	let { children, data } = $props();
+	let { children, data }: { children: any; data: any } = $props();
 
 	// Initialize settings from server data
 	$effect(() => {
@@ -19,17 +19,19 @@
 				language: data.settings.language as Language
 			};
 			userSettings.set(settings);
-			document.documentElement.classList.toggle('dark', settings.themeMode === 'DARK');
 
 			// Handle language path
 			const currentPath = window.location.pathname;
 			const currentLang = i18n.strategy.getLanguageFromLocalisedPath(currentPath) || 'en';
-			
+
 			// Only redirect if the current path language doesn't match the user's preferred language
 			if (currentLang !== settings.language && settings.language !== 'en') {
 				const canonicalPath = i18n.strategy.getCanonicalPath(currentPath, currentLang as Language);
 				const newPath = i18n.strategy.getLocalisedPath(canonicalPath, settings.language);
-				goto(newPath, { invalidateAll: true });
+				goto(newPath, {
+					invalidateAll: true,
+					state: { preservedTheme: settings.theme }
+				});
 			}
 		}
 	});

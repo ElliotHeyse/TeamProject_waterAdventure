@@ -1,36 +1,46 @@
 import { writable } from 'svelte/store';
+import { browser } from '$app/environment';
 
-export type ThemeMode = 'LIGHT' | 'DARK';
+export type Theme = 'LIGHT' | 'DARK';
 export type Language = 'en' | 'nl' | 'fr';
 
 export interface UserSettings {
     pushNotifications: boolean;
     emailNotifications: boolean;
-    themeMode: ThemeMode;
+    theme: Theme;
     language: Language;
 }
 
 const defaultSettings: UserSettings = {
-    pushNotifications: true,
-    emailNotifications: true,
-    themeMode: 'LIGHT',
+    pushNotifications: false,
+    emailNotifications: false,
+    theme: 'LIGHT',
     language: 'en'
 };
 
 function createUserSettingsStore() {
     const { subscribe, set, update } = writable<UserSettings>(defaultSettings);
 
+    function applyTheme(theme: Theme) {
+        if (browser) {
+            document.documentElement.classList.toggle('dark', theme === 'DARK');
+            localStorage.setItem('darkMode', (theme === 'DARK').toString());
+        }
+    }
+
     return {
         subscribe,
-        set,
+        set: (settings: UserSettings) => {
+            set(settings);
+            applyTheme(settings.theme);
+        },
         async load() {
             try {
                 const response = await fetch('/api/user/settings');
                 if (response.ok) {
                     const settings = await response.json();
                     set(settings);
-                    // Apply theme
-                    document.documentElement.classList.toggle('dark', settings.themeMode === 'DARK');
+                    applyTheme(settings.theme);
                 }
             } catch (err) {
                 console.error('Failed to load user settings:', err);
@@ -47,9 +57,8 @@ function createUserSettingsStore() {
                 if (response.ok) {
                     const settings = await response.json();
                     set(settings);
-                    // Apply theme if it was updated
-                    if ('themeMode' in updates) {
-                        document.documentElement.classList.toggle('dark', settings.themeMode === 'DARK');
+                    if ('theme' in updates) {
+                        applyTheme(settings.theme);
                     }
                     return true;
                 }

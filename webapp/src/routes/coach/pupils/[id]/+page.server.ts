@@ -1,6 +1,6 @@
 import { error } from '@sveltejs/kit';
 import type { PageServerLoad, Actions } from './$types';
-import { PrismaClient, Level, SubmissionStatus } from '@prisma/client';
+import { PrismaClient, SubmissionStatus } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
@@ -12,9 +12,9 @@ export const load = (async ({ params }: { params: { id: string } }) => {
 		select: {
 			id: true,
 			name: true,
-			level: true,
 			notes: true,
 			createdAt: true,
+			profilePicture: true,
 			parent: {
 				select: {
 					id: true,
@@ -39,11 +39,7 @@ export const load = (async ({ params }: { params: { id: string } }) => {
 		throw error(404, 'Pupil not found');
 	}
 
-	const totalLessons = await prisma.lesson.count({
-		where: {
-			level: pupil.level
-		}
-	});
+	const totalLessons = await prisma.level.count();
 
 	const completedLessons = await prisma.submission.count({
 		where: {
@@ -52,7 +48,7 @@ export const load = (async ({ params }: { params: { id: string } }) => {
 		}
 	});
 
-	const lessons = await prisma.lesson.findMany({
+	const lessons = await prisma.level.findMany({
 		where: {
 			submissions: {
 				some: {
@@ -61,13 +57,19 @@ export const load = (async ({ params }: { params: { id: string } }) => {
 			}
 		},
 		orderBy: {
-			date: 'desc'
+			createdAt: 'desc'
 		},
 		select: {
 			id: true,
-			date: true,
-			title: true,
-			description: true
+			createdAt: true,
+			languageContents: {
+				where: {
+					language: 'nl'
+				},
+				select: {
+					title: true
+				}
+			}
 		}
 	});
 
@@ -82,17 +84,20 @@ export const load = (async ({ params }: { params: { id: string } }) => {
 			id: true,
 			createdAt: true,
 			status: true,
-			lesson: {
+			level: {
 				select: {
-					title: true
+					languageContents: {
+						where: {
+							language: 'nl'
+						},
+						select: {
+							title: true
+						}
+					}
 				}
 			},
-			review: {
-				select: {
-					comment: true,
-					createdAt: true
-				}
-			}
+			feedback: true,
+			medal: true
 		}
 	});
 
@@ -117,18 +122,11 @@ export const actions = {
 			throw error(400, 'Missing required fields');
 		}
 
-		// Convert level string to enum
-		const level = levelStr.toUpperCase() as Level;
-		if (!Object.values(Level).includes(level)) {
-			throw error(400, 'Invalid level');
-		}
-
 		try {
 			await prisma.pupil.update({
 				where: { id },
 				data: {
 					name,
-					level,
 					notes
 				}
 			});

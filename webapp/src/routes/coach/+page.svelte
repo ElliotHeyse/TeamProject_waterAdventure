@@ -36,7 +36,7 @@
 		},
 		{
 			title: m.active_lessons(),
-			value: data.stats.activeLessons,
+			value: data.stats.activeLevels,
 			icon: BookOpen,
 			description: m.ongoing_lessons(),
 			href: '/coach/lessons'

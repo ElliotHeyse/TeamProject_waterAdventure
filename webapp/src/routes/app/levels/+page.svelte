@@ -6,14 +6,70 @@
 	import { goto } from '$app/navigation';
 	import { CircleAlert } from 'lucide-svelte';
 	import { isMobileView } from '$lib/stores/viewport';
+	import { isSidebarOpen } from '$lib/stores/sidebar';
+	import { selectedChildIdStore } from '$lib/stores/child.store';
+	import * as m from '$lib/paraglide/messages.js';
+	import type { ParentUser, Level, Pupil, Submission} from '../types';
+	import { cn } from '$lib/components/coach/utils';
 
-	interface Level {
+
+	interface GameLevel {
 		id: number;
 		status: 'locked' | 'current' | 'completed';
 		medal: 'gold' | 'silver' | 'bronze' | null;
 	}
 
-	const { data } = $props<{ data: { levels: Level[] } }>();
+	const { data } = $props<{
+		data: {
+			parentUser: ParentUser,
+			levels: Level[]
+		}
+	}>();
+
+	// map incoming data to existing model
+	const selectedChild = $derived(
+		data.parentUser.parent.pupils.find((pupil: Pupil) => pupil.id === $selectedChildIdStore) || data.parentUser.parent.pupils[0]
+	);
+
+	const gameLevels = $derived(() => {
+		const levels: GameLevel[] = [];
+		data.levels.forEach((level: Level) => {
+			const currentLevel: number = level.levelNumber;
+			const currentProgress: number = selectedChild.progress;
+			let currentStatus: 'locked' | 'current' | 'completed';
+			let currentMedal: 'gold' | 'silver' | 'bronze' | null = null;
+			if (currentLevel <= currentProgress) {
+				currentStatus = 'completed';
+				const submission = selectedChild.submissions.find((sub: Submission) => sub.levelNumber === currentLevel);
+				if (submission) {
+					switch (submission.medal){
+						case "GOLD":
+							currentMedal = 'gold';
+							break;
+						case "SILVER":
+							currentMedal = 'silver';
+							break;
+						case "BRONZE":
+							currentMedal = 'bronze';
+							break;
+						default:
+							break;
+					}
+				}
+			} else if (currentLevel === currentProgress+1) {
+				currentStatus = 'current';
+			} else {
+				currentStatus = 'locked';
+			}
+
+			levels.push({
+				id: currentLevel,
+				status: currentStatus,
+				medal: currentMedal
+			});
+		});
+		return levels;
+	});
 
 	const medalImages = {
 		gold: medalGold,
@@ -33,9 +89,9 @@
 	] as const;
 
 	// Combine hardcoded positions with dynamic data
-	const levels = $derived(
+	const pageLevels = $derived(
 		levelPositions.map((pos) => {
-			const levelData = data.levels.find((l: any) => l.id === pos.id) || {
+			const levelData = gameLevels().find((l: GameLevel) => l.id === pos.id) || {
 				status: 'locked' as const,
 				medal: null
 			};
@@ -56,13 +112,13 @@
 			setTimeout(() => {
 				showAlert = false;
 				clickedLevelId = null;
-			}, 3000);
+			}, 5000);
 		}
 	});
 
-	function handleLevelClick(level: (typeof levels)[0], event: MouseEvent) {
+	function handleLevelClick(level: (typeof pageLevels)[0], event: MouseEvent) {
 		if (level.status === 'locked') {
-			const nextLevel = levels.find((l) => l.status === 'current');
+			const nextLevel = pageLevels.find((l) => l.status === 'current');
 			if (nextLevel) {
 				const buttonRect = (event.currentTarget as HTMLElement).getBoundingClientRect();
 				const x = buttonRect.right + 20; // 20px offset from the button
@@ -78,18 +134,20 @@
 
 		goto(`/app/levels/${level.id}`);
 	}
+
+	$isSidebarOpen = (false);
 </script>
 
-<div class="px-4 py-4 lg:px-8">
+<div class="mb-[-3.5rem]">
 	<div class="min-h-screen bg-background">
-		<h1 class="text-center text-4xl font-bold text-foreground pt-4 pb-6">Swimming Levels</h1>
+		<!-- <h1 class="pt-4 pb-6 text-4xl font-bold text-center text-foreground">Swimming Levels</h1> -->
 
-		<div class="w-full overflow-hidden flex items-center justify-center relative">
-			<img src={g10} alt="Level background" class="w-full h-full object-contain" />
+		<div class="relative flex flex-col items-center justify-center w-full overflow-hidden mt-[-2.8vw]">
+			<img src={g10} alt={m.level_background_alt()} class="object-contain w-full h-full" />
 			<div class="absolute inset-0 w-full h-full">
-				{#each levels as level}
+				{#each pageLevels as level}
 					<button
-						class="absolute transform -translate-x-1/2 -translate-y-1/2 transition-all duration-300 hover:scale-110 focus:outline-none"
+						class="absolute transition-all duration-300 transform -translate-x-1/2 -translate-y-1/2 hover:scale-110 focus:outline-none"
 						style="left: {level.x}%; top: {level.y}%;"
 						onclick={(e) => handleLevelClick(level, e)}
 					>
@@ -103,10 +161,12 @@
 							{level.status === 'locked' ? 'opacity-60' : 'opacity-100'}
 							{$isMobileView ? 'w-[min(12vw,12rem)] h-[min(12vw,12rem)]' : 'w-[min(8vw,8rem)] h-[min(8vw,8rem)]'}"
 						>
+							<!-- <span
+								class="text-white drop-shadow-md font-sniglet-regular fz-ms3 min-[320px]:fz-ms4 min-[425px]:font-sniglet-extrabold"> -->
 							<span
-								class="text-white font-bold drop-shadow-md {$isMobileView
-									? 'text-[min(3vw,3rem)]'
-									: 'text-[min(2vw,2rem)]'}"
+								class="text-white drop-shadow-md font-sniglet-regular {$isMobileView
+									? 'text-[min(5vw,1.75rem)]'
+									: 'text-[min(3.5vw,2.25rem)]'}"
 							>
 								{level.id}
 							</span>
@@ -124,15 +184,22 @@
 
 					{#if showAlert && clickedLevelId === level.id}
 						<div
-							class="absolute z-50 w-72 transition-opacity animate-in fade-in-0 duration-300"
-							style="left: {level.x + 5}%; top: {level.y}%; transform: translateY(-50%);"
+							class="absolute z-30 transition-opacity duration-300 animate-in fade-in-0 flex flex-grow-1"
+							style={$isMobileView
+								? cn("left: 50%; transform: translateX(-50%);", level.id === 7 ? `top: ${levelPositions[1].y + 3.5}%;` : `top: ${level.y + 3.5}%;`)
+								: `left: 50%; transform: translateX(-50%); top: ${level.y + 3.5}%;`}
 						>
-							<div class="bg-background text-foreground rounded-lg border shadow-lg p-4 space-y-2">
-								<div class="flex items-center gap-2 text-primary font-medium">
-									<CircleAlert class="h-4 w-4" />
-									<span>Level Locked</span>
+							<div class={cn("p-1 flex flex-col flex-grow-1 gap-1 border rounded-lg shadow-lg bg-background/80 text-foreground",
+								$isMobileView ? "" : "items-center gap-2"
+							)}>
+								<div class="flex items-center gap-2 font-medium text-primary">
+									<CircleAlert class="w-4 h-4" />
+									<span class="fz-ms2">Level Locked</span>
 								</div>
-								<p class="text-sm text-muted-foreground">{alertMessage}</p>
+								<p class={cn("fz-ms1 w-[min(66vw,16rem)] flex-grow-1 flex-shrink-0 text-muted-foreground",
+									$isMobileView ? "" : "fz-ms2 w-[80vw] text-center"
+								)}>
+									{alertMessage}</p>
 							</div>
 						</div>
 					{/if}

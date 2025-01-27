@@ -1,55 +1,1928 @@
-import { PrismaClient, UserRole, Level, SubmissionStatus } from '@prisma/client';
+import { PrismaClient, UserRole, SubmissionStatus, Medal, Theme, NotificationType} from '@prisma/client';
 import { hash } from 'bcrypt';
+import { getCompileCacheDir } from 'module';
+import { title } from 'process';
 
 const prisma = new PrismaClient();
 
 async function main() {
 	// Clear existing data in the correct order
+	await prisma.notification.deleteMany();
 	await prisma.message.deleteMany();
-	await prisma.review.deleteMany();
+	await prisma.userSettings.deleteMany();
+	await prisma.session.deleteMany();
 	await prisma.submission.deleteMany();
+	await prisma.levelProgress.deleteMany();
 	await prisma.video.deleteMany();
+	await prisma.exerciseLanguageContent.deleteMany();
 	await prisma.exercise.deleteMany();
-	await prisma.lesson.deleteMany();
+	await prisma.levelLanguageContent.deleteMany();
+	await prisma.level.deleteMany();
 	await prisma.pupil.deleteMany();
-	await prisma.coach.deleteMany();
 	await prisma.parent.deleteMany();
+	await prisma.coach.deleteMany();
 	await prisma.user.deleteMany();
 
-	// Create coach user
+	// Construct level data
+	// TODO: level 3-7 volledig aanvullen
+	const levelData = [
+		{	// level 1
+			duration: 20,
+			levelNumber: 1,
+			exercises: [
+				{
+					exerciseNumber: 1,
+					videos: [
+						{
+							path: "/src/lib/beeldmateriaalZwemfed/level1_ex1_1.mp4",
+							title: [
+								"Douchelied",
+								"Shower song",
+								"Chanson de douche"
+							]
+						}
+					],
+					languageContents: [
+						{
+							language: "nl",
+							location: [
+								"thuis"
+							],
+							title: "Sproeikampioen",
+							description: [
+								"Sproei de tenen en voeten, knieën en benen rustig nat, daarna de buik en de rug, de handen, de schouders, de achterkant van het hoofd, de bovenkant van het hoofd en het gezicht."
+							],
+							important: [
+								"Moedig je kind aan om met het hoofd onder de waterstraal te staan. Komt er toch water in de ogen? Laat je kind dan met de ogen knipperen om het water wooer sneller uit te krijgen. Dat is beter dan wrijven."
+							],
+							tips: [
+								"Soms kan je de intensiteit van een sproeikop aanpassen. Een zachte straal werkt in het begin waarschijnlijk beter dan een harde straal. Daag je kind ook uit om langer onder de waterstraal te staan, bv. door luidop te tellen."
+							]
+						},
+						{
+							language: "en",
+							location: [
+								"home"
+							],
+							title: "Spray Champion",
+							description: [
+								"Spray the toes and feet, knees and legs gently wet, then the belly and back, the hands, the shoulders, the back of the head, the top of the head, and the face."
+							],
+							important: [
+								"Encourage your child to stand under the water stream with their head. If water gets into their eyes, have them blink to remove it more quickly. This is better than rubbing."
+							],
+							tips: [
+								"Sometimes you can adjust the intensity of a spray nozzle. A gentle stream will probably work better at first than a strong one. Challenge your child to stay under the water stream longer, for example, by counting out loud."
+							]
+						},
+						{
+							language: "fr",
+							location: [
+								"maison"
+							],
+							title: "Champion de la Douche",
+							description: [
+								"Mouille doucement les orteils et les pieds, les genoux et les jambes, puis le ventre et le dos, les mains, les épaules, l'arrière de la tête, le sommet de la tête et le visage."
+							],
+							important: [
+								"Encourage ton enfant à se tenir sous le jet d'eau avec la tête. Si de l'eau entre dans ses yeux, demande-lui de cligner des yeux pour l'éliminer plus rapidement. C'est mieux que de se frotter les yeux."
+							],
+							tips: [
+								"Parfois, l'intensité d'une pomme de douche peut être ajustée. Un jet doux fonctionnera probablement mieux au début qu'un jet fort. Mets ton enfant au défi de rester plus longtemps sous le jet d'eau, par exemple en comptant à voix haute."
+							]
+						}
+					]
+				},
+				{
+					exerciseNumber: 2,
+					videos: [
+						{
+							path: "/src/lib/beeldmateriaalZwemfed/level1_ex2_1.mp4",
+							title: [
+								"Zittend op de trap piano spelen",
+								"Sitting on the stairs playing the piano",
+								"Assis sur les escaliers en train de jouer du piano"
+							]
+						},
+						{
+							path: "/src/lib/beeldmateriaalZwemfed/level1_ex2_2.mp4",
+							title: [
+								"Zittend op trap met de benen kloppen",
+								"Sitting on the stairs beating with the legs",
+								"Assis sur les escaliers en battant avec les jambes"
+							]
+						},
+						{
+							path: "/src/lib/beeldmateriaalZwemfed/level1_ex2_3.mp4",
+							title: [
+								"Carwash",
+								"Carwash",
+								"Carwash"
+							]
+						}
+					],
+					languageContents: [
+						{
+							language: "nl",
+							location: [
+								"zwembad"
+							],
+							title: "Spitter, spetter, spat",
+							description: [
+								"Zorg dat je kind het lichaam nat maakt met de armen. Laat je kind:",
+								"Tokkelen op het water (zoals piano spelen)",
+								"Golven maken (beweeg van links naar rechts)",
+								"Met de handen op het water slaan",
+								"Jou ook lekker nat spetteren",
+								"Zorg dat je kind ook regelmatig van positie wisselt: zitten op de poep op de trapjes van het bad, met de knieën op de bodem of gewoon rechtstaan."
+							],
+							important: [
+								"Moedig je kind aan om het hoofd niet weg te draaien van de spetters en te knipperen als het water in de ogen krijgt."
+							],
+							tips: [
+								"Probeer eens een variant en laat je kind ook spetteren met de benen:",
+								"Zet je kind op de kant of op de trap van het bad",
+								"Laat het de benen op en neer in het water bewegen. Zorg dat de benen en voeten gestrekt zijn.",
+								"Wissel af tussen traag en snel."
+							]
+						},
+						{
+							language: "en",
+							location: [
+								"swimming pool"
+							],
+							title: "Splash, Splatter, Splash",
+							description: [
+								"Make sure your child wets their body using their arms. Let your child:",
+								"Tap on the water (like playing the piano)",
+								"Create waves (move from left to right)",
+								"Slap the water with their hands",
+								"Splatter you with water too",
+								"Make sure your child regularly changes position: sitting on their bottom on the pool steps, kneeling on the bottom, or just standing upright."
+							],
+							important: [
+								"Encourage your child not to turn their head away from the splashes and to blink if water gets into their eyes."
+							],
+							tips: [
+								"Try a variation and let your child splash with their legs:",
+								"Sit your child on the edge or on the pool steps",
+								"Let them move their legs up and down in the water. Ensure their legs and feet are stretched.",
+								"Alternate between slow and fast movements."
+							]
+						},
+						{
+							language: "fr",
+							location: [
+								"piscine"
+							],
+							title: "Plouf, Plaf, Splash",
+							description: [
+								"Assure-toi que ton enfant mouille son corps avec ses bras. Laisse-le :",
+								"Tapoter l'eau (comme jouer du piano)",
+								"Faire des vagues (bouger de gauche à droite)",
+								"Frapper l'eau avec les mains",
+								"T'éclabousser aussi",
+								"Assure-toi que ton enfant change régulièrement de position : assis sur les marches de la piscine, à genoux au fond ou simplement debout."
+							],
+							important: [
+								"Encourage ton enfant à ne pas détourner la tête des éclaboussures et à cligner des yeux si l'eau entre dans ses yeux."
+							],
+							tips: [
+								"Essaie une variante et laisse ton enfant éclabousser avec les jambes :",
+								"Assieds ton enfant sur le bord ou sur les marches de la piscine",
+								"Laisse-le bouger les jambes de haut en bas dans l'eau. Assure-toi que ses jambes et pieds sont tendus.",
+								"Alterne entre lent et rapide."
+							]
+						}
+					]
+				}
+			],
+			languageContents: [
+				{
+					language: "nl",
+					title: "Eerste kennismaking",
+					objectives: [
+						"angstreflexen in het water overwinnen",
+						"vertrouwen"
+					]
+				},
+				{
+					language: "en",
+					title: "First introduction",
+					objectives: [
+						"overcoming fear reflexes in the water",
+						"confidence"
+					]
+				},
+				{
+					language: "fr",
+					title: "Première introduction",
+					objectives: [
+						"surmonter les réflexes de peur dans l'eau",
+						"confiance"
+					]
+				}
+			]
+		},
+		{	// level 2
+			duration: 20,
+			levelNumber: 2,
+			exercises: [
+				{
+					exerciseNumber: 1,
+					videos: [
+						{
+							path: "/src/lib/beeldmateriaalZwemfed/level2_ex1_1.mp4",
+							title: [
+								"Zittend op de trap golven maken",
+								"Sitting on the stairs making waves",
+								"Assis sur les escaliers en faisant des vagues"
+							]
+						}
+					],
+					languageContents: [
+						{
+							language: "nl",
+							location: [
+								"thuis"
+							],
+							title: "Waar zijn die handjes?",
+							description: [
+								"Laat je kind de armen en handen in het water bewegen in alle richtingen: duwen, zwaaien, draaien ... Zo duwt je kind het water weg terwijl het door het water stapt.",
+								"Daarna laat je je kind een drijvend voorwerp zoals een badeendje, een balletje ... vooruit duwen in het water zonder het aan te raken."
+							],
+							important: [
+								"Zorg dat je kind de vingers gesloten houdt. Zo kan het meer water wegduwen met de handen."
+							],
+							tips: [
+								"Doe deze oefening voor en laat je kind het nadoen",
+								"Verzin zelf extra oefeningen en gebruik veel fantasie: handen wuiven onder water, armen bewegen als de wieken van een windmolen ...",
+								"Maak er een kleine competitie van: wie geraakt het snelst aan de overkant met het voorwerp?"
+							]
+						},
+						{
+							language: "en",
+							location: [
+								"home"
+							],
+							title: "Where Are Those Hands?",
+							description: [
+								"Let your child move their arms and hands in the water in all directions: pushing, waving, rotating... This way, your child pushes the water away while walking through it.",
+								"Then, have your child push a floating object, such as a rubber duck or a small ball, forward in the water without touching it."
+							],
+							important: [
+								"Make sure your child keeps their fingers closed. This allows them to push more water away with their hands."
+							],
+							tips: [
+								"Demonstrate this exercise and let your child imitate it.",
+								"Come up with additional exercises and use plenty of imagination: waving hands underwater, moving arms like the blades of a windmill...",
+								"Turn it into a small competition: who can get the object to the other side the fastest?"
+							]
+						},
+						{
+							language: "fr",
+							location: [
+								"maison"
+							],
+							title: "Où sont ces petites mains ?",
+							description: [
+								"Laisse ton enfant bouger ses bras et ses mains dans l'eau dans toutes les directions : pousser, agiter, tourner... Ainsi, il repousse l'eau tout en marchant dedans.",
+								"Ensuite, demande à ton enfant de pousser un objet flottant, comme un canard en plastique ou une petite balle, vers l'avant dans l'eau sans le toucher."
+							],
+							important: [
+								"Assure-toi que ton enfant garde les doigts fermés. Cela lui permettra de repousser plus d'eau avec ses mains."
+							],
+							tips: [
+								"Montre cet exercice et laisse ton enfant l'imiter.",
+								"Invente d'autres exercices et fais preuve de beaucoup d'imagination : agiter les mains sous l'eau, bouger les bras comme les pales d'un moulin à vent...",
+								"Transforme cela en une petite compétition : qui arrivera le plus vite de l'autre côté avec l'objet ?"
+							]
+						}
+					]
+				},
+				{
+					exerciseNumber: 2,
+					videos: [
+						{
+							path: "/src/lib/beeldmateriaalZwemfed/level2_ex2_1.mp4",
+							title: [
+								"Plankje dwars in het water bewegen",
+								"Moving a board across the water",
+								"Déplacer une planche à travers l'eau"
+							]
+						},
+						{
+							path: "/src/lib/beeldmateriaalZwemfed/level2_ex2_2.mp4",
+							title: [
+								"Drijvend voorwerp wegstuwen",
+								"Driving a floating object away",
+								"Pousser un objet flottant"
+							]
+						}
+					],
+					languageContents: [
+						{
+							language: "nl",
+							location: [
+								"zwembad"
+							],
+							title: "Bestuur de trein",
+							description: [
+								"Laat je kind tot aan de heup of tot aan de borst in het water staan en een zwemplank vastnemen zoals een stuur.",
+								"Ga achter je kind staan als tweede wagon.",
+								"Rij nu samen als een trein door het zwembad met je kind als bestuurder."
+							],
+							important: [
+								"Laat je kind het zwemplankje in verschillende posities leggen: op het water, dwars in het water, half of volledig onder water...",
+								"Daarna kan het de plank ook in verschillende richtingen bewegen: van links naar rechts, van voor naar achter... Zo ervaart je kind dat sommige bewegingen in het water moeilijker zijn dan andere."
+							],
+							tips: [
+								"Een grote zwemplank kan je kind meer steun op het water geven, maar ook veel weerstand bieden als je ze recht houdt.",
+								"Doe deze oefening ook eens met ander leuk spelmateriaal (bal, blokje, flexibeam,...)"
+							]
+						},
+						{
+							language: "en",
+							location: [
+								"swimming pool"
+							],
+							title: "Drive the Train",
+							description: [
+								"Have your child stand in the water up to their hips or chest and hold a swim board like a steering wheel.",
+								"Stand behind your child as the second wagon.",
+								"Now ride together like a train through the pool with your child as the driver."
+							],
+							important: [
+								"Let your child place the swim board in different positions: on the water, horizontally in the water, half or fully underwater...",
+								"Then, they can move the board in different directions: left to right, forward to backward... This way, your child experiences that some movements in the water are harder than others."
+							],
+							tips: [
+								"A large swim board can give your child more support in the water but can also provide more resistance if held upright.",
+								"Try this exercise with other fun equipment (ball, block, flexibeam,...)"
+							]
+						},
+						{
+							language: "fr",
+							location: [
+								"piscine"
+							],
+							title: "Conduire le Train",
+							description: [
+								"Demande à ton enfant de se tenir dans l'eau jusqu'aux hanches ou à la poitrine et de tenir un planche de natation comme un volant.",
+								"Tiens-toi derrière ton enfant comme le deuxième wagon.",
+								"Maintenant, roulez ensemble comme un train à travers la piscine avec ton enfant comme conducteur."
+							],
+							important: [
+								"Laisse ton enfant placer la planche de natation dans différentes positions : sur l'eau, à l'horizontale dans l'eau, à moitié ou complètement sous l'eau...",
+								"Ensuite, il peut aussi déplacer la planche dans différentes directions : de gauche à droite, de l'avant vers l'arrière... Ainsi, ton enfant constate que certains mouvements dans l'eau sont plus difficiles que d'autres."
+							],
+							tips: [
+								"Une grande planche de natation peut offrir plus de soutien à ton enfant dans l'eau, mais aussi beaucoup de résistance si elle est maintenue droite.",
+								"Essaie cet exercice avec d'autres équipements amusants (balle, bloc, flexibeam,...)"
+							]
+						}
+					]
+				}
+			],
+			languageContents: [
+				{
+					language: "nl",
+					title: "Drijfkracht",
+					objectives: [
+						"aanvoelen van remming en stuwing"
+					]
+				},
+				{
+					language: "en",
+					title: "Buoyancy",
+					objectives: [
+						"perceiving resistance and propulsion"
+					]
+				},
+				{
+					language: "fr",
+					title: "Flottabilité",
+					objectives: [
+						"ressentir la résistance et la propulsion"
+					]
+				}
+			]
+		},
+		{	// level 3
+			duration: 20,
+			levelNumber: 3,
+			exercises: [
+				{
+					exerciseNumber: 1,
+					videos: [
+						{
+							path: "/src/lib/beeldmateriaalZwemfed/level3_ex1_1.mp4",
+							title: [
+								"Op de trap bellen blazen met rietje",
+								"Blowing bubbles on the stairs with a straw",
+								"Souffler des bulles sur les marches avec un riet"
+							]
+						}
+					],
+					languageContents: [
+						{
+							language: "nl",
+							location: [
+								"thuis"
+							],
+							title: "Bellenblazer",
+							description: [
+								"Je kind laat een beker vol lopen met water. Zorg ervoor dat het water ook over je kind heen loopt.",
+								"Laat het daarna met een rietje bellenblazen in de beker. Hoe harder het blaast, hoe groter de bellen.",
+								"Heb je geen beker? Dan kan je kind met een rietje gewoon ook bellen blazen in het water van het zwembad."
+							],
+							important: [
+								"Deze oefening lukt het best als je kind diep inademt. Zo kan het ook lang rustig uitblazen."
+							],
+							tips: [
+								"Doe deze opdracht mee met je kind. Wie blaast de grootste bellen of wie blaast het meeste water uit de beker?"
+							]
+						},
+						{
+							language: "en",
+							location: [
+								"home"
+							],
+							title: "Bubble Blower",
+							description: [
+								"Have your child fill a cup with water. Make sure the water flows over your child as well.",
+								"Then let them blow bubbles in the cup with a straw. The harder they blow, the bigger the bubbles.",
+								"Don't have a cup? Then your child can also blow bubbles in the pool water with a straw."
+							],
+							important: [
+								"This exercise works best when your child takes a deep breath. This way, they can exhale calmly for a longer time."
+							],
+							tips: [
+								"Do this exercise with your child. Who can blow the biggest bubbles or who can blow the most water out of the cup?"
+							]
+						},
+						{
+							language: "fr",
+							location: [
+								"maison"
+							],
+							title: "Souffleur de Bulles",
+							description: [
+								"Faites remplir un verre d'eau à votre enfant. Assurez-vous que l'eau coule aussi sur votre enfant.",
+								"Ensuite, laissez-le souffler des bulles dans le verre avec une paille. Plus il souffle fort, plus les bulles sont grosses.",
+								"Vous n'avez pas de verre ? Votre enfant peut aussi souffler des bulles dans l'eau de la piscine avec une paille."
+							],
+							important: [
+								"Cet exercice fonctionne mieux lorsque votre enfant prend une profonde respiration. Ainsi, il peut expirer calmement plus longtemps."
+							],
+							tips: [
+								"Faites cet exercice avec votre enfant. Qui peut souffler les plus grosses bulles ou qui peut souffler le plus d'eau hors du verre ?"
+							]
+						}
+					]
+				},
+				{
+					exerciseNumber: 2,
+					videos: [
+						{
+							path: "/src/lib/beeldmateriaalZwemfed/level3_ex2_1.mp4",
+							title: [
+								"drijvend voorwerp wegblazen",
+								"Driving a floating object away",
+								"Pousser un objet flottant"
+							]
+						},
+					],
+					languageContents: [
+						{
+							language: "nl",
+							location: [
+								"zwembad"
+							],
+							title: "Bellenblazen",
+							description: [
+								"Laat je kind een licht balletje (bv. pingpongballetje) vooruit blazen. Dit kan vanuit verschillende posities in het bad:",
+								"op de knieën",
+								"rechtstaand",
+								"rondstappend"
+							],
+							important: [
+								"Zorg ervoor dat je kind krachtig kan blazen. Zorg dat het hiervoor de lippen goed gebruikt, zoals in de afbeelding."
+							],
+							tips: [
+								"Motiveer je kind door zelf mee te doen en bedenk leuke spelletjes:",
+								"blaas het balletje naar elkaar",
+								"leg zo snel mogelijk een parcours af met het balletje"
+							]
+						},
+						{
+							language: "en",
+							location: [
+								"swimming pool"
+							],
+							title: "Blowing Bubbles",
+							description: [
+								"Have your child blow a light ball (e.g., ping pong ball) forward. This can be done from different positions in the pool:",
+								"on their knees",
+								"standing up",
+								"walking around"
+							],
+							important: [
+								"Make sure your child can blow forcefully. Ensure they use their lips properly, as shown in the image."
+							],
+							tips: [
+								"Motivate your child by participating and think of fun games:",
+								"blow the ball to each other",
+								"complete a course with the ball as quickly as possible"
+							]
+						},
+						{
+							language: "fr",
+							location: [
+								"piscine"
+							],
+							title: "Souffler des Bulles",
+							description: [
+								"Faites souffler à votre enfant une balle légère (par exemple, une balle de ping-pong) vers l'avant. Cela peut se faire depuis différentes positions dans la piscine :",
+								"à genoux",
+								"debout",
+								"en marchant"
+							],
+							important: [
+								"Assurez-vous que votre enfant puisse souffler avec force. Veillez à ce qu'il utilise correctement ses lèvres, comme montré sur l'image."
+							],
+							tips: [
+								"Motivez votre enfant en participant et imaginez des jeux amusants :",
+								"soufflez la balle l'un vers l'autre",
+								"complétez un parcours avec la balle le plus rapidement possible"
+							]
+						}
+					]
+				}
+			],
+			languageContents: [
+				{
+					language: "nl",
+					title: "Aquatisch ademen",
+					objectives: [
+						"aquatisch ademen",
+						"vertrouwen",
+						"waterangst overwinnen"
+					]
+				},
+				{
+					language: "en",
+					title: "Aquatic Breathing",
+					objectives: [
+						"aquatic breathing",
+						"confidence",
+						"overcoming fear of water"
+					]
+				},
+				{
+					language: "fr",
+					title: "Respiration Aquatique",
+					objectives: [
+						"respiration aquatique",
+						"confiance",
+						"surmonter la peur de l'eau"
+					]
+				}
+			]
+		},
+		{	// level 4
+			duration: 20,
+			levelNumber: 4,
+			exercises: [
+				{
+					exerciseNumber: 1,
+					videos: [
+						{
+							path: "/src/lib/beeldmateriaalZwemfed/level4_ex1_1.mp4",
+							title: [
+								"in hurkzit bellen blazen",
+								"blowing bubbles in squatting position",
+								"souffler des bulles en position squat"
+							]
+						},
+						{
+							path: "/src/lib/beeldmateriaalZwemfed/level4_ex1_2.mp4",
+							title: [
+								"Per twee onder water en uitblazen",
+								"By two under water and exhale",
+								"Par deux sous l'eau et expirer"
+							]
+						}
+					],
+					languageContents: [
+						{
+							language: "nl",
+							location: [
+								"thuis"
+							],
+							title: "Bellenblazer",
+							description: [
+								"Je kind laat een beker vol lopen met water. Zorg ervoor dat het water ook over je kind heen loopt.",
+								"Laat het daarna met een rietje bellenblazen in de beker. Hoe harder het blaast, hoe groter de bellen.",
+								"Heb je geen beker? Dan kan je kind met een rietje gewoon ook bellen blazen in het water van het zwembad."
+							],
+							important: [
+								"Deze oefening lukt het best als je kind diep inademt. Zo kan het ook lang rustig uitblazen."
+							],
+							tips: [
+								"Doe deze opdracht mee met je kind. Wie blaast de grootste bellen of wie blaast het meeste water uit de beker?"
+							]
+						},
+						{
+							language: "en",
+							location: [
+								"home"
+							],
+							title: "Bubble Blower",
+							description: [
+								"Have your child fill a cup with water. Make sure the water flows over your child as well.",
+								"Then let them blow bubbles in the cup with a straw. The harder they blow, the bigger the bubbles.",
+								"Don't have a cup? Then your child can also blow bubbles in the pool water with a straw."
+							],
+							important: [
+								"This exercise works best when your child takes a deep breath. This way, they can exhale calmly for a longer time."
+							],
+							tips: [
+								"Do this exercise with your child. Who can blow the biggest bubbles or who can blow the most water out of the cup?"
+							]
+						},
+						{
+							language: "fr",
+							location: [
+								"maison"
+							],
+							title: "Souffleur de Bulles",
+							description: [
+								"Faites remplir un verre d'eau à votre enfant. Assurez-vous que l'eau coule aussi sur votre enfant.",
+								"Ensuite, laissez-le souffler des bulles dans le verre avec une paille. Plus il souffle fort, plus les bulles sont grosses.",
+								"Vous n'avez pas de verre ? Votre enfant peut aussi souffler des bulles dans l'eau de la piscine avec une paille."
+							],
+							important: [
+								"Cet exercice fonctionne mieux lorsque votre enfant prend une profonde respiration. Ainsi, il peut expirer calmement plus longtemps."
+							],
+							tips: [
+								"Faites cet exercice avec votre enfant. Qui peut souffler les plus grosses bulles ou qui peut souffler le plus d'eau hors du verre ?"
+							]
+						}
+					]
+				},
+				{
+					exerciseNumber: 2,
+					videos: [
+						{
+							path: "/src/lib/beeldmateriaalZwemfed/level4_ex2_1.mp4",
+							title: [
+								"Onder noodle mond onder water",
+								"Under noodle mouth under water",
+								"Sous nouilles, bouche sous l'eau"
+							]
+						},
+						{
+							path: "/src/lib/beeldmateriaalZwemfed/level4_ex2_2.mp4",
+							title: [
+								"Door hoepel stappen onder water",
+								"Stepping through hoop under water",
+								"Passer dans un cerceau sous l'eau"
+							]
+						}
+					],
+					languageContents: [
+						{
+							language: "nl",
+							location: [
+								"zwembad"
+							],
+							title: "Onder het poortje door",
+							description: [
+								"Maak met een voorwerp (flexibeam, plank, ballon...) of met je been of arm een 'poortje'. Laat je kind onder het poortje doorlopen."
+							],
+							important: [
+								"Zorg dat de mond van je kind toe is als het onder het poortje gaat. Variatie: laat je kind bellen blazen door neus en/of mond terwijl het onder het poortje loopt."
+							],
+							tips: [
+								"Heeft je kind nog weinig vertrouwen in het water? Help het dan door het een hand te geven of een drijvend voorwerp te laten vasthouden.",
+								"Is je kind al een durver? Maak het poortje lager. Zo kan je kind ook de ogen openen terwijl het onder de poort stapt.",
+								"Variatie: laat je kind door jouw benen zwemmen of zelfs omkeren"
+							]
+						},
+						{
+							language: "en",
+							location: [
+								"swimming pool"
+							],
+							title: "Under the Gateway",
+							description: [
+								"Create a 'gateway' with an object (flexibeam, board, balloon...) or with your leg or arm. Let your child walk under the gateway."
+							],
+							important: [
+								"Make sure your child's mouth is closed when going under the gateway. Variation: let your child blow bubbles through nose and/or mouth while walking under the gateway."
+							],
+							tips: [
+								"Does your child still have little confidence in the water? Help them by holding their hand or letting them hold a floating object.",
+								"Is your child already daring? Make the gateway lower. This way your child can also open their eyes while stepping under the gateway.",
+								"Variation: let your child swim through your legs or even turn around"
+							]
+						},
+						{
+							language: "fr",
+							location: [
+								"piscine"
+							],
+							title: "Sous la Porte",
+							description: [
+								"Créez une 'porte' avec un objet (flexibeam, planche, ballon...) ou avec votre jambe ou bras. Laissez votre enfant passer sous la porte."
+							],
+							important: [
+								"Assurez-vous que la bouche de votre enfant est fermée lorsqu'il passe sous la porte. Variation : laissez votre enfant souffler des bulles par le nez et/ou la bouche en passant sous la porte."
+							],
+							tips: [
+								"Votre enfant a-t-il encore peu confiance dans l'eau ? Aidez-le en lui tenant la main ou en le laissant tenir un objet flottant.",
+								"Votre enfant est-il déjà audacieux ? Abaissez la porte. Ainsi, votre enfant peut aussi ouvrir les yeux en passant sous la porte.",
+								"Variation : laissez votre enfant nager entre vos jambes ou même faire demi-tour"
+							]
+						}
+					]
+				}
+			],
+			languageContents: [
+				{
+					language: "nl",
+					title: "Aquatisch ademen en verplaatsen",
+					objectives: [
+						"aquatisch ademen",
+						"verplaatsen in het water"
+					]
+				},
+				{
+					language: "en",
+					title: "Aquatic Breathing and Movement",
+					objectives: [
+						"aquatic breathing",
+						"moving in water"
+					]
+				},
+				{
+					language: "fr",
+					title: "Respiration Aquatique et Déplacement",
+					objectives: [
+						"respiration aquatique",
+						"se déplacer dans l'eau"
+					]
+				}
+			]
+		},
+		{	// level 5
+			duration: 20,
+			levelNumber: 5,
+			exercises: [
+				{
+					exerciseNumber: 1,
+					videos: [
+						{
+							path: "/src/lib/beeldmateriaalZwemfed/level5_ex1_1.mp4",
+							title: [
+								"Al stappend spelmateriaal verzamelen",
+								"Collecting game material while walking",
+								"Récupérer du matériel de jeu en marchant"
+							]
+						},
+						{
+							path: "/src/lib/beeldmateriaalZwemfed/level5_ex1_2.mp4",
+							title: [
+								"Vanuit stand voorwerp ophalen",
+								"Collecting object from standing position",
+								"Récupérer un objet en position debout"
+							]
+						}
+					],
+					languageContents: [
+						{
+							language: "nl",
+							location: [
+								"thuis",
+								"zwembad"
+							],
+							title: "Duikexpert",
+							description: [
+								"Laat je kind een gezonken voorwerp opduiken. Eerst gebruikt het de voeten en daarna de handen. Je kind kan rechtstaan of zitten in het bad. Wissel ook af met verschillende dieptes: bv. eerst op de trede van de trapjes en daarna op de bodem."
+							],
+							important: [
+								"Zorg dat je kind de ogen openhoudt. Zie ook dat de mond gesloten is of dat het belletjes blaast."
+							],
+							tips: [
+								"> Als je kind bang is om onder water te gaan, doe dan gewoon mee.",
+								"> Zorg voor meerdere voorwerpen om op te duiken.",
+								"> Daag je kind verder uit als het goed gaat. Laat je kind:",
+								"> zo snel mogelijk drie schatten verzamelen",
+								"> eerst onder een obstakel (hoepel/ flexibeam/benen ...) door gaan voor je kind het voorwerp kan opduiken."
+							]
+						},
+						{
+							language: "en",
+							location: [
+								"home",
+								"swimming pool"
+							],
+							title: "Diving Expert",
+							description: [
+								"Have your child dive for a sunken object. First using their feet and then their hands. Your child can stand or sit in the bath. Also alternate with different depths: e.g. first on the step of the stairs and then on the bottom."
+							],
+							important: [
+								"Make sure your child keeps their eyes open. Also ensure that the mouth is closed or that they're blowing bubbles."
+							],
+							tips: [
+								"> If your child is afraid to go underwater, just join in.",
+								"> Provide multiple objects to dive for.",
+								"> Challenge your child further when it's going well. Let your child:",
+								"> collect three treasures as quickly as possible",
+								"> first go through an obstacle (hoop/flexibeam/legs...) before they can dive for the object."
+							]
+						},
+						{
+							language: "fr",
+							location: [
+								"maison",
+								"piscine"
+							],
+							title: "Expert en Plongée",
+							description: [
+								"Faites plonger votre enfant pour récupérer un objet immergé. D'abord avec les pieds puis avec les mains. Votre enfant peut être debout ou assis dans le bain. Alternez aussi avec différentes profondeurs : par exemple d'abord sur la marche de l'escalier puis au fond."
+							],
+							important: [
+								"Assurez-vous que votre enfant garde les yeux ouverts. Vérifiez aussi que la bouche est fermée ou qu'il souffle des bulles."
+							],
+							tips: [
+								"> Si votre enfant a peur d'aller sous l'eau, participez avec lui.",
+								"> Prévoyez plusieurs objets à récupérer.",
+								"> Défiez davantage votre enfant quand ça se passe bien. Laissez votre enfant :",
+								"> collecter trois trésors le plus rapidement possible",
+								"> d'abord passer sous un obstacle (cerceau/flexibeam/jambes...) avant de pouvoir plonger pour l'objet."
+							]
+						}
+					]
+				}
+			],
+			languageContents: [
+				{
+					language: "nl",
+					title: "Aquatisch ademen",
+					objectives: [
+						"aquatisch ademen",
+						"wennen weerstand",
+						"verplaatsen in alle richtingen"
+					]
+				},
+				{
+					language: "en",
+					title: "Aquatic Breathing",
+					objectives: [
+						"aquatic breathing",
+						"getting used to resistance",
+						"moving in all directions"
+					]
+				},
+				{
+					language: "fr",
+					title: "Respiration Aquatique",
+					objectives: [
+						"respiration aquatique",
+						"s'habituer à la résistance",
+						"se déplacer dans toutes les directions"
+					]
+				}
+			]
+		},
+		{	// level 6
+			duration: 20,
+			levelNumber: 6,
+			exercises: [
+				{
+					exerciseNumber: 1,
+					videos: [
+						{
+							path: "/src/lib/beeldmateriaalZwemfed/level6_ex1_1.mp4",
+							title: [
+								"Zijwaarts springen",
+								"Sideways jump",
+								"Saut latéral"
+							]
+						},
+						{
+							path: "/src/lib/beeldmateriaalZwemfed/level6_ex1_2.mp4",
+							title: [
+								"Hoogtesprong met halve draai",
+								"High jump with half turn",
+								"Saut en hauteur avec demi-tour"
+							]
+						},
+						{
+							path: "/src/lib/beeldmateriaalZwemfed/level6_ex1_3.mp4",
+							title: [
+								"Op de mat rollen",
+								"Rolling on the mat",
+								"Rouler sur le tapis"
+							]
+						},
+						{
+							path: "/src/lib/beeldmateriaalZwemfed/level6_ex1_4.mp4",
+							title: [
+								"Op grote mat klimmen",
+								"Climbing on big mat",
+								"Grimper sur le grand tapis"
+							]
+						},
+						{
+							path: "/src/lib/beeldmateriaalZwemfed/level6_ex1_5.mp4",
+							title: [
+								"Op mat kruipen en afspringen",
+								"Crawling on mat and jumping off",
+								"Ramper sur le tapis et sauter"
+							]
+						},
+						{
+							path: "/src/lib/beeldmateriaalZwemfed/level6_ex1_6.mp4",
+							title: [
+								"Bodem tikken en steeksprong",
+								"Touch bottom and dive",
+								"Toucher le fond et plonger"
+							]
+						},
+						{
+							path: "/src/lib/beeldmateriaalZwemfed/level6_ex1_7.mp4",
+							title: [
+								"Koprol op en van de mat",
+								"Forward roll on and off the mat",
+								"Roulade avant sur et hors du tapis"
+							]
+						}
+					],
+					languageContents: [
+						{
+							language: "nl",
+							location: [
+								"zwembad"
+							],
+							title: "Op de carrousel",
+							description: [
+								"Laat je kind in het water springen met een halve draai (180°). Draai zowel links- als rechtsom. Laat het beginnen in het ondiepe water en ga daarna steeds een beetje dieper."
+							],
+							important: [
+								"Zorg dat je kind het lichaam recht houdt, zodat het in evenwicht kan landen. De armen van je kind ondersteunen hierbij de draaibeweging."
+							],
+							tips: [
+								"> Doe de oefening altijd eerst even voor.",
+								"> Lukt dit al goed? Probeer dan ook eens een volledige draai (360°).",
+								"> Is je kind een pro? Laat het dan de armen tijdens het draaien boven het hoofd uitstrekken!"
+							]
+						},
+						{
+							language: "en",
+							location: [
+								"swimming pool"
+							],
+							title: "On the Carousel",
+							description: [
+								"Have your child jump into the water with a half turn (180°). Turn both clockwise and counterclockwise. Start in shallow water and gradually move to deeper water."
+							],
+							important: [
+								"Make sure your child keeps their body straight to maintain balance when landing. Their arms support the turning movement."
+							],
+							tips: [
+								"> Always demonstrate the exercise first.",
+								"> Going well? Try a full turn (360°).",
+								"> Is your child a pro? Let them stretch their arms above their head while turning!"
+							]
+						},
+						{
+							language: "fr",
+							location: [
+								"piscine"
+							],
+							title: "Sur le Carrousel",
+							description: [
+								"Faites sauter votre enfant dans l'eau avec un demi-tour (180°). Tournez dans les deux sens, horaire et antihoraire. Commencez en eau peu profonde et augmentez progressivement la profondeur."
+							],
+							important: [
+								"Assurez-vous que votre enfant garde le corps droit pour maintenir l'équilibre à l'atterrissage. Ses bras soutiennent le mouvement de rotation."
+							],
+							tips: [
+								"> Démontrez toujours l'exercice d'abord.",
+								"> Ça va bien ? Essayez un tour complet (360°).",
+								"> Votre enfant est un pro ? Laissez-le tendre les bras au-dessus de la tête pendant la rotation !"
+							]
+						}
+					]
+				}
+			],
+			languageContents: [
+				{
+					language: "nl",
+					title: "Rotaties",
+					objectives: [
+						"rotaties lengte-as",
+						"rotatie breedte-as"
+					]
+				},
+				{
+					language: "en",
+					title: "Rotations",
+					objectives: [
+						"longitudinal axis rotations",
+						"transverse axis rotation"
+					]
+				},
+				{
+					language: "fr",
+					title: "Rotations",
+					objectives: [
+						"rotations axe longitudinal",
+						"rotation axe transversal"
+					]
+				}
+			]
+		},
+		{	// level 7
+			duration: 20,
+			levelNumber: 7,
+			exercises: [
+				{
+					exerciseNumber: 1,
+					videos: [
+						{
+							path: "/src/lib/beeldmateriaalZwemfed/level7_ex1_1.mp4",
+							title: [
+								"Vanop trap in het water springen",
+								"Jumping into water from steps",
+								"Sauter dans l'eau depuis les marches"
+							]
+						},
+						{
+							path: "/src/lib/beeldmateriaalZwemfed/level7_ex1_2.mp4",
+							title: [
+								"Vanop de kant in het water springen",
+								"Jumping into water from the edge",
+								"Sauter dans l'eau depuis le bord"
+							]
+						},
+						{
+							path: "/src/lib/beeldmateriaalZwemfed/level7_ex1_3.mp4",
+							title: [
+								"Door een hoepel in het water springen",
+								"Jumping through a hoop into water",
+								"Sauter à travers un cerceau dans l'eau"
+							]
+						},
+						{
+							path: "/src/lib/beeldmateriaalZwemfed/level7_ex1_4.mp4",
+							title: [
+								"Vanop de rand in het water springen",
+								"Jumping into water from the rim",
+								"Sauter dans l'eau depuis le rebord"
+							]
+						}
+					],
+					languageContents: [
+						{
+							language: "nl",
+							location: [
+								"zwembad"
+							],
+							title: "Springkampioen",
+							description: [
+								"Laat je kind vanaf de kant in het water springen in water tot aan de heup of borst."
+							],
+							important: [
+								"Zorg dat je kind met de tenen de zwembadrand vastgrijpt. Dit zorgt voor een verbeterde grip bij het afduwen."
+							],
+							tips: [
+								"Is je kind bang om in het water te springen? Je kan uiteraard helpen. Ga in het zwembad staan en ondersteun je kind tijdens de sprong door:",
+								"> eerst twee handen vast te nemen",
+								"> daarna één hand vast te nemen",
+								"> te kijken naar een sprong zonder hulp"
+							]
+						},
+						{
+							language: "en",
+							location: [
+								"swimming pool"
+							],
+							title: "Jumping Champion",
+							description: [
+								"Let your child jump into the water from the edge into water up to hip or chest height."
+							],
+							important: [
+								"Make sure your child grips the pool edge with their toes. This provides better grip for pushing off."
+							],
+							tips: [
+								"Is your child afraid to jump into the water? You can of course help. Stand in the pool and support your child during the jump by:",
+								"> first holding both hands",
+								"> then holding one hand",
+								"> watching a jump without help"
+							]
+						},
+						{
+							language: "fr",
+							location: [
+								"piscine"
+							],
+							title: "Champion du Saut",
+							description: [
+								"Laissez votre enfant sauter dans l'eau depuis le bord dans une eau jusqu'à la hanche ou la poitrine."
+							],
+							important: [
+								"Assurez-vous que votre enfant agrippe le bord de la piscine avec ses orteils. Cela permet une meilleure prise pour la poussée."
+							],
+							tips: [
+								"Votre enfant a-t-il peur de sauter dans l'eau ? Vous pouvez bien sûr l'aider. Tenez-vous dans la piscine et soutenez votre enfant pendant le saut en :",
+								"> tenant d'abord les deux mains",
+								"> puis en tenant une seule main",
+								"> regardant un saut sans aide"
+							]
+						}
+					]
+				}
+			],
+			languageContents: [
+				{
+					language: "nl",
+					title: "Springen in het water",
+					objectives: [
+						"springen in het water"
+					]
+				},
+				{
+					language: "en",
+					title: "Jumping into water",
+					objectives: [
+						"jumping into water"
+					]
+				},
+				{
+					language: "fr",
+					title: "Sauter dans l'eau",
+					objectives: [
+						"sauter dans l'eau"
+					]
+				}
+			]
+		}
+	];
+
+	// CREATE levels with linked: levelLanguageContents, exercises, exerciseLanguageContents and videos
+	const levels = await Promise.all(
+		levelData.map(async (level) => {
+		  	return prisma.level.create({
+				data: {
+				  	duration: level.duration,
+				  	levelNumber: level.levelNumber,
+					exercises: {
+						create: level.exercises.map((exercise) => ({
+						  	exerciseNumber: exercise.exerciseNumber,
+						  	videos: {
+								create: exercise.videos.map((video) => ({
+								  	path: video.path,
+								  	title: video.title
+								}))
+						  	},
+						  	languageContents: {
+								create: exercise.languageContents.map((content) => ({
+								  	language: content.language,
+								  	location: content.location,
+								  	title: content.title,
+								  	description: content.description,
+								  	important: content.important,
+								  	tips: content.tips
+								}))
+						  	}
+						}))
+				  	},
+				  	languageContents: {
+						create: level.languageContents.map((content) => ({
+						  	language: content.language,
+						  	title: content.title,
+						  	objectives: content.objectives
+						}))
+				  	}
+				},
+				include: {
+				  	exercises: {
+						include: {
+						  videos: true,
+						  languageContents: true
+						}
+				  	},
+				  	languageContents: true
+				}
+		  	});
+		})
+	);
+
+	// CREATE coach user with linked: coach, userSettings
 	const coachUser = await prisma.user.create({
 		data: {
 			email: 'demo@demo.com',
-			name: 'Sarah Johnson',
+			name: 'Zwemcoach Paco',
 			password: await hash('demo', 10),
 			role: UserRole.COACH,
 			coach: {
 				create: {
-					bio: 'Former national team swimmer with 12 years of coaching experience. Specialized in youth development and competitive swimming techniques. USA Swimming certified coach.',
+					bio: 'Zwemfed coach account, managed by Zemfed coaches.',
 					specialties: [
-						'Competitive Swimming',
-						'Youth Development',
-						'Stroke Technique',
-						'Race Strategy'
+						'Water Safety',
+						'Beginner Swimming',
+						'Water Confidence Building',
+						'Parent-Child Swim Classes',
 					]
+				}
+			},
+			settings: {
+				create: {
+					language: 'nl'
 				}
 			}
 		},
 		include: {
-			coach: true
+			coach: true,
+			settings: true
 		}
 	});
 
-	// Create parent users with realistic names
+	// Construct parent data
 	const parentData = [
-		{ name: 'Michael Chen', email: 'mchen@example.com', phone: '+15551234567' },
-		{ name: 'Emily Rodriguez', email: 'erodriguez@example.com', phone: '+15552345678' },
-		{ name: 'David Williams', email: 'dwilliams@example.com', phone: '+15553456789' },
-		{ name: 'Maria Garcia', email: 'mgarcia@example.com', phone: '+15554567890' },
-		{ name: 'James Wilson', email: 'jwilson@example.com', phone: '+15555678901' }
-	];
+		{
+			name: 'Michael Chen',
+			email: 'mchen@example.com',
+			phone: '+15551234567',
+			pupils: [
+				{
+					name: 'Sophie Chen',
+					dateOfBirth: new Date(2018, 2, 13),
+					progress: 6,
+					notes: 'Born water baby, loves swimming and making great progress in all exercises.',
+					profilePicture: 1,
+					levelProgress: [
+						{
+							levelNumber: 1,
+							firstPartCompleted: true,
+							fullyCompleted: true,
+							completedAt: new Date(2025, 1, 1)
+						},
+						{
+							levelNumber: 2,
+							firstPartCompleted: true,
+							fullyCompleted: true,
+							completedAt: new Date(2025, 1, 2)
+						},
+						{
+							levelNumber: 3,
+							firstPartCompleted: true,
+							fullyCompleted: true,
+							completedAt: new Date(2025, 1, 3)
+						},
+						{
+							levelNumber: 4,
+							firstPartCompleted: true,
+							fullyCompleted: true,
+							completedAt: new Date(2025, 1, 4)
+						},
+						{
+							levelNumber: 5,
+							firstPartCompleted: true,
+							fullyCompleted: true,
+							completedAt: new Date(2025, 1, 5)
+						},
+						{
+							levelNumber: 6,
+							firstPartCompleted: true,
+							fullyCompleted: true,
+							completedAt: new Date(2025, 1, 6)
+						},
+						{
+							levelNumber: 7,
+							firstPartCompleted: false,
+							fullyCompleted: false,
+							completedAt: null
+						}
+					],
+					submissions: [
+						{
+							levelNumber: 1,
+							videoUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+							status: SubmissionStatus.REVIEWED,
+							feedback: "Wauw!",
+							medal: Medal.GOLD,
+							isRead: false,
+							feedbackTimestamp: '2025-02-20T12:00:00Z'
+						},
+						{
+							levelNumber: 2,
+							videoUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+							status: SubmissionStatus.REVIEWED,
+							feedback: "Wauw!",
+							medal: Medal.SILVER,
+							isRead: false,
+							feedbackTimestamp: '2025-02-20T12:00:00Z'
+						},
+						{
+							levelNumber: 3,
+							videoUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+							status: SubmissionStatus.REVIEWED,
+							feedback: "Wauw!",
+							medal: Medal.BRONZE,
+							isRead: false,
+							feedbackTimestamp: '2025-02-20T12:00:00Z'
+						},
+						{
+							levelNumber: 4,
+							videoUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+							status: SubmissionStatus.REVIEWED,
+							feedback: "Wauw!",
+							medal: Medal.NONE,
+							isRead: false,
+							feedbackTimestamp: '2025-02-20T12:00:00Z'
+						},
+						{
+							levelNumber: 5,
+							videoUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+							status: SubmissionStatus.REVIEWED,
+							feedback: "Wauw!",
+							medal: Medal.GOLD,
+							isRead: false,
+							feedbackTimestamp: '2025-02-20T12:00:00Z'
+						},
+						{
+							levelNumber: 6,
+							videoUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+							status: SubmissionStatus.PENDING,
+							feedback: null,
+							medal: Medal.NONE,
+							isRead: false,
+							feedbackTimestamp: null
+						}
+					]
+				},
+				{
+					name: 'Lucas Chen',
+					dateOfBirth: new Date(2020, 3, 26),
+					progress: 3,
+					notes: 'Slow learner, but shows grit. Slowly overcoming water anxiety.',
+					profilePicture: 2,
+					levelProgress: [
+						{
+							levelNumber: 1,
+							firstPartCompleted: true,
+							fullyCompleted: true,
+							completedAt: new Date(2025, 1, 1)
+						},
+						{
+							levelNumber: 2,
+							firstPartCompleted: true,
+							fullyCompleted: true,
+							completedAt: new Date(2025, 1, 2)
+						},
+						{
+							levelNumber: 3,
+							firstPartCompleted: true,
+							fullyCompleted: true,
+							completedAt: new Date(2025, 1, 3)
+						},
+						{
+							levelNumber: 4,
+							firstPartCompleted: false,
+							fullyCompleted: false,
+							completedAt: null
+						},
+						{
+							levelNumber: 5,
+							firstPartCompleted: false,
+							fullyCompleted: false,
+							completedAt: null
+						},
+						{
+							levelNumber: 6,
+							firstPartCompleted: false,
+							fullyCompleted: false,
+							completedAt: null
+						},
+						{
+							levelNumber: 7,
+							firstPartCompleted: false,
+							fullyCompleted: false,
+							completedAt: null
+						}
+					],
+					submissions: [
+						{
+							levelNumber: 1,
+							videoUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+							status: SubmissionStatus.REVIEWED,
+							feedback: "Wauw!",
+							medal: Medal.GOLD,
+							isRead: false,
+							feedbackTimestamp: '2025-02-20T12:00:00Z'
+						},
+						{
+							levelNumber: 2,
+							videoUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+							status: SubmissionStatus.REVIEWED,
+							feedback: "Wauw!",
+							medal: Medal.SILVER,
+							isRead: false,
+							feedbackTimestamp: '2025-02-20T12:00:00Z'
+						},
+						{
+							levelNumber: 3,
+							videoUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+							status: SubmissionStatus.PENDING,
+							feedback: null,
+							medal: Medal.NONE,
+							isRead: false,
+							feedbackTimestamp: null
+						}
+					]
+				}
+			],
+			notifications: [
+				{
+					timestamp: new Date('2025-01-03T10:55:00Z'), // Just now
+					isRead: false,
+					type: NotificationType.META,
+					title: 'Welkom bij Zwemfed!',
+					body: 'Welkom bij het Eerste Wateravontuur!! Neem gerust een kijkje in de app, of ga meteen samen aan de slag met het eerste level.',
+					levelNumber: null,
+				},
+				{
+					timestamp: new Date('2025-01-13T14:30:00Z'), // 3 weeks ago
+					isRead: false,
+					type: NotificationType.META,
+					title: 'Gepland onderhoud',
+					body: 'De app zal op 14 januari 2025 van 9:00 tot 12:00 uur UTC worden onderhouden. Onze excuses voor het ongemak.',
+					levelNumber: null,
+				}
+			]
+		},
+		{
+			name: 'Emily Rodriguez',
+			email: 'erodriguez@example.com',
+			phone: '+15552345678',
+			pupils: [
+				{
+					name: 'Isabella Rodriguez',
+					dateOfBirth: new Date(2022, 10, 21),
+					progress: 0,
+					notes: 'New pupil.',
+					profilePicture: 3,
+					levelProgress: [
+						{
+							levelNumber: 1,
+							firstPartCompleted: false,
+							fullyCompleted: false,
+							completedAt: null
+						},
+						{
+							levelNumber: 2,
+							firstPartCompleted: false,
+							fullyCompleted: false,
+							completedAt: null
+						},
+						{
+							levelNumber: 3,
+							firstPartCompleted: false,
+							fullyCompleted: false,
+							completedAt: null
+						},
+						{
+							levelNumber: 4,
+							firstPartCompleted: false,
+							fullyCompleted: false,
+							completedAt: null
+						},
+						{
+							levelNumber: 5,
+							firstPartCompleted: false,
+							fullyCompleted: false,
+							completedAt: null
+						},
+						{
+							levelNumber: 6,
+							firstPartCompleted: false,
+							fullyCompleted: false,
+							completedAt: null
+						},
+						{
+							levelNumber: 7,
+							firstPartCompleted: false,
+							fullyCompleted: false,
+							completedAt: null
+						}
+					],
+					submissions: []
+				},
+				{
+					name: 'Liam Rodriguez',
+					dateOfBirth: new Date(2020, 8, 7),
+					progress: 4,
+					notes: 'Funny dude',
+					profilePicture: 4,
+					levelProgress: [
+						{
+							levelNumber: 1,
+							firstPartCompleted: true,
+							fullyCompleted: true,
+							completedAt: new Date(2025, 1, 1)
+						},
+						{
+							levelNumber: 2,
+							firstPartCompleted: true,
+							fullyCompleted: true,
+							completedAt: new Date(2025, 1, 2)
+						},
+						{
+							levelNumber: 3,
+							firstPartCompleted: true,
+							fullyCompleted: true,
+							completedAt: new Date(2025, 1, 3)
+						},
+						{
+							levelNumber: 4,
+							firstPartCompleted: true,
+							fullyCompleted: true,
+							completedAt: new Date(2025, 1, 4)
+						},
+						{
+							levelNumber: 5,
+							firstPartCompleted: false,
+							fullyCompleted: false,
+							completedAt: null
+						},
+						{
+							levelNumber: 6,
+							firstPartCompleted: false,
+							fullyCompleted: false,
+							completedAt: null
+						},
+						{
+							levelNumber: 7,
+							firstPartCompleted: false,
+							fullyCompleted: false,
+							completedAt: null
+						}
+					],
+					submissions: [
+						{
+							levelNumber: 1,
+							videoUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+							status: SubmissionStatus.REVIEWED,
+							feedback: "Wauw!",
+							medal: Medal.GOLD,
+							feedbackTimestamp: '2025-02-20T12:00:00Z'
+						},
+						{
+							levelNumber: 2,
+							videoUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+							status: SubmissionStatus.REVIEWED,
+							feedback: "Wauw!",
+							medal: Medal.SILVER,
+							feedbackTimestamp: '2025-02-20T12:00:00Z'
+						},
+						{
+							levelNumber: 3,
+							videoUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+							status: SubmissionStatus.REVIEWED,
+							feedback: "Wauw!",
+							medal: Medal.GOLD,
+							feedbackTimestamp: '2025-02-20T12:00:00Z'
+						},
+						{
+							levelNumber: 4,
+							videoUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+							status: SubmissionStatus.PENDING,
+							feedback: null,
+							medal: Medal.NONE,
+							feedbackTimestamp:null
+						}
+					]
+				}
+			],
+			notifications: [
+				{
+					timestamp: new Date('2025-01-24T10:55:00Z'), // Just now
+					isRead: true,
+					type: NotificationType.META,
+					title: 'Welkom bij Zwemfed!',
+					body: 'Welkom bij het Eerste Wateravontuur!! Neem gerust een kijkje in de app, of ga meteen samen aan de slag met het eerste level.',
+					levelNumber: null,
+				},
+				{
+					timestamp: new Date('2025-01-24T09:30:00Z'), // 1.5 hours ago
+					isRead: true,
+					type: NotificationType.MESSAGE,
+					title: null,
+					body: null,
+					levelNumber: null,
+				},
+				{
+					timestamp: new Date('2025-01-23T10:55:00Z'), // 1 day ago
+					isRead: true,
+					type: NotificationType.FEEDBACK,
+					title: null,
+					body: 'Goed gedaan! Goed begonnen met het eerste level!',
+					levelNumber: 1,
+				},
+				{
+					timestamp: new Date('2025-01-22T15:30:00Z'), // 2 days ago
+					isRead: false,
+					type: NotificationType.MESSAGE,
+					title: null,
+					body: null,
+					levelNumber: null,
+				},
+				{
+					timestamp: new Date('2025-01-17T10:55:00Z'), // 1 week ago
+					isRead: false,
+					type: NotificationType.FEEDBACK,
+					title: null,
+					body: 'Goed bezig! Je maakt al goede vooruitgang!',
+					levelNumber: 2,
+				},
+				{
+					timestamp: new Date('2025-01-10T10:55:00Z'), // 2 weeks ago
+					isRead: false,
+					type: NotificationType.MESSAGE,
+					title: null,
+					body: null,
+					levelNumber: null,
+				},
+				{
+					timestamp: new Date('2025-01-03T14:30:00Z'), // 3 weeks ago
+					isRead: false,
+					type: NotificationType.META,
+					title: 'Gepland onderhoud',
+					body: 'De app zal op 14 januari 2025 van 9:00 tot 12:00 uur UTC worden onderhouden. Onze excuses voor het ongemak.',
+					levelNumber: null,
+				},
+				{
+					timestamp: new Date('2024-12-24T10:55:00Z'), // 1 month ago
+					isRead: false,
+					type: NotificationType.MESSAGE,
+					title: null,
+					body: null,
+					levelNumber: null,
+				},
+				{
+					timestamp: new Date('2024-12-01T10:55:00Z'), // ~2 months ago
+					isRead: false,
+					type: NotificationType.FEEDBACK,
+					title: null,
+					body: 'Let op details. Houd je vingers goed gesloten bij het duwen van het water. Ga zo door!',
+					levelNumber: 3,
+				}
+			]
+		},
+		{
+			name: 'David Williams',
+				email: 'dwilliams@example.com',
+				phone: '+15553456789',
+				pupils: [
+					{
+						name: 'Mia Williams',
+						dateOfBirth: new Date(2022, 8, 7),
+						progress: 4,
+						notes: 'Nothing special to note.',
+						profilePicture: 5,
+						levelProgress: [
+							{
+								levelNumber: 1,
+								firstPartCompleted: true,
+								fullyCompleted: true,
+								completedAt: new Date(2025, 1, 1)
+							},
+							{
+								levelNumber: 2,
+								firstPartCompleted: true,
+								fullyCompleted: true,
+								completedAt: new Date(2025, 1, 2)
+							},
+							{
+								levelNumber: 3,
+								firstPartCompleted: true,
+								fullyCompleted: true,
+								completedAt: new Date(2025, 1, 3)
+							},
+							{
+								levelNumber: 4,
+								firstPartCompleted: true,
+								fullyCompleted: true,
+								completedAt: new Date(2025, 1, 4)
+							},
+							{
+								levelNumber: 5,
+								firstPartCompleted: false,
+								fullyCompleted: false,
+								completedAt: null
+							},
+							{
+								levelNumber: 6,
+								firstPartCompleted: false,
+								fullyCompleted: false,
+								completedAt: null
+							},
+							{
+								levelNumber: 7,
+								firstPartCompleted: false,
+								fullyCompleted: false,
+								completedAt: null
+							}
+						],
+						submissions: [
+							{
+								levelNumber: 1,
+								videoUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+								status: SubmissionStatus.REVIEWED,
+								feedback: "Wauw!",
+								medal: Medal.GOLD,
+								feedbackTimestamp: '2025-02-20T12:00:00Z'
+							},
+							{
+								levelNumber: 2,
+								videoUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+								status: SubmissionStatus.REVIEWED,
+								feedback: "Wauw!",
+								medal: Medal.SILVER,
+								feedbackTimestamp: '2025-02-20T12:00:00Z'
+							},
+							{
+								levelNumber: 3,
+								videoUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+								status: SubmissionStatus.REVIEWED,
+								feedback: "Wauw!",
+								medal: Medal.GOLD,
+								feedbackTimestamp: '2025-02-20T12:00:00Z'
+							},
+							{
+								levelNumber: 4,
+								videoUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+								status: SubmissionStatus.PENDING,
+								feedback: null,
+								medal: Medal.NONE,
+								feedbackTimestamp: null
+							}
+						]
+					},
+					{
+						name: 'Ethan Williams',
+						dateOfBirth: new Date(2020, 5, 18),
+						progress: 2,
+						notes: 'Slowly overcoming water anxiety.',
+						profilePicture: 6,
+						levelProgress: [
+							{
+								levelNumber: 1,
+								firstPartCompleted: true,
+								fullyCompleted: true,
+								completedAt: new Date(2025, 1, 1)
+							},
+							{
+								levelNumber: 2,
+								firstPartCompleted: true,
+								fullyCompleted: true,
+								completedAt: new Date(2025, 1, 2)
+							},
+							{
+								levelNumber: 3,
+								firstPartCompleted: false,
+								fullyCompleted: false,
+								completedAt: null
+							},
+							{
+								levelNumber: 4,
+								firstPartCompleted: false,
+								fullyCompleted: false,
+								completedAt: null
+							},
+							{
+								levelNumber: 5,
+								firstPartCompleted: false,
+								fullyCompleted: false,
+								completedAt: null
+							},
+							{
+								levelNumber: 6,
+								firstPartCompleted: false,
+								fullyCompleted: false,
+								completedAt: null
+							},
+							{
+								levelNumber: 7,
+								firstPartCompleted: false,
+								fullyCompleted: false,
+								completedAt: null
+							}
+						],
+						submissions: [
+							{
+								levelNumber: 1,
+								videoUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+								status: SubmissionStatus.REVIEWED,
+								feedback: "Wauw!",
+								medal: Medal.GOLD,
+								feedbackTimestamp: '2025-02-20T12:00:00Z'
+							},
+							{
+								levelNumber: 2,
+								videoUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+								status: SubmissionStatus.PENDING,
+								feedback: null,
+								medal: Medal.NONE,
+								feedbackTimestamp: null
+							}
+						]
+					}
+				],
+				notifications: [
+					{
+						timestamp: new Date('2025-01-24T10:55:00Z'), // Just now
+						isRead: true,
+						type: NotificationType.META,
+						title: 'Welkom bij Zwemfed!',
+						body: 'Welkom bij het Eerste Wateravontuur!! Neem gerust een kijkje in de app, of ga meteen samen aan de slag met het eerste level.',
+						levelNumber: null,
+					},
+					{
+						timestamp: new Date('2025-01-24T09:30:00Z'), // 1.5 hours ago
+						isRead: true,
+						type: NotificationType.MESSAGE,
+						title: null,
+						body: null,
+						levelNumber: null,
+					},
+					{
+						timestamp: new Date('2025-01-23T10:55:00Z'), // 1 day ago
+						isRead: true,
+						type: NotificationType.FEEDBACK,
+						title: null,
+						body: 'Goed gedaan! Goed begonnen met het eerste level!',
+						levelNumber: 1,
+					},
+					{
+						timestamp: new Date('2025-01-22T15:30:00Z'), // 2 days ago
+						isRead: false,
+						type: NotificationType.MESSAGE,
+						title: null,
+						body: null,
+						levelNumber: null,
+					},
+					{
+						timestamp: new Date('2025-01-17T10:55:00Z'), // 1 week ago
+						isRead: false,
+						type: NotificationType.FEEDBACK,
+						title: null,
+						body: 'Goed bezig! Je maakt al goede vooruitgang!',
+						levelNumber: 2,
+					},
+					{
+						timestamp: new Date('2025-01-10T10:55:00Z'), // 2 weeks ago
+						isRead: false,
+						type: NotificationType.MESSAGE,
+						title: null,
+						body: null,
+						levelNumber: null,
+					},
+					{
+						timestamp: new Date('2025-01-03T14:30:00Z'), // 3 weeks ago
+						isRead: false,
+						type: NotificationType.META,
+						title: 'Gepland onderhoud',
+						body: 'De app zal op 14 januari 2025 van 9:00 tot 12:00 uur UTC worden onderhouden. Onze excuses voor het ongemak.',
+						levelNumber: null,
+					},
+					{
+						timestamp: new Date('2024-12-24T10:55:00Z'), // 1 month ago
+						isRead: false,
+						type: NotificationType.MESSAGE,
+						title: null,
+						body: null,
+						levelNumber: null,
+					},
+					{
+						timestamp: new Date('2024-12-01T10:55:00Z'), // ~2 months ago
+						isRead: false,
+						type: NotificationType.FEEDBACK,
+						title: null,
+						body: 'Let op details. Houd je vingers goed gesloten bij het duwen van het water. Ga zo door!',
+						levelNumber: 3,
+					}
+				]
+		}
+	]
 
-	const parents = await Promise.all(
+	// CREATE parent users with linked: parent, userSettings, notifications and pupils with linked: levelProgress and submissions
+	const parentUsers = await Promise.all(
 		parentData.map(async (parent) => {
 			return prisma.user.create({
 				data: {
@@ -58,657 +1931,156 @@ async function main() {
 					password: await hash('password123', 10),
 					role: UserRole.PARENT,
 					parent: {
+					  	create: {
+							phone: parent.phone,
+							coachId: coachUser.coach!.id, // Link to existing coach
+							pupils: {
+								create: parent.pupils.map((pupil) => ({
+								  	name: pupil.name,
+								  	dateOfBirth: pupil.dateOfBirth,
+								  	progress: pupil.progress,
+								  	notes: pupil.notes,
+								  	levelProgress: {
+										create: pupil.levelProgress.map((levelProgress) => ({
+											level: {
+												connect: {
+													levelNumber: levelProgress.levelNumber
+												}
+											},
+											firstPartCompleted: levelProgress.firstPartCompleted,
+											fullyCompleted: levelProgress.fullyCompleted,
+											completedAt: levelProgress.completedAt
+										}))
+									},
+									submissions: {
+										create: pupil.submissions.map((submission) => ({
+											level: {
+												connect: {
+													levelNumber: submission.levelNumber
+												}
+											},
+											videoUrl: submission.videoUrl,
+											status: submission.status,
+											feedback: submission.feedback,
+											medal: submission.medal,
+											isRead: submission.isRead,
+											feedbackTimestamp: submission.feedbackTimestamp ? new Date(submission.feedbackTimestamp) : null
+										}))
+									}
+								}))
+						  	}
+					  	}
+					},
+					settings: {
 						create: {
-							phone: parent.phone
-						}
+							language: 'nl'
+					  	}
+					},
+					notifications: {
+						create: parent.notifications.map((notification) => ({
+							timestamp: notification.timestamp,
+							isRead: notification.isRead,
+							type: notification.type,
+							title: notification.title,
+							body: notification.body,
+							levelNumber: notification.levelNumber
+						}))
 					}
 				},
-				include: {
-					parent: true
+			  	include: {
+					parent: {
+						include: {
+							pupils: {
+								include: {
+									levelProgress: true,
+									submissions: true
+								}
+							}
+						}
+					},
+					settings: true,
+					notifications: true
 				}
 			});
 		})
 	);
 
-	// Create pupils with realistic data
-	const pupilData = [
-		{
-			name: 'Sophie Chen',
-			dob: new Date(2012, 5, 15),
-			level: Level.INTERMEDIATE,
-			parentEmail: 'mchen@example.com',
-			notes: 'Strong freestyle technique, working on butterfly. Shows natural talent in sprints.'
-		},
-		{
-			name: 'Lucas Chen',
-			dob: new Date(2014, 3, 22),
-			level: Level.BEGINNER,
-			parentEmail: 'mchen@example.com',
-			notes: 'New to swimming, making excellent progress in water confidence.'
-		},
-		{
-			name: 'Isabella Rodriguez',
-			dob: new Date(2013, 7, 8),
-			level: Level.ADVANCED,
-			parentEmail: 'erodriguez@example.com',
-			notes: 'Competitive swimmer, specializing in backstroke. Preparing for regional championships.'
-		}
-	];
+	// Construct message data
+	interface SeedMessage {
+		content: string;
+		isRead: boolean;
+		sender: UserRole;
+		parentId: string;
+	}
 
-	const pupils = await Promise.all(
-		pupilData.map(async (pupil) => {
-			const parent = parents.find(p => p.email === pupil.parentEmail);
-			if (!parent || !parent.parent) {
-				throw new Error(`Parent not found for pupil ${pupil.name}`);
+	let messageData: SeedMessage[] = [];
+
+	await parentUsers.forEach((parentUser) => {
+		// Construct message data per parent
+		if (!parentUser.parent) return;
+		const messageArray: SeedMessage[] = [
+			{
+				content: 'Welkom bij Zwemfed! Stel me gerust een vraag als je hulp of tips nodig hebt bij de oefeningen.',
+				isRead: false,
+				sender: UserRole.COACH,
+				parentId: parentUser.parent.id
+			},
+			{
+				content: `Hi, ik ben ${parentUser.name}. Ik heb een vraag over de oefeningen.`,
+				isRead: false,
+				sender: UserRole.PARENT,
+				parentId: parentUser.parent.id
+			},
+			{
+				content: `Hi ${parentUser.name}, zeker! Waarmee kan ik je helpen?`,
+				isRead: false,
+				sender: UserRole.COACH,
+				parentId: parentUser.parent.id
+			},
+			{
+				content: 'Ik vind de uitleg bij level 3, oefening 2 niet zo duidelijk. Kan je dit wat beter toelichten?',
+				isRead: false,
+				sender: UserRole.PARENT,
+				parentId: parentUser.parent.id
+			},
+			{
+				content: 'Is het de bedoeling dat ik mijn kind keihard het water in gooi en zo ver mogelijk laat stuiteren op het wateroppervlak?',
+				isRead: false,
+				sender: UserRole.PARENT,
+				parentId: parentUser.parent.id
+			},
+			{
+				content: 'LMAO no balls',
+				isRead: false,
+				sender: UserRole.COACH,
+				parentId: parentUser.parent.id
 			}
-			return prisma.pupil.create({
-				data: {
-					name: pupil.name,
-					dateOfBirth: pupil.dob,
-					level: pupil.level,
-					parentId: parent.parent.id,
-					coachId: coachUser.coach!.id,
-					notes: pupil.notes
-				}
-			});
-		})
-	);
-
-	// Create regular lessons
-	const lessonData = [
-		{
-			title: 'Freestyle Technique Workshop',
-			description: 'Focus on freestyle breathing patterns and arm recovery techniques',
-			level: Level.INTERMEDIATE,
-			duration: 60
-		},
-		{
-			title: 'Beginner Water Confidence',
-			description: 'Introduction to basic floating and breathing exercises for newcomers',
-			level: Level.BEGINNER,
-			duration: 45
-		},
-		{
-			title: 'Advanced Race Preparation',
-			description: 'Competition preparation including starts, turns, and race strategy',
-			level: Level.ADVANCED,
-			duration: 90
-		},
-		{
-			title: 'Stroke Development',
-			description: 'Refinement of all four competitive strokes with video analysis',
-			level: Level.INTERMEDIATE,
-			duration: 60
-		},
-		{
-			title: 'Sprint Training Session',
-			description: 'High-intensity workout focusing on speed and power development',
-			level: Level.ADVANCED,
-			duration: 75
-		}
-	];
-
-	const regularLessons = await Promise.all(
-		lessonData.map((lesson, index) => {
-			return prisma.lesson.create({
-				data: {
-					title: lesson.title,
-					description: lesson.description,
-					coachId: coachUser.coach!.id,
-					duration: lesson.duration,
-					level: lesson.level,
-					date: new Date(Date.now() + (index + 1) * 24 * 60 * 60 * 1000),
-					isSwimmingLesson: false
-				}
-			});
-		})
-	);
-
-	// Create swimming lessons (Oefening 1-7)
-	const swimmingLessons = await Promise.all([
-		// Oefening 1
-		prisma.lesson.create({
-			data: {
-				title: "Oefening 1",
-				description: "Angstreflexen in het water overwinnen; vertrouwen",
-				objective: "Angstreflexen in het water overwinnen; vertrouwen",
-				coachId: coachUser.coach!.id,
-				duration: 45,
-				level: Level.BEGINNER,
-				date: new Date(Date.now() + 1 * 24 * 60 * 60 * 1000),
-				isSwimmingLesson: true,
-				order: 1,
-				exercises: {
-					create: [
-						{
-							part: "A",
-							location: "thuis",
-							name: "Sproeikampioen",
-							description: "Sproei de tenen en voeten, knieën en benen rustig nat, daarna de buik en de rug, de handen, de schouders, de achterkant van het hoofd, de bovenkant van het hoofd en het gezicht.",
-							important: "Moedig je kind aan om het hoofd onder de waterstraal te staan. Komt er toch water in de ogen? Laat je kind dan met de ogen knipperen om het water woor sneller uit te krijgen. Dat is beter dan wrijven.",
-							tip: "Soms kan je de intensiteit van een sproeikop aanpassen. Een zachte straal werkt in het begin waarschijnlijk beter dan een harde straal. Daag je kind ook uit om langer onder de waterstraal te staan, bv. door luidop te tellen.",
-							videos: {
-								create: [
-									{
-										url: "/src/lib/beeldmateriaalZwemfed/lesson1_a_ex1_1.mp4",
-										description: "Sproeikampioen oefening"
-									}
-								]
-							}
-						},
-						{
-							part: "B",
-							location: "zwembad",
-							name: "Spitter, spetter, spat",
-							description: "Zorg dat je kind het lichaam nat maakt met de armen. Laat je kind:\n- tokkelen op het water (zoals piano spelen)\n- golven maken (beweeg van links naar rechts)\n- met de handen op het water slaan\n- jou ook lekker nat spetteren.\n\nZorg dat je kind ook regelmatig van positie wisselt: zitten op de poep op de trapjes van het bad, met de knieën op de bodem of gewoon rechtstaan.",
-							important: "Moedig je kind aan om het hoofd niet weg te draaien van de spetters en te knipperen als het water in de ogen krijgt.",
-							tip: "Probeer eens een variant en laat je kind ook spetteren met de benen: > Zet je kind op de kant of op de trap van het bad > Laat het de benen op en neer in het water bewegen. Zorg dat de benen en voeten gestrekt zijn.",
-							videos: {
-								create: [
-									{
-										url: "/src/lib/beeldmateriaalZwemfed/lesson1_b_ex1_2.mp4",
-										description: "Tokkelen op het water"
-									},
-									{
-										url: "/src/lib/beeldmateriaalZwemfed/lesson1_b_ex1_3.mp4",
-										description: "Golven maken"
-									},
-									{
-										url: "/src/lib/beeldmateriaalZwemfed/lesson1_c_ex1_1.mp4",
-										description: "Op het water slaan"
-									}
-								]
-							}
-						}
-					]
-				}
-			}
-		}),
-
-		// Oefening 2
-		prisma.lesson.create({
-			data: {
-				title: "Oefening 2",
-				description: "Aanvoelen remming en stuwing",
-				objective: "Aanvoelen remming en stuwing",
-				coachId: coachUser.coach!.id,
-				duration: 45,
-				level: Level.BEGINNER,
-				date: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000),
-				isSwimmingLesson: true,
-				order: 2,
-				exercises: {
-					create: [
-						{
-							part: "A",
-							location: "thuis",
-							name: "Waar zijn die handjes?",
-							description: "> Laat je kind de armen en handen in het water bewegen in alle richtingen: duwen, zwaaien, draaien ... Zo duwt je kind het water weg terwijl het door het water stapt.\n> Daarna laat je je kind een drijvend voorwerp zoals een badeendje, een balletje ... vooruit duwen in het water zonder het aan te raken.",
-							important: "Zorg dat je kind de vingers gesloten houdt. Zo kan het meer water wegduwen met de handen.",
-							tip: "> Doe deze oefening voor en laat je kind het nadoen > Verzin zelf extra oefeningen en gebruik veel fantasie: handen wuiven onder water, armen bewegen als de wieken van een windmolen ...\n> Maak er een kleine competitie van: wie geraakt het snelst aan de overkant met het voorwerp?",
-							videos: {
-								create: [
-									{
-										url: "/src/lib/beeldmateriaalZwemfed/lesson2_a_ex2_1.mp4",
-										description: "Carwash oefening"
-									}
-								]
-							}
-						},
-						{
-							part: "B",
-							location: "zwembad",
-							name: "Bestuur de trein",
-							description: "> Laat je kind tot aan de heup of tot aan de borst in het water staan en een zwemplank vastnemen zoals een stuur.\n> Ga achter je kind staan als tweede wagon.\n> Rij nu samen als een trein door het zwembad met je kind als bestuurder.",
-							important: "> Laat je kind het zwemplankje in verschillende posities leggen: op het water, dwars in het water, half of volledig onder water ...\n> Daarna kan het de plank ook in verschillende richtingen bewegen: van links naar rechts, van voor naar achter... Zo ervaart je kind dat sommige bewegingen in het water moeilijker zijn dan andere.",
-							tip: "Een grote zwemplank kan je kind meer steun op het water geven, maar ook veel weerstand bieden als je ze recht houdt. Doe deze oefening ook eens met ander leuk spelmateriaal (bal, blokje, flexibeam,...)",
-							videos: {
-								create: [
-									{
-										url: "/src/lib/beeldmateriaalZwemfed/lesson2_b_ex2_1.mp4",
-										description: "Voorwaarts lopen"
-									},
-									{
-										url: "/src/lib/beeldmateriaalZwemfed/lesson2_b_ex2_2.mp4",
-										description: "Achterwaarts lopen"
-									}
-								]
-							}
-						}
-					]
-				}
-			}
-		}),
-
-		// Oefening 3
-		prisma.lesson.create({
-			data: {
-				title: "Oefening 3",
-				description: "Aquatisch ademen; vertrouwen; waterangst overwinnen",
-				objective: "Aquatisch ademen; vertrouwen; waterangst overwinnen",
-				coachId: coachUser.coach!.id,
-				duration: 45,
-				level: Level.BEGINNER,
-				date: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000),
-				isSwimmingLesson: true,
-				order: 3,
-				exercises: {
-					create: [
-						{
-							part: "A",
-							location: "thuis",
-							name: "Bellenblazer",
-							description: "> Je kind laat een beker vol lopen met water. Zorg ervoor dat het water ook over je kind heen loopt.\n> Laat het daarna met een rietje bellenblazen in de beker. Hoe harder het blaast, hoe groter de bellen.\n> Heb je geen beker? Dan kan je kind met een rietje gewoon ook bellen blazen in het water van het zwembad.",
-							important: "Deze oefening lukt het best als je kind diep inademt. Zo kan het ook lang rustig uitblazen.",
-							tip: "Doe deze opdracht mee met je kind. Wie blaast de grootste bellen of wie blaast het meeste water uit de beker?",
-							videos: {
-								create: [
-									{
-										url: "/src/lib/beeldmateriaalZwemfed/lesson3_a_ex3_1.mp4",
-										description: "Bellen blazen"
-									}
-								]
-							}
-						},
-						{
-							part: "B",
-							location: "zwembad",
-							name: "Bellenblazen",
-							description: "Laat je kind een licht balletje (bv. pingpongballetje) vooruit blazen. Dit kan vanuit verschillende posities in het bad:\n> op de knieën\n> rechtstaand\n> rondstappend",
-							important: "Zorg ervoor dat je kind krachtig kan blazen. Zorg dat het hiervoor de lippen goed gebruikt, zoals in de afbeelding.",
-							tip: "Motiveer je kind door zelf mee te doen en bedenk leuke spelletjes:\n> blaas het balletje naar elkaar\n> leg zo snel mogelijk een parcours af met het balletje",
-							videos: {
-								create: [
-									{
-										url: "/src/lib/beeldmateriaalZwemfed/lesson3_b_ex3_1.mp4",
-										description: "Bellen blazen onder water"
-									},
-									{
-										url: "/src/lib/beeldmateriaalZwemfed/lesson3_b_ex3_2.mp4",
-										description: "Bellen blazen met neus"
-									}
-								]
-							}
-						}
-					]
-				}
-			}
-		}),
-
-		// Oefening 4
-		prisma.lesson.create({
-			data: {
-				title: "Oefening 4",
-				description: "Aquatisch ademen; verplaatsen in het water",
-				objective: "Aquatisch ademen; verplaatsen in het water",
-				coachId: coachUser.coach!.id,
-				duration: 45,
-				level: Level.BEGINNER,
-				date: new Date(Date.now() + 4 * 24 * 60 * 60 * 1000),
-				isSwimmingLesson: true,
-				order: 4,
-				exercises: {
-					create: [
-						{
-							part: "A",
-							location: "thuis",
-							name: "Bellenblazer",
-							description: "> Je kind laat een beker vol lopen met water. Zorg ervoor dat het water ook over je kind heen loopt.\n> Laat het daarna met een rietje bellenblazen in de beker. Hoe harder het blaast, hoe groter de bellen.\n> Heb je geen beker? Dan kan je kind met een rietje gewoon ook bellen blazen in het water van het zwembad.",
-							important: "Deze oefening lukt het best als je kind diep inademt. Zo kan het ook lang rustig uitblazen.",
-							tip: "Doe deze opdracht mee met je kind. Wie blaast de grootste bellen of wie blaast het meeste water uit de beker?",
-							videos: {
-								create: [
-									{
-										url: "/src/lib/beeldmateriaalZwemfed/lesson4_a_ex4_1.mp4",
-										description: "Duiken naar voorwerp"
-									}
-								]
-							}
-						},
-						{
-							part: "B",
-							location: "zwembad",
-							name: "Onder het poortje door",
-							description: "Maak met een voorwerp (flexibeam, plank, ballon...) of met je been of arm een 'poortje'. Laat je kind onder het poortje doorlopen.",
-							important: "Zorg dat de mond van je kind toe is als het onder het poortje gaat. Variatie: laat je kind bellen blazen door neus en/of mond terwijl het onder het poortje loopt.",
-							tip: "> Heeft je kind nog weinig vertrouwen in het water? Help het dan door het een hand te geven of een drijvend voorwerp te laten vasthouden.\n> Is je kind al een durver? Maak het poortje lager. Zo kan je kind ook de ogen openen terwijl het onder de poort stapt.\n> Variatie: laat je kind door jouw benen zwemmen of zelfs omkek",
-							videos: {
-								create: [
-									{
-										url: "/src/lib/beeldmateriaalZwemfed/lesson4_b_ex4_1.mp4",
-										description: "Duiken door hoepel"
-									},
-									{
-										url: "/src/lib/beeldmateriaalZwemfed/lesson4_b_ex4_2.mp4",
-										description: "Duiken naar bodem"
-									}
-								]
-							}
-						}
-					]
-				}
-			}
-		}),
-
-		// Oefening 5
-		prisma.lesson.create({
-			data: {
-				title: "Oefening 5",
-				description: "Aquatisch ademen; wennen weerstand; verplaatsen in alle richtingen",
-				objective: "Aquatisch ademen; wennen weerstand; verplaatsen in alle richtingen",
-				coachId: coachUser.coach!.id,
-				duration: 45,
-				level: Level.BEGINNER,
-				date: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000),
-				isSwimmingLesson: true,
-				order: 5,
-				exercises: {
-					create: [
-						{
-							part: "A",
-							location: "thuis en zwembad",
-							name: "Duikexpert",
-							description: "Laat je kind een gezonken voorwerp opduiken. Eerst gebruikt het de voeten en daarna de handen. Je kind kan rechtaan of zitten in het bad. Wissel ook af met verschillende dieptes: bv. eerst op de trede van de trapjes en daarna op de bodem.",
-							important: "Zorg dat je kind de ogen openhoudt. Zie ook dat de mond gesloten is of dat het belletjes blaast.",
-							tip: "> Als je kind bang is om onder water te gaan, doe dan gewoon mee.\n> Zorg voor meerdere voorwerpen om op te duiken.\n> Daag je kind verder uit als het goed gaat. Laat je kind:\n  > zo snel mogelijk drie schatten verzamelen\n  > eerst onder een obstakel (hoepel/ flexibeam/benen ...) door gaan voor je kind het voorwerp kan opduiken.",
-							videos: {
-								create: [
-									{
-										url: "/src/lib/beeldmateriaalZwemfed/lesson5_a_ex5_1.mp4",
-										description: "Drijven op buik"
-									},
-									{
-										url: "/src/lib/beeldmateriaalZwemfed/lesson5_a_ex5_2.mp4",
-										description: "Drijven op rug"
-									}
-								]
-							}
-						}
-					]
-				}
-			}
-		}),
-
-		// Oefening 6
-		prisma.lesson.create({
-			data: {
-				title: "Oefening 6",
-				description: "Rotaties lengte-as; rotatie breedte-as",
-				objective: "Rotaties lengte-as; rotatie breedte-as",
-				coachId: coachUser.coach!.id,
-				duration: 45,
-				level: Level.BEGINNER,
-				date: new Date(Date.now() + 6 * 24 * 60 * 60 * 1000),
-				isSwimmingLesson: true,
-				order: 6,
-				exercises: {
-					create: [
-						{
-							part: "A",
-							location: "zwembad",
-							name: "Op de carrousel",
-							description: "Laat je kind in het water springen met een halve draai (180°). Draai zowel links- als rechtsom. Laat het beginnen in het ondiepe water en ga daarna steeds een beetje dieper.",
-							important: "Zorg dat je kind het lichaam recht houdt, zodat het in evenwicht kan landen. De armen van je kind ondersteunen hierbij de draaibeweging.",
-							tip: "> Doe de oefening altijd eerst even voor.\n> Lukt dit al goed? Probeer dan ook eens een volledige draai (360°).\n> Is je kind een pro? Laat het dan de armen tijdens het draaien boven het hoofd uitstrekken!",
-							videos: {
-								create: [
-									{
-										url: "/src/lib/beeldmateriaalZwemfed/lesson6_a_ex6_1.mp4",
-										description: "Voortbewegen op buik"
-									},
-									{
-										url: "/src/lib/beeldmateriaalZwemfed/lesson6_b_ex6_1.mp4",
-										description: "Voortbewegen met plank"
-									},
-									{
-										url: "/src/lib/beeldmateriaalZwemfed/lesson6_c_ex6_1.mp4",
-										description: "Voortbewegen met armen"
-									},
-									{
-										url: "/src/lib/beeldmateriaalZwemfed/lesson6_d_ex6_1.mp4",
-										description: "Voortbewegen met benen"
-									},
-									{
-										url: "/src/lib/beeldmateriaalZwemfed/lesson6_e_ex6_1.mp4",
-										description: "Voortbewegen combinatie"
-									},
-									{
-										url: "/src/lib/beeldmateriaalZwemfed/lesson6_f_ex6_1.mp4",
-										description: "Voortbewegen met hulp"
-									},
-									{
-										url: "/src/lib/beeldmateriaalZwemfed/lesson6_g_ex6_1.mp4",
-										description: "Voortbewegen zelfstandig"
-									}
-								]
-							}
-						}
-					]
-				}
-			}
-		}),
-
-		// Oefening 7
-		prisma.lesson.create({
-			data: {
-				title: "Oefening 7",
-				description: "Springen in het water",
-				objective: "Springen in het water",
-				coachId: coachUser.coach!.id,
-				duration: 45,
-				level: Level.BEGINNER,
-				date: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
-				isSwimmingLesson: true,
-				order: 7,
-				exercises: {
-					create: [
-						{
-							part: "A",
-							location: "zwembad",
-							name: "Springkampioen",
-							description: "Laat je kind vanaf de kant in het water springen in water tot aan de heup of borst.",
-							important: "Zorg dat je kind met de tenen de zwembadrand vastgrijpt. Dit zorgt voor een verbeterde grip bij het afduwen.",
-							tip: "Is je kind bang om in het water te springen? Je kan uiteraard helpen. Ga in het zwembad staan en ondersteun je kind tijdens de sprong door:\n> eerst twee handen vast te nemen\n> daarna een hand vast te nemen\n> te kijken naar een sprong zonder hulp",
-							videos: {
-								create: [
-									{
-										url: "/src/lib/beeldmateriaalZwemfed/lesson7_a_ex7_1.mp4",
-										description: "Rugcrawl basis"
-									},
-									{
-										url: "/src/lib/beeldmateriaalZwemfed/lesson7_b_ex7_1.mp4",
-										description: "Rugcrawl armen"
-									},
-									{
-										url: "/src/lib/beeldmateriaalZwemfed/lesson7_c_ex7_1.mp4",
-										description: "Rugcrawl benen"
-									},
-									{
-										url: "/src/lib/beeldmateriaalZwemfed/lesson7_d_ex7_1.mp4",
-										description: "Rugcrawl combinatie"
-									}
-								]
-							}
-						}
-					]
-				}
-			}
-		})
-	]);
-
-	// Create example submissions and reviews for swimming lessons
-	const submissionData = [
-		// Sophie Chen - Completed first 3 levels with medals
-		{
-			pupilId: pupils[0].id,
-			lessonId: swimmingLessons[0].id, // Level 1
-			videoUrl: 'https://example.com/submission1.mp4',
-			status: SubmissionStatus.REVIEWED,
-			feedback: 'Excellent progress in overcoming water anxiety. Perfect execution of all exercises.',
-			rating: 10 // Gold medal
-		},
-		{
-			pupilId: pupils[0].id,
-			lessonId: swimmingLessons[1].id, // Level 2
-			videoUrl: 'https://example.com/submission2.mp4',
-			status: SubmissionStatus.REVIEWED,
-			feedback: 'Very good understanding of water resistance. Great arm positioning.',
-			rating: 8 // Silver medal
-		},
-		{
-			pupilId: pupils[0].id,
-			lessonId: swimmingLessons[2].id, // Level 3
-			videoUrl: 'https://example.com/submission3.mp4',
-			status: SubmissionStatus.REVIEWED,
-			feedback: 'Good progress with aquatic breathing. Keep practicing the exercises.',
-			rating: 6 // Bronze medal
-		},
-		{
-			pupilId: pupils[0].id,
-			lessonId: swimmingLessons[3].id, // Level 4
-			videoUrl: 'https://example.com/submission4.mp4',
-			status: SubmissionStatus.PENDING,
-			feedback: null,
-			rating: null
-		},
-
-		// Lucas Chen - Completed first level with gold medal, second level pending
-		{
-			pupilId: pupils[1].id,
-			lessonId: swimmingLessons[0].id, // Level 1
-			videoUrl: 'https://example.com/submission5.mp4',
-			status: SubmissionStatus.REVIEWED,
-			feedback: 'Outstanding performance in water confidence exercises.',
-			rating: 9 // Gold medal
-		},
-		{
-			pupilId: pupils[1].id,
-			lessonId: swimmingLessons[1].id, // Level 2
-			videoUrl: 'https://example.com/submission6.mp4',
-			status: SubmissionStatus.PENDING,
-			feedback: null,
-			rating: null
-		},
-
-		// Isabella Rodriguez - Completed first 4 levels with high scores
-		{
-			pupilId: pupils[2].id,
-			lessonId: swimmingLessons[0].id, // Level 1
-			videoUrl: 'https://example.com/submission7.mp4',
-			status: SubmissionStatus.REVIEWED,
-			feedback: 'Perfect execution of all exercises. Natural talent in water.',
-			rating: 10 // Gold medal
-		},
-		{
-			pupilId: pupils[2].id,
-			lessonId: swimmingLessons[1].id, // Level 2
-			videoUrl: 'https://example.com/submission8.mp4',
-			status: SubmissionStatus.REVIEWED,
-			feedback: 'Excellent control and understanding of water resistance.',
-			rating: 9 // Gold medal
-		},
-		{
-			pupilId: pupils[2].id,
-			lessonId: swimmingLessons[2].id, // Level 3
-			videoUrl: 'https://example.com/submission9.mp4',
-			status: SubmissionStatus.REVIEWED,
-			feedback: 'Outstanding aquatic breathing control.',
-			rating: 9 // Gold medal
-		},
-		{
-			pupilId: pupils[2].id,
-			lessonId: swimmingLessons[3].id, // Level 4
-			videoUrl: 'https://example.com/submission10.mp4',
-			status: SubmissionStatus.REVIEWED,
-			feedback: 'Very good progress with advanced techniques.',
-			rating: 8 // Silver medal
-		},
-		{
-			pupilId: pupils[2].id,
-			lessonId: swimmingLessons[4].id, // Level 5
-			videoUrl: 'https://example.com/submission11.mp4',
-			status: SubmissionStatus.PENDING,
-			feedback: null,
-			rating: null
-		}
-	];
-
-	// Create submissions and their reviews
-	await Promise.all(
-		submissionData.map(async (submission) => {
-			if (submission.status === SubmissionStatus.REVIEWED) {
-				return prisma.submission.create({
-					data: {
-						pupilId: submission.pupilId,
-						lessonId: submission.lessonId,
-						videoUrl: submission.videoUrl,
-						status: submission.status,
-						feedback: submission.feedback,
-						review: {
-							create: {
-								coachId: coachUser.coach!.id,
-								rating: submission.rating!,
-								comment: submission.feedback!
-							}
-						}
-					}
-				});
-			} else {
-				return prisma.submission.create({
-					data: {
-						pupilId: submission.pupilId,
-						lessonId: submission.lessonId,
-						videoUrl: submission.videoUrl,
-						status: submission.status
-					}
-				});
-			}
-		})
-	);
-
-	// Create messages
-	await Promise.all(
-		parents.flatMap((parent) =>
-			Array.from({ length: 3 }).map((_, index) => {
-				return prisma.message.create({
-					data: {
-						content: `Message ${index + 1} from parent to coach`,
-						coachId: coachUser.coach!.id,
-						parentId: parent.parent!.id,
-						read: Math.random() > 0.5
-					}
-				});
-			})
-		)
-	);
-
-	// New parent with no progress
-	const newParentUser = await prisma.user.create({
-		data: {
-			email: 'emma.dubois@gmail.com',
-			name: 'Emma Dubois',
-			password: await hash('password123', 10),
-			role: UserRole.PARENT,
-			parent: {
-				create: {}
-			}
-		},
-		include: {
-			parent: true
-		}
+		];
+		messageData = messageData.concat(messageArray);
 	});
 
-	// Create child with no progress
-	await prisma.pupil.create({
-		data: {
-			name: 'Lucas Dubois',
-			dateOfBirth: new Date('2018-05-15'),
-			level: Level.BEGINNER,
-			parentId: newParentUser.parent!.id,
-			coachId: coachUser.coach!.id,
-			notes: 'New student starting their swimming journey.'
-		}
-	});
+	// CREATE messages
+	const messages = await Promise.all(
+		messageData.map(async (message) => {
+			return prisma.message.create({
+				data: {
+					content: message.content,
+					isRead: message.isRead,
+					sender: message.sender,
+					parent: {
+						connect: {
+							id: message.parentId
+						}
+					},
+					coach: {
+						connect: {
+							id: coachUser?.coach?.id
+						}
+					}
+				}
+			});
+		})
+	);
 
 	console.log('Database seeded successfully!');
 }

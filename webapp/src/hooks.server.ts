@@ -6,9 +6,20 @@ import { prisma } from '$lib/server/db';
 export const handle: Handle = async ({ event, resolve }) => {
 	sequence(i18n.handle())
 
+	// Normalize malformed language paths
+	const path = event.url.pathname;
+	const pathParts = path.split('/').filter(Boolean);
+	const validLangs = ['nl', 'fr'];
+
+	// Check if first two parts are language codes (same or different)
+	if (pathParts.length >= 2 && validLangs.includes(pathParts[0]) && validLangs.includes(pathParts[1])) {
+		// Keep first language code and remove second one
+		const normalizedPath = '/' + [pathParts[0], ...pathParts.slice(2)].join('/');
+		throw redirect(302, normalizedPath);
+	}
+
 	// Get the session token from cookie
 	const sessionToken = event.cookies.get('session');
-	const path = event.url.pathname;
 
 	// Check if trying to access protected routes
 	const isProtectedRoute = path.startsWith('/coach') || path.startsWith('/app');

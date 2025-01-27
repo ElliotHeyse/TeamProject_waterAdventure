@@ -1,6 +1,12 @@
 import { prisma } from '$lib/server/db';
 import { json, error } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
+import { writeFile, mkdir } from 'fs/promises';
+import { join } from 'path';
+
+// Create uploads directory if it doesn't exist
+const UPLOAD_DIR = 'static/uploads/videos';
+await mkdir(UPLOAD_DIR, { recursive: true });
 
 export const POST: RequestHandler = async ({ request, locals }) => {
 	if (!locals.user) {
@@ -8,79 +14,52 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 	}
 
 	const formData = await request.formData();
-	const lessonId = formData.get('lessonId') as string;
-	const videoUrl = formData.get('videoUrl') as string;
+	const pupilId = formData.get('pupilId') as string;
+	const levelNumber = formData.get('levelNumber') as string;
+	const videoFile = formData.get('video') as File;
 
-	if (!lessonId || !videoUrl) {
+	if (!pupilId || !levelNumber || !videoFile) {
 		throw error(400, 'Missing required fields');
 	}
 
-	// Get the pupil ID from the parent relationship
-	const parent = await prisma.parent.findUnique({
-		where: {
-			userId: locals.user.id
-		},
-		include: {
-			pupils: {
-				take: 1
-			}
-		}
-	});
-
-	if (!parent || !parent.pupils[0]) {
-		throw error(404, 'No pupil found');
-	}
-
-	const pupilId = parent.pupils[0].id;
+	console.info("API[submission]: request received");
 
 	try {
-		// Create the submission
+		// Generate unique filename
+		const timestamp = Date.now();
+		const filename = `${pupilId}_level${levelNumber}_${timestamp}${getFileExtension(videoFile.name)}`;
+		const filepath = join(UPLOAD_DIR, filename);
+
+		// Save file to disk
+		const arrayBuffer = await videoFile.arrayBuffer();
+		const buffer = Buffer.from(arrayBuffer);
+		await writeFile(filepath, buffer);
+
+		// Save submission to database with local file path
 		const submission = await prisma.submission.create({
 			data: {
-				lessonId,
-				pupilId,
-				videoUrl,
-				status: 'PENDING'
+				videoUrl: `/uploads/videos/${filename}`, // URL path relative to static directory
+				status: 'PENDING',
+				medal: 'NONE',
+				levelNumber: parseInt(levelNumber),
+				pupilId: pupilId
 			}
 		});
 
-		// Get the lesson order to determine next level
-		const lesson = await prisma.lesson.findUnique({
-			where: { id: lessonId },
-			select: { order: true }
-		});
-
-		if (!lesson) {
-			throw error(404, 'Lesson not found');
+		if (!submission) {
+			console.warn("API[submission]: Failed to create submission, throwing 500 error");
+			throw error(500, 'Failed to create submission');
 		}
 
-		// Find the next lesson and update its status
-		const nextLesson = await prisma.lesson.findFirst({
-			where: {
-				isSwimmingLesson: true,
-				order: lesson.order + 1
-			},
-			include: {
-				exercises: true
-			}
-		});
-
-		if (nextLesson && nextLesson.exercises.length > 0) {
-			// Create level progress entries for the next level
-			await prisma.levelProgress.createMany({
-				data: nextLesson.exercises.map(exercise => ({
-					pupilId,
-					lessonId: nextLesson.id,
-					part: exercise.part,
-					completed: false
-				})),
-				skipDuplicates: true
-			});
-		}
-
-		return json({ success: true, submission });
+		console.info("API[submission]: successfully processed request");
+		return json({ success: submission });
 	} catch (e) {
-		console.error('Failed to create submission:', e);
+		console.error('API[submission]: Failed to create submission:', e);
 		throw error(500, 'Failed to create submission');
 	}
-}; 
+};
+
+function getFileExtension(filename: string): string {
+	const ext = filename.split('.').pop();
+	return ext ? `.${ext}` : '';
+}

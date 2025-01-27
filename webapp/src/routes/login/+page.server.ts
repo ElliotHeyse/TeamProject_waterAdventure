@@ -17,10 +17,9 @@ export const load: PageServerLoad = async ({ locals }) => {
 };
 
 export const actions = {
-	default: async ({ request, cookies, locals }) => {
-		let formData;
+	login: async ({ request, cookies, locals }) => {
 		try {
-			formData = await request.formData();
+			const formData = await request.formData();
 			const email = formData.get('email')?.toString();
 			const password = formData.get('password')?.toString();
 
@@ -39,7 +38,6 @@ export const actions = {
 			});
 
 			if (!user) {
-				//console.log('Login failed: User not found:', email);
 				return fail(400, {
 					error: 'Invalid email or password',
 					email
@@ -58,18 +56,23 @@ export const actions = {
 			const token = randomBytes(32).toString('hex');
 			const twoDaysFromNow = new Date(Date.now() + 2 * 24 * 60 * 60 * 1000);
 
-			const session = await prisma.session.create({
-				data: {
+			// Use upsert to handle the unique constraint
+			const session = await prisma.session.upsert({
+				where: {
+					userId: user.id
+				},
+				update: {
+					token,
+					expiresAt: twoDaysFromNow
+				},
+				create: {
 					token,
 					userId: user.id,
 					expiresAt: twoDaysFromNow
 				}
 			});
 
-			const sessionToken = session.token;
-
-			// Set session cookie
-			cookies.set('session', sessionToken, {
+			cookies.set('session', session.token, {
 				path: '/',
 				httpOnly: true,
 				sameSite: 'strict',
@@ -82,17 +85,15 @@ export const actions = {
 				locals.parent = user.parent;
 			}
 
-			throw redirect(303, user.role === 'COACH' ? '/coach' : '/app');
+			throw redirect(303, '/app');
 		} catch (error) {
-			// Only handle non-redirect errors
+			console.error('Login error:', error);
 			if (error instanceof Error && !(error instanceof Response)) {
-				//console.error('Login error:', error);
 				return fail(500, {
-					error: 'An error occurred while processing your request. Please try again.',
-					email: formData?.get('email')?.toString()
+					error: 'An error occurred while processing your request. Please try again.'
 				});
 			}
-			throw error; // Re-throw redirect responses
+			throw error;
 		}
 	}
 } satisfies Actions;

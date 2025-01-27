@@ -3,7 +3,7 @@
 	import DataTable from './data-table.svelte';
 	import * as m from '$lib/paraglide/messages.js';
 
-	let { data } = $props<{ data: PageData }>();
+	let { data }: { data: PageData } = $props();
 </script>
 
 <div class="space-y-6">
@@ -15,5 +15,5 @@
 		</div>
 	</div>
 
-	<DataTable submissions={data.submissions} data={{ lessons: data.lessons }} />
+	<DataTable submissions={data.submissions} data={{ levels: data.levels }} />
 </div>

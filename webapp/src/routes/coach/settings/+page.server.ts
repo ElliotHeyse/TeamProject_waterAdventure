@@ -1,10 +1,25 @@
 import { prisma } from '$lib/server/db';
 import type { PageServerLoad, Actions } from './$types';
 import { fail } from '@sveltejs/kit';
+import { error, redirect } from '@sveltejs/kit';
 
-export const load = (async () => {
-    // TODO: Replace with actual auth
-    const coach = await prisma.coach.findFirst({
+export const load = (async ({ locals }) => {
+	// if (!locals.user) {
+	// 	throw new Error('Not authenticated');
+	// }
+	if (!locals.user) {
+		try {
+		  // Show unauthorized error
+		  throw error(401, 'Unauthorized');
+		} catch (e) {
+		  // Wait 3 seconds
+		  await new Promise(resolve => setTimeout(resolve, 3000));
+		  // Redirect to login
+		  throw redirect(302, '/login');
+		}
+	}
+    const coach = await prisma.coach.findUnique({
+        where: { userId: locals.user.id },
         include: {
             user: {
                 select: {
@@ -16,7 +31,7 @@ export const load = (async () => {
     });
 
     if (!coach) {
-        throw new Error('No coach found');
+        throw error(404, 'Coach not found');
     }
 
     return {
@@ -25,9 +40,15 @@ export const load = (async () => {
 }) satisfies PageServerLoad;
 
 export const actions = {
-    updateProfile: async ({ request }) => {
-        // TODO: Replace with actual auth
-        const coach = await prisma.coach.findFirst();
+    updateProfile: async ({ request, locals }) => {
+        if (!locals.user) {
+            return fail(401, { message: 'Unauthorized' });
+        }
+
+        const coach = await prisma.coach.findUnique({
+            where: { userId: locals.user.id }
+        });
+
         if (!coach) {
             return fail(404, { message: 'Coach not found' });
         }

@@ -1,37 +1,16 @@
 <!-- Submissions page -->
 <script lang="ts">
-	import { CheckCircle, Clock, Icon } from 'svelte-hero-icons';
-	import { Badge } from '$lib/components/coach/ui/badge';
 	import { Button } from '$lib/components/coach/ui/button';
-	import { cn } from '$lib/utils';
-	import { tv } from 'tailwind-variants';
-	import StatusBadge from '$lib/components/coach/ui/badge/status-badge.svelte';
 	import * as m from '$lib/paraglide/messages.js';
-	import ReviewPanel from '$lib/components/coach/submissions/review-panel.svelte';
+	import ReviewPanel, {
+		type Submission
+	} from '$lib/components/coach/submissions/review-panel.svelte';
 
-	interface Submission {
-		id: string;
-		pupilName: string;
-		lessonTitle: string;
-		date: string;
-		status: 'pending' | 'reviewed';
-		videoUrl: string;
-		feedback: string;
-	}
-
-	interface PageData {
-		submissions: Array<{
-			id: string;
-			pupilName: string;
-			lessonTitle: string;
-			date: string;
-			status: string;
-			videoUrl: string;
-			feedback: string;
-		}>;
-	}
-
-	let { data } = $props<{ data: PageData }>();
+	let { data } = $props<{
+		data: {
+			submissions: Submission[];
+		};
+	}>();
 	let submissions = $state<Submission[]>(
 		data.submissions
 			.map((s: Submission) => ({
@@ -83,17 +62,39 @@
 			<div class="divide-y">
 				{#each submissions as submission}
 					<button
-						class="hover:bg-muted/50 w-full cursor-pointer p-4 text-left transition-colors"
-						class:bg-accent={selectedSubmission?.id === submission.id}
-						onclick={() => (selectedSubmission = submission)}
+						onclick={() => {
+							selectedSubmission = submission;
+						}}
+						class="w-full text-left hover:bg-accent transition-colors duration-200 group relative {selectedSubmission?.id ===
+						submission.id
+							? 'bg-accent'
+							: ''}"
 					>
-						<div class="flex items-start justify-between">
-							<div>
-								<h4 class="font-medium">{submission.pupilName}</h4>
-								<p class="text-muted-foreground text-sm">{submission.lessonTitle}</p>
-								<p class="text-muted-foreground text-sm">{m.submitted_on()} {submission.date}</p>
+						<div class="p-6 space-y-4">
+							<div
+								class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4"
+							>
+								<div class="space-y-1.5">
+									<h3 class="text-lg font-semibold group-hover:text-primary transition-colors">
+										{submission.pupilName}
+									</h3>
+									<p class="text-muted-foreground font-medium">{submission.lessonTitle}</p>
+									<p class="text-sm text-muted-foreground">
+										{m.submitted_on()}
+										{submission.date}
+									</p>
+								</div>
+								<div>
+									<span
+										class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium {submission.status ===
+										'reviewed'
+											? 'bg-green-100 text-green-800'
+											: 'bg-yellow-100 text-yellow-800'}"
+									>
+										{submission.status === 'reviewed' ? m.reviewed() : m.pending()}
+									</span>
+								</div>
 							</div>
-							<StatusBadge status={submission.status.toUpperCase()} />
 						</div>
 					</button>
 				{/each}

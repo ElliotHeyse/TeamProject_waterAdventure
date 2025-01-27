@@ -1,18 +1,63 @@
 import { prisma } from '$lib/server/db';
 import type { PageServerLoad } from './$types';
 import type { DashboardData } from './types';
+import { error, redirect } from '@sveltejs/kit';
 
-export const load = (async () => {
-	const [totalPupils, activeLessons, pendingSubmissions, unreadMessages, recentActivity] =
+export const load = (async ({ locals }) => {
+	// if (!locals.user) {
+	// 	throw new Error('Not authenticated');
+	// }
+	if (!locals.user) {
+		try {
+		  // Show unauthorized error
+		  throw error(401, 'Unauthorized');
+		} catch (e) {
+		  // Wait 3 seconds
+		  await new Promise(resolve => setTimeout(resolve, 3000));
+		  // Redirect to login
+		  throw redirect(302, '/login');
+		}
+	}
+
+	const coach = await prisma.coach.findUnique({
+		where: { userId: locals.user.id },
+		include: {
+			parents: true
+		}
+	});
+
+	if (!coach) {
+		throw new Error('Coach not found');
+	}
+
+	const parentIds = coach.parents.map(parent => parent.id);
+
+	const [totalPupils, activeLevels, pendingSubmissions, unreadMessages, recentActivity] =
 		await Promise.all([
 			// Get total pupils count
-			prisma.pupil.count(),
-
-			// Get active lessons (future lessons)
-			prisma.lesson.count({
+			prisma.pupil.count({
 				where: {
-					date: {
-						gte: new Date()
+					parent: {
+						id: {
+							in: parentIds
+						}
+					}
+				}
+			}),
+
+			// Get active levels count (levels with active pupils)
+			prisma.level.count({
+				where: {
+					levelProgresses: {
+						some: {
+							pupil: {
+								parent: {
+									id: {
+										in: parentIds
+									}
+								}
+							}
+						}
 					}
 				}
 			}),
@@ -20,30 +65,60 @@ export const load = (async () => {
 			// Get pending submissions count
 			prisma.submission.count({
 				where: {
-					status: 'PENDING'
+					status: 'PENDING',
+					pupil: {
+						parent: {
+							id: {
+								in: parentIds
+							}
+						}
+					}
 				}
 			}),
 
 			// Get unread messages count
 			prisma.message.count({
 				where: {
-					read: false
+					coachId: coach.id,
+					isRead: false,
+					sender: 'PARENT'
 				}
 			}),
 
-			// Get recent activity (submissions, messages, and lessons)
+			// Get recent activity (submissions and messages)
 			Promise.all([
 				// Recent submissions
 				prisma.submission.findMany({
+					where: {
+						pupil: {
+							parent: {
+								id: {
+									in: parentIds
+								}
+							}
+						}
+					},
 					take: 3,
 					orderBy: { createdAt: 'desc' },
 					include: {
 						pupil: true,
-						lesson: true
+						level: {
+							include: {
+								languageContents: {
+									where: {
+										language: 'nl'
+									},
+									take: 1
+								}
+							}
+						}
 					}
 				}),
 				// Recent messages
 				prisma.message.findMany({
+					where: {
+						coachId: coach.id
+					},
 					take: 3,
 					orderBy: { createdAt: 'desc' },
 					include: {
@@ -53,28 +128,18 @@ export const load = (async () => {
 							}
 						}
 					}
-				}),
-				// Recent lessons
-				prisma.lesson.findMany({
-					take: 3,
-					orderBy: { createdAt: 'desc' }
 				})
-			]).then(([submissions, messages, lessons]) => {
+			]).then(([submissions, messages]) => {
 				return [
 					...submissions.map((s) => ({
 						type: 'submission' as const,
-						text: `New video submission from ${s.pupil.name} for ${s.lesson.title}`,
+						text: `New video submission from ${s.pupil.name} for Level ${s.level.levelNumber}${s.level.languageContents[0]?.title ? `: ${s.level.languageContents[0].title}` : ''}`,
 						time: s.createdAt
 					})),
 					...messages.map((m) => ({
 						type: 'message' as const,
 						text: `Message from ${m.parent.user.name}`,
 						time: m.createdAt
-					})),
-					...lessons.map((l) => ({
-						type: 'lesson' as const,
-						text: `New lesson scheduled: ${l.title}`,
-						time: l.createdAt
 					}))
 				]
 					.sort((a, b) => b.time.getTime() - a.time.getTime())
@@ -85,7 +150,7 @@ export const load = (async () => {
 	const data: DashboardData = {
 		stats: {
 			totalPupils,
-			activeLessons,
+			activeLevels,
 			pendingSubmissions,
 			unreadMessages
 		},

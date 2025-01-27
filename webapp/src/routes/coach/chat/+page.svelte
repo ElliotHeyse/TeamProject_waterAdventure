@@ -5,9 +5,10 @@
 	import type { PageData } from './$types';
 	import type { Parent, Pupil, User } from '@prisma/client';
 	import { onMount } from 'svelte';
+	import { getGravatarUrl } from '$lib/utils/gravatar';
 
 	const { data } = $props<{ data: PageData }>();
-	let parents: (Parent & { user: User; pupils: Pupil[] })[] = $state(data.parents);
+	let parents: (Parent & { user: User; pupils: Pupil[]; unreadCount: number })[] = $state(data.parents);
 
 	let messages = $state<
 		{
@@ -18,19 +19,25 @@
 			coachId: string;
 			parent: { user: { name: string } };
 			coach: { user: { name: string } };
-			isFromParent: boolean;
+			sender: string;
+			isRead: boolean;
 		}[]
 	>([]);
 
 	let selectedParent: (Parent & { user: User; pupils: Pupil[] }) | null = $state(null);
-
 	let newMessage = $state('');
 	let socket: Socket;
 	let scrollContainer: HTMLDivElement | null = $state(null);
 
+	// Handle scrolling whenever messages change
 	$effect(() => {
-		if (scrollContainer) {
-			scrollContainer.scrollTop = scrollContainer.scrollHeight;
+		if (scrollContainer && messages.length > 0) {
+			requestAnimationFrame(() => {
+				scrollContainer?.scrollTo({
+					top: scrollContainer.scrollHeight,
+					behavior: 'smooth'
+				});
+			});
 		}
 	});
 
@@ -50,9 +57,33 @@
 		const response = await fetch(`/api/messages?parentId=${parent.id}&coachId=${data.coach.id}`);
 		if (response.ok) {
 			messages = await response.json();
-			if (scrollContainer) {
-				scrollContainer.scrollTop = scrollContainer.scrollHeight;
+
+			// Mark messages from this parent as read
+			const unreadMessages = messages.filter(m => m.sender === 'PARENT' && !m.isRead);
+			if (unreadMessages.length > 0) {
+				await fetch('/api/mark-messages-read', {
+					method: 'POST',
+					headers: {
+						'Content-Type': 'application/json'
+					},
+					body: JSON.stringify({
+						messageIds: unreadMessages.map(m => m.id)
+					})
+				});
+
+				// Update the unread count in the UI
+				parents = parents.map((p) =>
+					p.id === parent.id ? { ...p, unreadCount: 0 } : p
+				);
 			}
+		}
+
+		// Join the chat room for this conversation
+		if (socket) {
+			socket.emit('join_chat', {
+				coachId: data.coach.id,
+				parentId: parent.id
+			});
 		}
 	}
 
@@ -66,13 +97,22 @@
 		});
 
 		socket.on('message', (message) => {
-			if (
-				selectedParent &&
-				(message.parentId === selectedParent.id || message.coachId === data.coach.id)
-			) {
-				messages = [...messages, message];
-				if (scrollContainer) {
-					scrollContainer.scrollTop = scrollContainer.scrollHeight;
+			if (message.coachId === data.coach.id) {
+				// Update messages if we're in the chat
+				if (selectedParent && message.parentId === selectedParent.id) {
+					messages = [...messages, message];
+				}
+
+				// Only increment unread count for new messages from parent
+				if (message.sender === 'PARENT') {
+					const isCurrentChat = selectedParent?.id === message.parentId;
+					if (!isCurrentChat) {
+						parents = parents.map(p =>
+							p.id === message.parentId
+								? { ...p, unreadCount: (p.unreadCount || 0) + 1 }
+								: p
+						);
+					}
 				}
 			}
 		});
@@ -83,6 +123,13 @@
 
 		socket.on('connect', () => {
 			console.log('Connected to chat server');
+			// Re-join chat room if we have a selected parent
+			if (selectedParent) {
+				socket.emit('join_chat', {
+					coachId: data.coach.id,
+					parentId: selectedParent.id
+				});
+			}
 		});
 
 		socket.on('disconnect', () => {
@@ -109,7 +156,7 @@
 			content: newMessage,
 			coachId: data.coach.id,
 			parentId: selectedParent.id,
-			isFromParent: false
+			sender: 'COACH'
 		};
 
 		socket.emit('message', message);
@@ -132,20 +179,21 @@
 					}}
 					onclick={() => selectParent(parent)}
 				>
-					<div class="flex items-start gap-3">
-						<div
-							class="bg-primary/10 text-primary flex h-10 w-10 items-center justify-center rounded-full text-sm font-medium"
-						>
-							{getInitials(parent.user.name)}
-						</div>
-						<div class="min-w-0 flex-1">
-							<div class="flex items-center justify-between">
-								<p class="text-foreground font-medium">{parent.user.name}</p>
-							</div>
-							<p class="text-muted-foreground text-sm">
+					<div class="flex items-center gap-2 relative">
+						<img src={getGravatarUrl(parent.user.email, 40)} alt="" />
+						<div class="flex flex-col min-w-0 flex-1">
+							<span class="text-sm font-medium">{parent.user.name}</span>
+							<span class="text-xs text-muted-foreground truncate">
 								{parent.pupils.map((p: { id: string; name: string }) => p.name).join(', ')}
-							</p>
+							</span>
 						</div>
+						{#if parent.unreadCount > 0}
+							<div class="absolute -right-2 top-1/2 -translate-y-1/2">
+								<span class="bg-[#FF5555] text-white text-xs min-w-[20px] h-5 flex items-center justify-center rounded-full px-1.5 font-medium">
+									{parent.unreadCount}
+								</span>
+							</div>
+						{/if}
 					</div>
 				</button>
 			{/each}
@@ -164,15 +212,21 @@
 
 			<div bind:this={scrollContainer} class="flex-1 space-y-4 overflow-y-auto p-4">
 				{#each messages as message}
-					<div class="flex" class:justify-end={message.isFromParent}>
+					<div
+						class="flex"
+						class:justify-end={message.coachId === data.coach.id && message.sender === 'COACH'}
+					>
 						<div
 							class="max-w-[70%] rounded-lg p-3 shadow-sm"
-							class:bg-muted={!message.isFromParent}
-							class:bg-primary={message.isFromParent}
-							class:text-primary-foreground={message.isFromParent}
+							class:bg-muted={message.coachId !== data.coach.id || message.sender !== 'COACH'}
+							class:bg-primary={message.coachId === data.coach.id && message.sender === 'COACH'}
+							class:text-primary-foreground={message.coachId === data.coach.id &&
+								message.sender === 'COACH'}
 						>
 							<p class="text-sm font-medium">
-								{message.isFromParent ? message.parent.user.name : message.coach.user.name}
+								{message.coachId === data.coach.id && message.sender === 'COACH'
+									? message.coach.user.name
+									: message.parent.user.name}
 							</p>
 							<p class="mt-1">{message.content}</p>
 							<p class="text-muted-foreground mt-1 text-xs">

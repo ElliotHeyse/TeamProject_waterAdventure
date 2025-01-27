@@ -1,121 +1,182 @@
 import { error } from '@sveltejs/kit';
+import { redirect } from '@sveltejs/kit';
 import type { PageServerLoad } from './$types';
 import { prisma } from '$lib/server/db';
+import { userInfo } from 'os';
+import { description, duration, feedback, language, pupils } from '$lib/paraglide/messages';
+import { id } from 'date-fns/locale';
+import path from 'path';
+import { title } from 'process';
 
 export const load: PageServerLoad = async ({ locals }) => {
+	// region AUTHENTICATION
+	// if (!locals.user) {
+	// 	throw error(401, 'Unauthorized');
+	// }
 	if (!locals.user) {
-		throw error(401, 'Unauthorized');
+		try {
+		  // Show unauthorized error
+		  throw error(401, 'Unauthorized');
+		} catch (e) {
+		  // Wait 3 seconds
+		  await new Promise(resolve => setTimeout(resolve, 3000));
+		  // Redirect to login
+		  throw redirect(302, '/login');
+		}
 	}
 
-	// Get the parent with all their pupils
-	const parent = await prisma.parent.findUnique({
-		where: {
-			userId: locals.user.id
-		},
-		include: {
-			pupils: true
-		}
-	});
+	try {
+		// region DATA ACCESS
 
-	if (!parent || parent.pupils.length === 0) {
-		throw error(404, 'No pupils found');
-	}
-
-	// Get all swimming lessons
-	const lessons = await prisma.lesson.findMany({
-		where: {
-			isSwimmingLesson: true,
-		},
-		orderBy: {
-			order: 'asc'
-		}
-	});
-
-	// For each pupil, get their progress and latest review
-	const children = await Promise.all(parent.pupils.map(async (pupil) => {
-		// Get submissions and progress for this pupil
-		const lessonsWithProgress = await prisma.lesson.findMany({
+		// Get the parent user, with their notifications, settings, messages and pupils, with their levelProgress and submissions
+		const parentUser = await prisma.user.findUnique({
 			where: {
-				isSwimmingLesson: true,
-			},
-			orderBy: {
-				order: 'asc'
+				id: locals.user.id
 			},
 			include: {
-				submissions: {
-					where: {
-						pupilId: pupil.id
-					},
-					orderBy: {
-						createdAt: 'desc'
-					},
-					take: 1
-				},
-				levelProgress: {
-					where: {
-						pupilId: pupil.id
-					}
-				}
-			}
-		});
-
-		// Find the first incomplete level's order
-		let currentLevelOrder = 1;
-		for (const lesson of lessonsWithProgress) {
-			const submission = lesson.submissions[0];
-			if (!submission || (submission.status !== 'REVIEWED' && submission.status !== 'PENDING')) {
-				currentLevelOrder = lesson.order;
-				break;
-			}
-			currentLevelOrder = lesson.order + 1;
-		}
-
-		// Get the latest review for this pupil
-		const latestReview = await prisma.submission.findFirst({
-			where: {
-				pupilId: pupil.id,
-				status: 'REVIEWED'
-			},
-			orderBy: {
-				updatedAt: 'desc'
-			},
-			include: {
-				lesson: {
+				parent: {
 					include: {
-						coach: {
+						pupils: {
 							include: {
-								user: true
+								levelProgress: true,
+								submissions: true
 							}
-						}
+						},
+						messages: true
 					}
-				}
+				},
+				settings: true,
+				notifications: true
 			}
 		});
 
-		return {
-			id: pupil.id,
-			name: pupil.name,
-			currentLevel: pupil.level,
-			currentLevelOrder,
-			latestReview: latestReview ? {
-				lessonOrder: latestReview.lesson.order,
-				updatedAt: latestReview.updatedAt,
-				review: {
-					feedback: latestReview.feedback,
-					coach: {
-						user: {
-							name: latestReview.lesson.coach.user.name
-						}
+		if (!parentUser || !parentUser.parent) {
+			console.warn('No parent found', locals.user.id);
+			throw error(404, 'No parent found');
+		} else if (!parentUser.parent.pupils || parentUser.parent.pupils.length === 0) {
+			console.warn('No pupils found for parent', locals.user.id);
+			throw error(404, 'No pupils found');
+		}
+
+		// Get all levels, with their languageContents and exercises, with their videos and languageContents
+		const levels = await prisma.level.findMany({
+			include: {
+				languageContents: true,
+				exercises: {
+					include: {
+						videos: true,
+						languageContents: true
 					}
 				}
-			} : undefined
+			},
+			orderBy: {
+				levelNumber: 'asc'
+			}
+		});
+
+		if (!levels || levels.length === 0) {
+			console.warn('No levels found');
+			throw error(404, 'No levels found');
+		}
+
+		// region DATA PROCESSING
+
+		// Trim the parent user object to only include the necessary data
+		const parentUserTrimmed = {
+			id: parentUser.id,
+			email: parentUser.email,
+			name: parentUser.name,
+			parent: {
+				id: parentUser.parent.id,
+				phone: parentUser.parent.phone,
+				coachId: parentUser.parent.coachId,
+				pupils: parentUser.parent.pupils.map(pupil => ({
+					id: pupil.id,
+					name: pupil.name,
+					progress: pupil.progress,
+					profilePicture: pupil.profilePicture,
+					levelProgress: pupil.levelProgress.map(levelProgress => ({
+						id: levelProgress.id,
+						firstPartCompleted: levelProgress.firstPartCompleted,
+						fullyCompleted: levelProgress.fullyCompleted,
+						levelNumber: levelProgress.levelNumber
+					})),
+					submissions: pupil.submissions.map(submission => ({
+						id: submission.id,
+						videoUrl: submission.videoUrl,
+						status: submission.status,
+						feedback: submission.feedback,
+						feedbackTimestamp: submission.feedbackTimestamp,
+						medal: submission.medal,
+						updatedAt: submission.updatedAt,
+						levelNumber: submission.levelNumber,
+						isRead: submission.isRead,
+					}))
+				})),
+				messages: parentUser.parent.messages.map(message => ({
+					id: message.id,
+					content: message.content,
+					isRead: message.isRead,
+					sender: message.sender,
+					createdAt: message.createdAt,
+					coachId: message.coachId
+				}))
+			},
+			settings: {
+				pushNotifications: parentUser.settings?.pushNotifications,
+				emailNotifications: parentUser.settings?.emailNotifications,
+				theme: parentUser.settings?.theme,
+				language: parentUser.settings?.language
+			},
+			notifications: parentUser.notifications.map(notification => ({
+				id: notification.id,
+				timestamp: notification.timestamp,
+				isRead: notification.isRead,
+				type: notification.type,
+				title: notification.title,
+				body: notification.body,
+				levelNumber: notification.levelNumber
+			}))
 		};
-	}));
 
-	// Sort children to ensure consistent order (first child first)
-	children.sort((a, b) => a.name.localeCompare(b.name));
+		// Trim the levels object to only include the necessary data
+		const levelsTrimmed = levels.map(level => ({
+			id: level.id,
+			duration: level.duration,
+			levelNumber: level.levelNumber,
+			exercises: level.exercises.map(exercise => ({
+				id: exercise.id,
+				exerciseNumber: exercise.exerciseNumber,
+				videos: exercise.videos.map(video => ({
+					id: video.id,
+					path: video.path,
+					title: video.title
+				})),
+				languageContents: exercise.languageContents.map(languageContent => ({
+					id: languageContent.id,
+					language: languageContent.language,
+					location: languageContent.location,
+					title: languageContent.title,
+					description: languageContent.description,
+					important: languageContent.important,
+					tips: languageContent.tips
+				}))
+			})),
+			languageContents: level.languageContents.map(languageContent => ({
+				id: languageContent.id,
+				language: languageContent.language,
+				title: languageContent.title,
+				objectives: languageContent.objectives,
+			}))
+		}));
 
-	return {
-		children
-	};
+		// region DATA RETURN
+		return {
+			parentUser: parentUserTrimmed,
+			levels: levelsTrimmed
+		}
+	} catch (err) {
+		console.error("overview: server error:", err);
+		throw error(500, 'Internal Server Error');
+	}
 };

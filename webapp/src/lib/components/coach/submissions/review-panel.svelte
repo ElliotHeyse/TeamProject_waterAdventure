@@ -2,8 +2,9 @@
 	import * as m from '$lib/paraglide/messages.js';
 	import { toast } from 'svelte-sonner';
 	import { Loader2 } from 'lucide-svelte';
+	import { page } from '$app/state';
 
-	interface Submission {
+	export interface Submission {
 		id: string;
 		pupilName: string;
 		lessonTitle: string;
@@ -24,6 +25,12 @@
 	let feedback = $state(submission?.feedback || '');
 	let medal = $state(submission?.medal || 'NONE');
 	let isSubmitting = $state(false);
+	let videoError = $state(false);
+
+	function handleVideoError() {
+		videoError = true;
+		toast.error(m.error_loading_video());
+	}
 
 	async function handleSubmit() {
 		if (!submission) return;
@@ -63,9 +70,18 @@
 			</p>
 		</div>
 
-		<div class="bg-muted flex aspect-video items-center justify-center rounded-md">
-			<!-- Video player would go here -->
-			<p class="text-muted-foreground">{m.video_player()}</p>
+		<div class="bg-muted rounded-md overflow-hidden">
+			{#if !videoError}
+				<video class="w-full aspect-video" controls onerror={handleVideoError}>
+					<source src={submission.videoUrl} type="video/mp4" />
+					<track kind="captions" />
+					{m.video_not_supported()}
+				</video>
+			{:else}
+				<div class="flex items-center justify-center aspect-video">
+					<p class="text-muted-foreground">{m.error_loading_video()}</p>
+				</div>
+			{/if}
 		</div>
 
 		<div class="space-y-4">
@@ -73,22 +89,22 @@
 				<span class="text-sm font-medium">{m.feedback()}</span>
 				<textarea
 					bind:value={feedback}
-					class="bg-background focus:border-ring focus:ring-ring mt-1 block w-full rounded-md border shadow-sm"
-					rows="4"
+					class="bg-background focus:border-ring focus:ring-ring mt-1 block w-full rounded-lg border shadow-sm text-base p-4"
+					rows="6"
 					placeholder={m.enter_feedback()}
 				></textarea>
 			</label>
 
 			<label class="block">
-				<span class="text-sm font-medium">Medaille</span>
+				<span class="text-sm font-medium">{m.medal()}</span>
 				<select
 					bind:value={medal}
-					class="bg-background focus:border-ring focus:ring-ring mt-1 block w-full rounded-md border shadow-sm"
+					class="bg-background focus:border-ring focus:ring-ring mt-1 block w-full rounded-lg border shadow-sm text-base p-2"
 				>
-					<option value="NONE">Geen</option>
-					<option value="BRONZE">Brons</option>
-					<option value="SILVER">Zilver</option>
-					<option value="GOLD">Goud</option>
+					<option value="NONE">{m.medal_none()}</option>
+					<option value="BRONZE">{m.medal_bronze()}</option>
+					<option value="SILVER">{m.medal_silver()}</option>
+					<option value="GOLD">{m.medal_gold()}</option>
 				</select>
 			</label>
 

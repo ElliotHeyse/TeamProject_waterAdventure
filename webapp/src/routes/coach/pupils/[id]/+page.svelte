@@ -23,6 +23,7 @@
 	import medalGold from '$lib/img/medail-gold.svg';
 	import medalSilver from '$lib/img/medail-silver.svg';
 	import medalBronze from '$lib/img/medail-bronze.svg';
+	import { getGravatarUrl } from '$lib/utils/gravatar';
 
 	let { data } = $props<{ data: PageData }>();
 	let isEditing = $state(false);
@@ -41,8 +42,6 @@
 			day: 'numeric'
 		});
 	}
-
-	const defaultProfilePicture = 'https://api.dicebear.com/7.x/avataaars/svg';
 
 	function handleSubmit(event: SubmitEvent) {
 		const form = event.target as HTMLFormElement;
@@ -66,8 +65,8 @@
 				class="relative h-20 w-20 shrink-0 overflow-hidden rounded-full border-2 border-primary/10"
 			>
 				<img
-					src={data.pupil.profilePicture || `${defaultProfilePicture}?seed=${data.pupil.id}`}
-					alt={`${data.pupil.name}'s ${m.profile_picture()}`}
+					src={`/src/lib/img/profile-pictures/profile${data.pupil.profilePicture}.svg`}
+					alt={`${data.pupil.name}'s profile picture`}
 					class="h-full w-full object-cover"
 				/>
 			</div>
@@ -76,7 +75,7 @@
 					<h2 class="text-3xl font-bold tracking-tight">{data.pupil.name}'s {m.profile()}</h2>
 					<Dialog bind:open={isEditing}>
 						<DialogTrigger>
-							<Button variant="outline" size="sm">{m.edit_profile()}</Button>
+							<Button variant="secondary" size="sm">{m.edit_profile()}</Button>
 						</DialogTrigger>
 						<DialogContent>
 							<DialogHeader>
@@ -110,25 +109,6 @@
 								<div class="space-y-2">
 									<Label for="name">{m.name()}</Label>
 									<Input id="name" name="name" value={data.pupil.name} required />
-								</div>
-								<div class="space-y-2">
-									<Label for="level">{m.level()}</Label>
-									<Select.Root
-										type="single"
-										value={selectedLevel}
-										onValueChange={(value) => (selectedLevel = value)}
-									>
-										<Select.Trigger class="w-[180px]">
-											{selectedLevel.charAt(0) + selectedLevel.slice(1).toLowerCase()}
-										</Select.Trigger>
-										<Select.Content>
-											{#each levels as level}
-												<Select.Item value={level}>
-													{level.charAt(0) + level.slice(1).toLowerCase()}
-												</Select.Item>
-											{/each}
-										</Select.Content>
-									</Select.Root>
 								</div>
 								<div class="space-y-2">
 									<Label for="notes">{m.notes()}</Label>
@@ -169,12 +149,6 @@
 				<div>
 					<dt class="text-sm text-muted-foreground">{m.member_since()}</dt>
 					<dd class="text-sm font-medium">{formatDate(data.pupil.createdAt)}</dd>
-				</div>
-				<div>
-					<dt class="text-sm text-muted-foreground">{m.current_level()}</dt>
-					<dd class="text-sm font-medium">
-						{data.pupil.level.charAt(0) + data.pupil.level.slice(1).toLowerCase()}
-					</dd>
 				</div>
 				{#if data.pupil.notes}
 					<div>
@@ -240,7 +214,7 @@
 											{#each data.submissions.slice(0, 5) as submission}
 												<div class="flex items-center justify-between rounded-md bg-muted p-4">
 													<div class="space-y-1">
-														<p class="font-medium">{submission.lesson.title}</p>
+														<p class="font-medium">{submission.level.languageContents[0].title}</p>
 														<p class="text-sm text-muted-foreground">
 															{m.submitted()}
 															{formatDistance(new Date(submission.createdAt), new Date(), {
@@ -302,7 +276,9 @@
 							<div class="flex flex-col space-y-3">
 								<div class="flex items-start justify-between gap-4">
 									<div class="space-y-1">
-										<h4 class="font-medium leading-none">{submission.lesson.title}</h4>
+										<h4 class="font-medium leading-none">
+											{submission.level.languageContents[0].title}
+										</h4>
 										<p class="text-sm text-muted-foreground">
 											{m.submitted()}
 											{formatDistance(new Date(submission.createdAt), new Date(), {

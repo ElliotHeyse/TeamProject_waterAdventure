@@ -2,16 +2,16 @@ import { json } from '@sveltejs/kit';
 import { prisma } from '$lib/server/db';
 import type { RequestHandler } from './$types';
 import { error } from '@sveltejs/kit';
-import type { ThemeMode, Language, UserSettings } from '$lib/stores/userSettings';
+import type { Theme, Language, UserSettings } from '$lib/stores/userSettings';
 
 const defaultSettings: UserSettings = {
-    pushNotifications: true,
-    emailNotifications: true,
-    themeMode: 'LIGHT',
+    pushNotifications: false,
+    emailNotifications: false,
+    theme: 'LIGHT',
     language: 'en'
 };
 
-function isValidThemeMode(value: any): value is ThemeMode {
+function isValidTheme(value: any): value is Theme {
     return value === 'LIGHT' || value === 'DARK';
 }
 
@@ -28,8 +28,8 @@ function validateUpdateData(data: any): Partial<UserSettings> {
     if ('emailNotifications' in data) {
         validatedData.emailNotifications = Boolean(data.emailNotifications);
     }
-    if ('themeMode' in data && isValidThemeMode(data.themeMode)) {
-        validatedData.themeMode = data.themeMode;
+    if ('theme' in data && isValidTheme(data.theme)) {
+        validatedData.theme = data.theme;
     }
     if ('language' in data && isValidLanguage(data.language)) {
         validatedData.language = data.language;
