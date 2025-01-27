@@ -1,6 +1,6 @@
 # WaterAdventure - Early Water Confidence Platform
 
-[![Version](https://img.shields.io/badge/version-0.2.0-blue)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-1.0.0-blue)](CHANGELOG.md)
 [![Languages](https://img.shields.io/badge/Languages-EN%20NL%20FR-blue)](README.md)
 
 A specialized platform connecting coaches and parents to help toddlers (2-6 years) develop water confidence through playful activities. Focus on early water familiarization and overcoming initial water fears through structured guidance and parent involvement.
@@ -39,16 +39,62 @@ A specialized platform connecting coaches and parents to help toddlers (2-6 year
 
 - [Bun](https://bun.sh) (v1.0.0 or higher)
 - [PostgreSQL](https://www.postgresql.org/) (v16 or higher)
-- [Docker](https://www.docker.com/) (optional)
+- [Docker](https://www.docker.com/) (optional, for containerized deployment)
 
 ### Local Development Setup
 
-1. Clone the repository
-2. Install dependencies
-3. Configure environment variables
-4. Initialize the database
-5. Start development server
-*Update on release 1.0.0*
+1. Clone the repository and navigate to the webapp directory
+2. Install dependencies:
+   ```bash
+   bun install
+   ```
+
+3. Create the PostgreSQL database:
+   ```bash
+   # Connect to PostgreSQL
+   sudo -u postgres psql
+
+   # Create database and user
+   CREATE DATABASE wateradventure;
+   CREATE USER wateradventure WITH ENCRYPTED PASSWORD 'wateradventure';
+   GRANT ALL PRIVILEGES ON DATABASE wateradventure TO wateradventure;
+
+   # Connect to the database and grant additional privileges
+   \c wateradventure
+   GRANT ALL ON SCHEMA public TO wateradventure;
+   ```
+
+4. Set up environment variables:
+   ```bash
+   # Copy the environment file
+   cp .env.example .env
+   ```
+
+5. Initialize the database:
+   ```bash
+   bunx prisma db push
+   bunx prisma db seed
+   ```
+
+6. Start the development server:
+   ```bash
+   bun run dev
+   ```
+
+The application will be available at http://localhost:5173
+
+### Default Test Accounts
+
+After seeding, the following accounts are available for testing:
+
+**Coach**
+- Email: demo@demo.com
+- Password: demo
+
+**Parents**
+- Various test accounts available (see webapp documentation)
+- Password for all: password123
+- Also possible to register new accounts on the /login page
 
 ## Team & Partners
 
