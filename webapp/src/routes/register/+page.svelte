@@ -6,6 +6,13 @@
 	import { Button } from '$lib/components/coach/ui/button';
 	import * as m from '$lib/paraglide/messages.js';
 	import LanguageSelector from '$lib/components/app/layout/LanguageSelector.svelte';
+	import { isMobileView } from '$lib/stores/viewport';
+
+	// Branding
+	import mctLogoBlue from '$lib/img/brandkit/MCT-blue.svg';
+	import sbLogoBlue from '$lib/img/brandkit/SB-blue.svg';
+	import sicLogoBlue from '$lib/img/brandkit/SIC-blue.svg';
+	import zfLogoLight from '$lib/img/brandkit/zwemfed-lightmode.svg';
 	import { cn } from '$lib/utils';
 
 	interface Child {
@@ -332,4 +339,49 @@
 			</form>
 		</div>
 	</div>
+
+	<!-- Branding -->
+	<div class="relative w-full px-4 min-[375px]:mt-4 min-[425px]:mt-6 min-[768px]:mt-8">
+		<div class={cn('pt-8 px-4 flex justify-center', $isMobileView ? 'mb-6' : '-mb-6')}>
+			<div class="u-brandgrid">
+				<a href={'https://www.zwemfed.be'}>
+					<img src={zfLogoLight} alt={m.zwemfed_alt()} />
+				</a>
+				<a href={'https://www.sportinnovatiecampus.be'}>
+					<img src={sicLogoBlue} alt={m.sic_alt()} />
+				</a>
+				<a href={'https://www.howest.be/nl/opleidingen/bachelor/sport-en-bewegen'}>
+					<img src={sbLogoBlue} alt={m.sb_alt()} />
+				</a>
+				<a href={'https://mct.be'}>
+					<img src={mctLogoBlue} alt={m.mct_alt()} />
+				</a>
+			</div>
+		</div>
+	</div>
 </div>
+
+<style>
+	.u-brandgrid {
+		display: grid;
+		grid-template-columns: repeat(2, 1fr);
+		grid-template-rows: repeat (2, auto);
+		column-gap: 1.5rem;
+		row-gap: 2rem;
+		justify-items: center;
+		align-items: center;
+		max-width: min(100%, 288px);
+
+		@media (width > 576px) {
+			max-height: 80px;
+			grid-template-columns: repeat(4, 1fr);
+			column-gap: 2rem;
+			max-width: 800px;
+		}
+
+		@media (width > 768px) {
+			column-gap: 3.6rem;
+			max-width: 800px;
+		}
+	}
+</style>
