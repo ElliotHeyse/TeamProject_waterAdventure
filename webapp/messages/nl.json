@@ -220,5 +220,10 @@
     "phone_placeholder": "+31612345678",
     "no_account": "Nog geen account? Registreer hier",
     "has_account": "Heb je al een account? Log in",
-    "demo_credentials": "Demo gegevens: demo@demo.com / demo"
+    "demo_credentials": "Demo gegevens: demo@demo.com / demo",
+    "medal": "Medaille",
+    "medal_gold": "Goud",
+    "medal_silver": "Zilver",
+    "medal_bronze": "Brons",
+    "medal_none": "Geen Medaille"
 }

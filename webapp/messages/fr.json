@@ -227,5 +227,10 @@
     "phone_placeholder": "+33612345678",
     "no_account": "Pas encore de compte ? Inscrivez-vous ici",
     "has_account": "Vous avez déjà un compte ? Connectez-vous",
-    "demo_credentials": "Identifiants de démonstration : demo@demo.com / demo"
+    "demo_credentials": "Identifiants de démonstration : demo@demo.com / demo",
+    "medal": "Médaille",
+    "medal_gold": "Or",
+    "medal_silver": "Argent",
+    "medal_bronze": "Bronze",
+    "medal_none": "Pas de Médaille"
 }

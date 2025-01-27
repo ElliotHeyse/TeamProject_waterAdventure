@@ -96,15 +96,15 @@
 			</label>
 
 			<label class="block">
-				<span class="text-sm font-medium">Medaille</span>
+				<span class="text-sm font-medium">{m.medal()}</span>
 				<select
 					bind:value={medal}
 					class="bg-background focus:border-ring focus:ring-ring mt-1 block w-full rounded-lg border shadow-sm text-base p-2"
 				>
-					<option value="NONE">Geen</option>
-					<option value="BRONZE">Brons</option>
-					<option value="SILVER">Zilver</option>
-					<option value="GOLD">Goud</option>
+					<option value="NONE">{m.medal_none()}</option>
+					<option value="BRONZE">{m.medal_bronze()}</option>
+					<option value="SILVER">{m.medal_silver()}</option>
+					<option value="GOLD">{m.medal_gold()}</option>
 				</select>
 			</label>
 

@@ -227,5 +227,10 @@
     "phone_placeholder": "+1234567890",
     "no_account": "Don't have an account yet? Register here",
     "has_account": "Already have an account? Sign in",
-    "demo_credentials": "Demo credentials: demo@demo.com / demo"
+    "demo_credentials": "Demo credentials: demo@demo.com / demo",
+    "medal": "Medal",
+    "medal_gold": "Gold",
+    "medal_silver": "Silver",
+    "medal_bronze": "Bronze",
+    "medal_none": "No Medal"
 }
