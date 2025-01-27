@@ -21,7 +21,7 @@
 	import { CircleAlert, LogOut } from 'lucide-svelte';
 	import { isMobileView } from '$lib/stores/viewport';
 	import { cn } from '$lib/components/coach/utils';
-	import { m } from '$lib/messages';
+	import * as m from '$lib/paraglide/messages.js';
 
 	// Branding
 	import mctLogoBlue from '$lib/img/brandkit/MCT-blue.svg';

@@ -12,7 +12,7 @@
 	import { isSidebarOpen } from '$lib/stores/sidebar';
 	import type { Message } from '../types';
 	import { getGravatarUrl } from '$lib/utils/gravatar';
-	import { m } from '$lib/messages';
+	import * as m from '$lib/paraglide/messages.js';
 
 	const { data } = $props<{ data: PageData }>();
 	let messageInput = $state('');
