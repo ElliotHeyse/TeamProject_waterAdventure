@@ -232,5 +232,12 @@
     "medal_gold": "Gold",
     "medal_silver": "Silver",
     "medal_bronze": "Bronze",
-    "medal_none": "No Medal"
+    "medal_none": "No Medal",
+    "logout": "Logout",
+    "level_name": "Level Name",
+    "your_swimming_coach": "Your Swimming Coach",
+    "account_menu": "Account Menu",
+    "notifications_overview": "Notifications Overview",
+    "review_submissions_overview": "Review Submissions Overview",
+    "child_profile_levels": "Level Progress"
 }

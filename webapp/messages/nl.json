@@ -193,7 +193,7 @@
     "start": "START",
     "no_notifications": "Nog geen meldingen",
     "example_videos": "Voorbeeldvideo's",
-    "my_submission": "Mijn inzending",
+    "my_submission": "Mijn Inzending",
     "coach_feedback": "Feedback van je coach",
     "no_feedback_yet": "Nog geen feedback",
     "upload_video_medal_prompt": "Upload een video van de oefeningen en misschien verdien je wel een medaille!",
@@ -225,5 +225,12 @@
     "medal_gold": "Goud",
     "medal_silver": "Zilver",
     "medal_bronze": "Brons",
-    "medal_none": "Geen Medaille"
+    "medal_none": "Geen Medaille",
+    "logout": "Uitloggen",
+    "level_name": "Niveau Naam",
+    "your_swimming_coach": "Je Zwemcoach",
+    "account_menu": "Account Menu",
+    "notifications_overview": "Meldingen Overzicht",
+    "review_submissions_overview": "Inzendingen Overzicht",
+    "child_profile_levels": "Niveau Voortgang"
 }

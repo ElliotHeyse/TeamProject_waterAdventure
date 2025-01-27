@@ -12,6 +12,7 @@
 	import { isSidebarOpen } from '$lib/stores/sidebar';
 	import type { Message } from '../types';
 	import { getGravatarUrl } from '$lib/utils/gravatar';
+	import { m } from '$lib/messages';
 
 	const { data } = $props<{ data: PageData }>();
 	let messageInput = $state('');
@@ -151,7 +152,7 @@
 			/>
 			<div>
 				<p class="fz-ms2 font-semibold">{data.coach.user.name}</p>
-				<p class="fz-ms1 text-muted-foreground">Your Swimming Coach</p>
+				<p class="fz-ms1 text-muted-foreground">{m.your_swimming_coach()}</p>
 			</div>
 		</div>
 	</div>
@@ -217,7 +218,7 @@
 				<Input
 					type="text"
 					bind:value={messageInput}
-					placeholder="Type your message..."
+					placeholder={m.type_message()}
 					class={cn(
 						'text-[0.875rem] !ring-0 focus:border-blue-500 bg-background',
 						$userSettings.theme === 'DARK'
@@ -232,7 +233,7 @@
 							? 'focus:bg-blue-200 focus:text-blue-600'
 							: 'focus:bg-blue-900 focus:text-blue-400'
 					)}
-					type="submit">Send</Button
+					type="submit">{m.send()}</Button
 				>
 			</form>
 		</div>

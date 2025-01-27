@@ -9,7 +9,6 @@
 	import { onMount } from 'svelte';
 	import { toast } from 'svelte-sonner';
 	import type { PageData } from './$types';
-	import * as m from '$lib/paraglide/messages.js';
 	import { i18n } from '$lib/i18n';
 	import { goto } from '$app/navigation';
 	import type { AvailableLanguageTag } from '$lib/paraglide/runtime';
@@ -22,6 +21,7 @@
 	import { CircleAlert, LogOut } from 'lucide-svelte';
 	import { isMobileView } from '$lib/stores/viewport';
 	import { cn } from '$lib/components/coach/utils';
+	import { m } from '$lib/messages';
 
 	// Branding
 	import mctLogoBlue from '$lib/img/brandkit/MCT-blue.svg';
@@ -182,7 +182,7 @@
 				)}
 				variant="outline" onclick={handleLogout}>
 					<LogOut class="w-5 h-5 m-auto" />
-					<span class="max-[374px]:fz-ms1 hidden min-[320px]:block min-[375px]:fz-ms2 min-[425px]:text-[1rem]">Log out</span>
+					<span class="max-[374px]:fz-ms1 hidden min-[320px]:block min-[375px]:fz-ms2 min-[425px]:text-[1rem]">{m.logout()}</span>
 				</Button>
 			</div>
 			<Separator />
