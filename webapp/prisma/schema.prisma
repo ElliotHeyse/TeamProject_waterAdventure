@@ -178,14 +178,15 @@ model LevelProgress {
 }
 
 model Submission {
-  id        String           @id @default(cuid())
-  videoUrl  String
-  status    SubmissionStatus @default(PENDING)
-  feedback  String?
-  medal     Medal            @default(NONE)
-  createdAt DateTime         @default(now())
-  updatedAt DateTime         @updatedAt
-  isRead    Boolean          @default(false)
+  id                String           @id @default(cuid())
+  videoUrl          String
+  status            SubmissionStatus @default(PENDING)
+  feedback          String?
+  feedbackTimestamp DateTime?
+  medal             Medal            @default(NONE)
+  createdAt         DateTime         @default(now())
+  updatedAt         DateTime         @updatedAt
+  isRead            Boolean          @default(false)
 
   // Outgoing relations
   levelNumber Int

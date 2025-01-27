@@ -1316,7 +1316,8 @@ async function main() {
 							status: SubmissionStatus.REVIEWED,
 							feedback: "Wauw!",
 							medal: Medal.GOLD,
-							isRead: false
+							isRead: false,
+							feedbackTimestamp: '2025-02-20T12:00:00Z'
 						},
 						{
 							levelNumber: 2,
@@ -1324,7 +1325,8 @@ async function main() {
 							status: SubmissionStatus.REVIEWED,
 							feedback: "Wauw!",
 							medal: Medal.SILVER,
-							isRead: false
+							isRead: false,
+							feedbackTimestamp: '2025-02-20T12:00:00Z'
 						},
 						{
 							levelNumber: 3,
@@ -1332,7 +1334,8 @@ async function main() {
 							status: SubmissionStatus.REVIEWED,
 							feedback: "Wauw!",
 							medal: Medal.BRONZE,
-							isRead: false
+							isRead: false,
+							feedbackTimestamp: '2025-02-20T12:00:00Z'
 						},
 						{
 							levelNumber: 4,
@@ -1340,7 +1343,8 @@ async function main() {
 							status: SubmissionStatus.REVIEWED,
 							feedback: "Wauw!",
 							medal: Medal.NONE,
-							isRead: false
+							isRead: false,
+							feedbackTimestamp: '2025-02-20T12:00:00Z'
 						},
 						{
 							levelNumber: 5,
@@ -1348,7 +1352,8 @@ async function main() {
 							status: SubmissionStatus.REVIEWED,
 							feedback: "Wauw!",
 							medal: Medal.GOLD,
-							isRead: false
+							isRead: false,
+							feedbackTimestamp: '2025-02-20T12:00:00Z'
 						},
 						{
 							levelNumber: 6,
@@ -1356,7 +1361,8 @@ async function main() {
 							status: SubmissionStatus.PENDING,
 							feedback: null,
 							medal: Medal.NONE,
-							isRead: false
+							isRead: false,
+							feedbackTimestamp: null
 						}
 					]
 				},
@@ -1417,7 +1423,8 @@ async function main() {
 							status: SubmissionStatus.REVIEWED,
 							feedback: "Wauw!",
 							medal: Medal.GOLD,
-							isRead: false
+							isRead: false,
+							feedbackTimestamp: '2025-02-20T12:00:00Z'
 						},
 						{
 							levelNumber: 2,
@@ -1425,7 +1432,8 @@ async function main() {
 							status: SubmissionStatus.REVIEWED,
 							feedback: "Wauw!",
 							medal: Medal.SILVER,
-							isRead: false
+							isRead: false,
+							feedbackTimestamp: '2025-02-20T12:00:00Z'
 						},
 						{
 							levelNumber: 3,
@@ -1433,7 +1441,8 @@ async function main() {
 							status: SubmissionStatus.PENDING,
 							feedback: null,
 							medal: Medal.NONE,
-							isRead: false
+							isRead: false,
+							feedbackTimestamp: null
 						}
 					]
 				}
@@ -1570,28 +1579,32 @@ async function main() {
 							videoUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
 							status: SubmissionStatus.REVIEWED,
 							feedback: "Wauw!",
-							medal: Medal.GOLD
+							medal: Medal.GOLD,
+							feedbackTimestamp: '2025-02-20T12:00:00Z'
 						},
 						{
 							levelNumber: 2,
 							videoUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
 							status: SubmissionStatus.REVIEWED,
 							feedback: "Wauw!",
-							medal: Medal.SILVER
+							medal: Medal.SILVER,
+							feedbackTimestamp: '2025-02-20T12:00:00Z'
 						},
 						{
 							levelNumber: 3,
 							videoUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
 							status: SubmissionStatus.REVIEWED,
 							feedback: "Wauw!",
-							medal: Medal.GOLD
+							medal: Medal.GOLD,
+							feedbackTimestamp: '2025-02-20T12:00:00Z'
 						},
 						{
 							levelNumber: 4,
 							videoUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
 							status: SubmissionStatus.PENDING,
 							feedback: null,
-							medal: Medal.NONE
+							medal: Medal.NONE,
+							feedbackTimestamp:null
 						}
 					]
 				}
@@ -1732,28 +1745,32 @@ async function main() {
 								videoUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
 								status: SubmissionStatus.REVIEWED,
 								feedback: "Wauw!",
-								medal: Medal.GOLD
+								medal: Medal.GOLD,
+								feedbackTimestamp: '2025-02-20T12:00:00Z'
 							},
 							{
 								levelNumber: 2,
 								videoUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
 								status: SubmissionStatus.REVIEWED,
 								feedback: "Wauw!",
-								medal: Medal.SILVER
+								medal: Medal.SILVER,
+								feedbackTimestamp: '2025-02-20T12:00:00Z'
 							},
 							{
 								levelNumber: 3,
 								videoUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
 								status: SubmissionStatus.REVIEWED,
 								feedback: "Wauw!",
-								medal: Medal.GOLD
+								medal: Medal.GOLD,
+								feedbackTimestamp: '2025-02-20T12:00:00Z'
 							},
 							{
 								levelNumber: 4,
 								videoUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
 								status: SubmissionStatus.PENDING,
 								feedback: null,
-								medal: Medal.NONE
+								medal: Medal.NONE,
+								feedbackTimestamp: null
 							}
 						]
 					},
@@ -1813,14 +1830,16 @@ async function main() {
 								videoUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
 								status: SubmissionStatus.REVIEWED,
 								feedback: "Wauw!",
-								medal: Medal.GOLD
+								medal: Medal.GOLD,
+								feedbackTimestamp: '2025-02-20T12:00:00Z'
 							},
 							{
 								levelNumber: 2,
 								videoUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
 								status: SubmissionStatus.PENDING,
 								feedback: null,
-								medal: Medal.NONE
+								medal: Medal.NONE,
+								feedbackTimestamp: null
 							}
 						]
 					}
@@ -1899,7 +1918,7 @@ async function main() {
 						levelNumber: 3,
 					}
 				]
-			}
+		}
 	]
 
 	// CREATE parent users with linked: parent, userSettings, notifications and pupils with linked: levelProgress and submissions
@@ -1944,7 +1963,8 @@ async function main() {
 											status: submission.status,
 											feedback: submission.feedback,
 											medal: submission.medal,
-											isRead: submission.isRead
+											isRead: submission.isRead,
+											feedbackTimestamp: submission.feedbackTimestamp ? new Date(submission.feedbackTimestamp) : null
 										}))
 									}
 								}))

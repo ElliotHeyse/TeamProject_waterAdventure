@@ -30,43 +30,44 @@ export const POST: RequestHandler = async ({ request, params }) => {
 			data: {
 				status: 'REVIEWED',
 				feedback,
-				medal
+				medal,
+				feedbackTimestamp: new Date()
 			}
 		});
 
 		// If a medal is assigned, update the level progress
-		if (medal !== 'NONE') {
-			await tx.levelProgress.upsert({
-				where: {
-					pupilId_levelNumber: {
-						pupilId: submission.pupilId,
-						levelNumber: submission.levelNumber
-					}
-				},
-				create: {
-					pupilId: submission.pupilId,
-					levelNumber: submission.levelNumber,
-					firstPartCompleted: true,
-					fullyCompleted: true,
-					completedAt: new Date()
-				},
-				update: {
-					firstPartCompleted: true,
-					fullyCompleted: true,
-					completedAt: new Date()
-				}
-			});
+		// if (medal !== 'NONE') {
+		// 	await tx.levelProgress.upsert({
+		// 		where: {
+		// 			pupilId_levelNumber: {
+		// 				pupilId: submission.pupilId,
+		// 				levelNumber: submission.levelNumber
+		// 			}
+		// 		},
+		// 		create: {
+		// 			pupilId: submission.pupilId,
+		// 			levelNumber: submission.levelNumber,
+		// 			firstPartCompleted: true,
+		// 			fullyCompleted: true,
+		// 			completedAt: new Date()
+		// 		},
+		// 		update: {
+		// 			firstPartCompleted: true,
+		// 			fullyCompleted: true,
+		// 			completedAt: new Date()
+		// 		}
+		// 	});
 
-			// Update pupil's progress if this is their highest level completed
-			await tx.pupil.update({
-				where: { id: submission.pupilId },
-				data: {
-					progress: {
-						increment: 1
-					}
-				}
-			});
-		}
+		// 	// Update pupil's progress if this is their highest level completed
+		// 	await tx.pupil.update({
+		// 		where: { id: submission.pupilId },
+		// 		data: {
+		// 			progress: {
+		// 				increment: 1
+		// 			}
+		// 		}
+		// 	});
+		// }
 
 		return updated;
 	});

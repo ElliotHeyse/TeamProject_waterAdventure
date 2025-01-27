@@ -10,6 +10,7 @@ export interface Submission {
     videoUrl: string,
     status: string,
     feedback: string,
+    feedbackTimestamp: Date,
     medal: string,
     updatedAt: Date,
     levelNumber: number,
