@@ -6,11 +6,10 @@
 	import { browser } from '$app/environment';
 	import { goto } from '$app/navigation';
 	import type { Language } from '$lib/stores/userSettings';
-	import { page } from '$app/stores';
 
 	import '../lib/styles/app.css';
 
-	let { children, data } = $props();
+	let { children, data }: { children: any; data: any } = $props();
 
 	// Initialize settings from server data
 	$effect(() => {
@@ -29,7 +28,7 @@
 			if (currentLang !== settings.language && settings.language !== 'en') {
 				const canonicalPath = i18n.strategy.getCanonicalPath(currentPath, currentLang as Language);
 				const newPath = i18n.strategy.getLocalisedPath(canonicalPath, settings.language);
-				goto(newPath, { 
+				goto(newPath, {
 					invalidateAll: true,
 					state: { preservedTheme: settings.theme }
 				});

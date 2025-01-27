@@ -83,7 +83,7 @@
 
 			const currentPath = window.location.pathname;
 			const currentLang = i18n.strategy.getLanguageFromLocalisedPath(currentPath) || 'en';
-			const canonicalPath = i18n.strategy.getCanonicalPath(currentPath, currentLang as Language);
+			const canonicalPath = i18n.strategy.getCanonicalPath(currentPath, currentLang);
 
 			// Navigate with preserved theme
 			if (newLang === 'en') {
@@ -105,9 +105,8 @@
 	}
 
 	async function handleNotificationChange(type: 'push' | 'email', enabled: boolean) {
-		const update = type === 'push'
-			? { pushNotifications: enabled }
-			: { emailNotifications: enabled };
+		const update =
+			type === 'push' ? { pushNotifications: enabled } : { emailNotifications: enabled };
 
 		const success = await userSettings.updateSettings(update);
 		if (success) {
@@ -316,16 +315,16 @@
 	<!-- Branding -->
 	<div class="pt-8 px-4 flex justify-center">
 		<div class="u-brandgrid">
-			<a href={"https://www.zwemfed.be"}>
+			<a href={'https://www.zwemfed.be'}>
 				<img src={isDarkMode ? zfLogoDark : zfLogoLight} alt={m.zwemfed_alt()} />
 			</a>
-			<a href={"https://www.sportinnovatiecampus.be"}>
+			<a href={'https://www.sportinnovatiecampus.be'}>
 				<img src={sicLogoBlue} alt={m.sic_alt()} />
 			</a>
-			<a href={"https://www.howest.be/nl/opleidingen/bachelor/sport-en-bewegen"}>
+			<a href={'https://www.howest.be/nl/opleidingen/bachelor/sport-en-bewegen'}>
 				<img src={sbLogoBlue} alt={m.sb_alt()} />
 			</a>
-			<a href={"https://mct.be"}>
+			<a href={'https://mct.be'}>
 				<img src={mctLogoBlue} alt={m.mct_alt()} />
 			</a>
 		</div>
@@ -333,24 +332,24 @@
 </div>
 
 <style>
-.u-brandgrid {
-	display: grid;
-	grid-template-columns: repeat(2, 1fr);
-	grid-template-rows: repeat (2, auto);
-	column-gap: 1.5rem;
-	row-gap: 2rem;
-	justify-items: center;
-	align-items: center;
-	max-width: 800px;
+	.u-brandgrid {
+		display: grid;
+		grid-template-columns: repeat(2, 1fr);
+		grid-template-rows: repeat (2, auto);
+		column-gap: 1.5rem;
+		row-gap: 2rem;
+		justify-items: center;
+		align-items: center;
+		max-width: 800px;
 
-	@media (width > 425px) {
-		max-height: 80px;
-		grid-template-columns: repeat(4, 1fr);
-		column-gap: 2rem;
-	}
+		@media (width > 425px) {
+			max-height: 80px;
+			grid-template-columns: repeat(4, 1fr);
+			column-gap: 2rem;
+		}
 
-	@media (width > 768px) {
-		column-gap: 3.6rem;
+		@media (width > 768px) {
+			column-gap: 3.6rem;
+		}
 	}
-}
 </style>
