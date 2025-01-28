@@ -1,5 +1,5 @@
 import express from 'express';
-import { handler } from '../build/handler.js'
+// import { handler } from '../build/handler.js'
 import { Server } from 'socket.io';
 import { createServer } from 'http';
 import { prisma } from '../src/lib/server/db.js';
@@ -115,7 +115,7 @@ async function main() {
         });
     });
 
-    app.use(handler);
+    // app.use(handler);
 
     const PORT = 3000;
     server.listen(PORT, () => {

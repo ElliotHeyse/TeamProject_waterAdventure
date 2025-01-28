@@ -1,0 +1,12 @@
+{
+    "apps": [
+        {
+            "name": "Water Adventure",
+            "script": "bun start"
+        },
+        {
+            "name": "Water Adventure Websockets",
+            "script": "bun start:ws"
+        }
+    ]
+}
