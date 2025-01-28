@@ -32,6 +32,8 @@ async function main() {
         console.log('Client connected');
 
         socket.on('message', async (message) => {
+            console.log('Message received:', message);
+
             try {
                 const savedMessage = await prisma.message.create({
                     data: {
@@ -101,6 +103,8 @@ async function main() {
         });
 
         socket.on('join_chat', ({ coachId, parentId }) => {
+            console.log('Join chat received:', { coachId, parentId });
+
             if (!coachId || !parentId) return;
 
             // Create a unique room name for this conversation
