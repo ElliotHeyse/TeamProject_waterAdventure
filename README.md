@@ -1,6 +1,6 @@
 # WaterAdventure - Early Water Confidence Platform
 
-[![Version](https://img.shields.io/badge/version-1.0.0-blue)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-1.0.1-blue)](CHANGELOG.md)
 [![Languages](https://img.shields.io/badge/Languages-EN%20NL%20FR-blue)](README.md)
 
 A specialized platform connecting coaches and parents to help toddlers (2-6 years) develop water confidence through playful activities. Focus on early water familiarization and overcoming initial water fears through structured guidance and parent involvement.
@@ -78,7 +78,8 @@ A specialized platform connecting coaches and parents to help toddlers (2-6 year
 
 6. Start the development server:
    ```bash
-   bun run dev
+   bun start:ws //for the websocket
+   bun start    //for the app
    ```
 
 The application will be available at http://localhost:5173
