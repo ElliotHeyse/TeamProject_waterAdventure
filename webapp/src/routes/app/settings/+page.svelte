@@ -105,9 +105,8 @@
 	}
 
 	async function handleNotificationChange(type: 'push' | 'email', enabled: boolean) {
-		const update = type === 'push'
-			? { pushNotifications: enabled }
-			: { emailNotifications: enabled };
+		const update =
+			type === 'push' ? { pushNotifications: enabled } : { emailNotifications: enabled };
 
 		const success = await userSettings.updateSettings(update);
 		if (success) {
@@ -161,7 +160,7 @@
 		await goto('/logout');
 	}
 
-	$isSidebarOpen = (false);
+	$isSidebarOpen = false;
 </script>
 
 <div class="px-4 pb-14">
@@ -170,23 +169,40 @@
 
 		<!-- Profile Settings -->
 		<div class="mt-4 bg-card text-card-foreground rounded-lg border shadow-sm">
-			<div class={cn("flex justify-between items-start gap-2 p-4",
-				$userSettings.theme === 'DARK' ? "bg-gray-500 bg-opacity-10" : "bg-gray-50"
-			)}>
+			<div
+				class={cn(
+					'flex justify-between items-start gap-2 p-4',
+					$userSettings.theme === 'DARK' ? 'bg-gray-500 bg-opacity-10' : 'bg-gray-50'
+				)}
+			>
 				<div class="flex flex-col gap-1">
 					<h3 class="fz-ms4 font-semibold leading-none">{m.profile_settings()}</h3>
 					<p class="fz-ms2 text-muted-foreground">{m.manage_personal_info()}</p>
 				</div>
-				<Button class={cn("flex items-center p-3 h-auto !ring-0 focus:border-blue-500 flex-shrink-0 focus:text-blue-600",
-					$userSettings.theme === 'DARK' ? "hover:bg-gray-500 hover:bg-opacity-10 focus:bg-gray-500 focus:bg-opacity-10" : "hover:bg-blue-50 focus:bg-blue-50"
-				)}
-				variant="outline" onclick={handleLogout}>
+				<Button
+					class={cn(
+						'flex items-center p-3 h-auto !ring-0 focus:border-blue-500 flex-shrink-0 focus:text-blue-600',
+						$userSettings.theme === 'DARK'
+							? 'hover:bg-gray-500 hover:bg-opacity-10 focus:bg-gray-500 focus:bg-opacity-10'
+							: 'hover:bg-blue-50 focus:bg-blue-50'
+					)}
+					variant="outline"
+					onclick={handleLogout}
+				>
 					<LogOut class="w-5 h-5 m-auto" />
-					<span class="max-[374px]:fz-ms1 hidden min-[320px]:block min-[375px]:fz-ms2 min-[425px]:text-[1rem]">{m.logout()}</span>
+					<span
+						class="max-[374px]:fz-ms1 hidden min-[320px]:block min-[375px]:fz-ms2 min-[425px]:text-[1rem]"
+						>{m.logout()}</span
+					>
 				</Button>
 			</div>
 			<Separator />
-			<form method="POST" action="?/updateProfile" class="p-4 flex flex-col gap-4" onsubmit={handleSubmit}>
+			<form
+				method="POST"
+				action="?/updateProfile"
+				class="p-4 flex flex-col gap-4"
+				onsubmit={handleSubmit}
+			>
 				{#if formError}
 					<div class="alert-wrapper">
 						<Alert variant="destructive">
@@ -199,21 +215,42 @@
 
 				<div class="space-y-1">
 					<Label class="text-[0.75rem] min-[425px]:text-[0.875rem]" for="name">{m.name()}</Label>
-					<Input class={cn("text-[0.875rem] !ring-0 ",
-						$userSettings.theme === 'DARK' ? "hover:bg-gray-500 bg-opacity-5" : "hover:bg-gray-50 focus:border-blue-500 focus:bg-blue-50"
-					)} id="name" value={data.parent.user.name} disabled />
+					<Input
+						class={cn(
+							'text-[0.875rem] !ring-0 ',
+							$userSettings.theme === 'DARK'
+								? 'hover:bg-gray-500 bg-opacity-5'
+								: 'hover:bg-gray-50 focus:border-blue-500 focus:bg-blue-50'
+						)}
+						id="name"
+						value={data.parent.user.name}
+						disabled
+					/>
 				</div>
 				<div class="space-y-1">
 					<Label class="text-[0.75rem] min-[425px]:text-[0.875rem]" for="email">{m.email()}</Label>
-					<Input class={cn("text-[0.875rem] !ring-0 ",
-						$userSettings.theme === 'DARK' ? "hover:bg-gray-500 bg-opacity-5" : "hover:bg-gray-50 focus:border-blue-500 focus:bg-blue-50"
-					)} id="email" type="email" value={data.parent.user.email} disabled />
+					<Input
+						class={cn(
+							'text-[0.875rem] !ring-0 ',
+							$userSettings.theme === 'DARK'
+								? 'hover:bg-gray-500 bg-opacity-5'
+								: 'hover:bg-gray-50 focus:border-blue-500 focus:bg-blue-50'
+						)}
+						id="email"
+						type="email"
+						value={data.parent.user.email}
+						disabled
+					/>
 				</div>
 				<div class="space-y-1">
 					<Label class="text-[0.75rem] min-[425px]:text-[0.875rem]" for="phone">{m.phone()}</Label>
-					<Input class={cn("text-[0.875rem] !ring-0 focus:border-blue-500",
-						$userSettings.theme === 'DARK' ? "hover:bg-blue-950 hover:bg-opacity-50 focus:bg-blue-950" : "hover:bg-blue-50 focus:bg-blue-50"
-					)}
+					<Input
+						class={cn(
+							'text-[0.875rem] !ring-0 focus:border-blue-500',
+							$userSettings.theme === 'DARK'
+								? 'hover:bg-blue-950 hover:bg-opacity-50 focus:bg-blue-950'
+								: 'hover:bg-blue-50 focus:bg-blue-50'
+						)}
 						type="tel"
 						id="phone"
 						name="phone"
@@ -222,19 +259,27 @@
 					/>
 				</div>
 				<div class="flex justify-end">
-					<Button class={cn("text-[0.875rem] !ring-0 border-2 border-opacity-0 focus:drop-shadow-lg text-blue-50",
-						$userSettings.theme === 'DARK' ? "bg-blue-800 hover:bg-blue-700 focus:bg-blue-950 focus:border-opacity-100 focus:border-blue-500 focus:text-blue-500" : "bg-blue-500 hover:bg-blue-600 focus:bg-blue-200 focus:border-opacity-100 focus:border-blue-500 focus:text-blue-500"
-					)}
-					type="submit">{m.save_profile()}</Button>
+					<Button
+						class={cn(
+							'text-[0.875rem] !ring-0 border-2 border-opacity-0 focus:drop-shadow-lg text-blue-50',
+							$userSettings.theme === 'DARK'
+								? 'bg-blue-800 hover:bg-blue-700 focus:bg-blue-950 focus:border-opacity-100 focus:border-blue-500 focus:text-blue-500'
+								: 'bg-blue-500 hover:bg-blue-600 focus:bg-blue-200 focus:border-opacity-100 focus:border-blue-500 focus:text-blue-500'
+						)}
+						type="submit">{m.save_profile()}</Button
+					>
 				</div>
 			</form>
 		</div>
 
 		<!-- Appearance Settings -->
 		<div class="mt-4 bg-card text-card-foreground rounded-lg border shadow-sm">
-			<div class={cn("flex flex-col gap-1 p-4 bg-gray-50",
-				$userSettings.theme === 'DARK' ? "bg-gray-500 bg-opacity-10" : "bg-gray-50"
-			)}>
+			<div
+				class={cn(
+					'flex flex-col gap-1 p-4 bg-gray-50',
+					$userSettings.theme === 'DARK' ? 'bg-gray-500 bg-opacity-10' : 'bg-gray-50'
+				)}
+			>
 				<h3 class="fz-ms4 font-semibold leading-none">{m.appearance()}</h3>
 				<!-- <p class="fz-ms2 text-muted-foreground">{m.customize_appearance()}</p> -->
 			</div>
@@ -247,10 +292,17 @@
 							{m.dark_mode_description()}
 						</div>
 					</div>
-					<Button class={cn("!ring-0 focus:border-blue-500 flex-shrink-0 focus:text-blue-600",
-						$userSettings.theme === 'DARK' ? "hover:bg-gray-500 hover:bg-opacity-10 focus:bg-gray-500 focus:bg-opacity-10" : "hover:bg-blue-50 focus:bg-blue-50"
-					)}
-					variant="outline" size="icon" onclick={toggleDarkMode}>
+					<Button
+						class={cn(
+							'!ring-0 focus:border-blue-500 flex-shrink-0 focus:text-blue-600',
+							$userSettings.theme === 'DARK'
+								? 'hover:bg-gray-500 hover:bg-opacity-10 focus:bg-gray-500 focus:bg-opacity-10'
+								: 'hover:bg-blue-50 focus:bg-blue-50'
+						)}
+						variant="outline"
+						size="icon"
+						onclick={toggleDarkMode}
+					>
 						<Icon src={currentTheme === 'DARK' ? Sun : Moon} class="h-5 w-5" />
 					</Button>
 				</div>
@@ -259,9 +311,12 @@
 
 		<!-- Notification Settings -->
 		<div class="mt-4 bg-card text-card-foreground rounded-lg border shadow-sm">
-			<div class={cn("flex flex-col gap-1 p-4 bg-gray-50",
-				$userSettings.theme === 'DARK' ? "bg-gray-500 bg-opacity-10" : "bg-gray-50"
-			)}>
+			<div
+				class={cn(
+					'flex flex-col gap-1 p-4 bg-gray-50',
+					$userSettings.theme === 'DARK' ? 'bg-gray-500 bg-opacity-10' : 'bg-gray-50'
+				)}
+			>
 				<h3 class="fz-ms4 font-semibold leading-none">{m.notifications()}</h3>
 				<!-- <p class="fz-ms2 text-muted-foreground">{m.manage_notifications()}</p> -->
 			</div>
@@ -305,57 +360,63 @@
 
 		<!-- Account Settings -->
 		<div class="mt-4 bg-card text-card-foreground rounded-lg border shadow-sm">
-			<div class={cn("flex flex-col gap-1 p-4 bg-gray-50",
-				$userSettings.theme === 'DARK' ? "bg-gray-500 bg-opacity-10" : "bg-gray-50"
-			)}>
+			<div
+				class={cn(
+					'flex flex-col gap-1 p-4 bg-gray-50',
+					$userSettings.theme === 'DARK' ? 'bg-gray-500 bg-opacity-10' : 'bg-gray-50'
+				)}
+			>
 				<h3 class="fz-ms4 font-semibold leading-none">{m.account_settings()}</h3>
 				<!-- <p class="fz-ms2 text-muted-foreground">{m.manage_account()}</p> -->
 			</div>
 			<Separator />
 			<div class="p-4 flex flex-col gap-4">
-					<Label class="text-[0.75rem] min-[425px]:text-[0.875rem]">{m.language()}</Label>
-					<Select.Root
-						type="single"
-						value={$userSettings.language}
-						onValueChange={(value: string) => handleLanguageChange(value as AvailableLanguageTag)}
+				<Label class="text-[0.75rem] min-[425px]:text-[0.875rem]">{m.language()}</Label>
+				<Select.Root
+					type="single"
+					value={$userSettings.language}
+					onValueChange={(value: string) => handleLanguageChange(value as AvailableLanguageTag)}
+				>
+					<Select.Trigger
+						class={cn(
+							'w-[180px] !ring-0focus:border-blue-500 focus:text-blue-500',
+							$userSettings.theme === 'DARK'
+								? 'hover:bg-gray-500 hover:bg-opacity-10 focus:bg-gray-500 focus:bg-opacity-10'
+								: 'hover:bg-blue-50 focus:bg-blue-50'
+						)}
 					>
-						<Select.Trigger class={cn("w-[180px] !ring-0focus:border-blue-500 focus:text-blue-500",
-							$userSettings.theme === 'DARK' ? "hover:bg-gray-500 hover:bg-opacity-10 focus:bg-gray-500 focus:bg-opacity-10" : "hover:bg-blue-50 focus:bg-blue-50"
-						)}>
-							<div class="flex items-center">
-								{#if $userSettings.language === 'en'}
-									<span class="fz-ms2">English</span>
-								{:else if $userSettings.language === 'nl'}
-									<span class="fz-ms2">Nederlands</span>
-								{:else}
-									<span class="fz-ms2">Français</span>
-								{/if}
-							</div>
-						</Select.Trigger>
-						<Select.Content>
-							<Select.Item class="text-[0.875rem]" value="en">English</Select.Item>
-							<Select.Item class="text-[0.875rem]" value="nl">Nederlands</Select.Item>
-							<Select.Item class="text-[0.875rem]" value="fr">Français</Select.Item>
-						</Select.Content>
-					</Select.Root>
+						<div class="flex items-center">
+							{#if $userSettings.language === 'en'}
+								<span class="fz-ms2">English</span>
+							{:else if $userSettings.language === 'nl'}
+								<span class="fz-ms2">Nederlands</span>
+							{:else}
+								<span class="fz-ms2">Français</span>
+							{/if}
+						</div>
+					</Select.Trigger>
+					<Select.Content>
+						<Select.Item class="text-[0.875rem]" value="en">English</Select.Item>
+						<Select.Item class="text-[0.875rem]" value="nl">Nederlands</Select.Item>
+						<Select.Item class="text-[0.875rem]" value="fr">Français</Select.Item>
+					</Select.Content>
+				</Select.Root>
 			</div>
 		</div>
 
 		<!-- Branding -->
-		<div class={cn("pt-8 px-4 flex justify-center",
-			$isMobileView ? "mb-6" : "-mb-6"
-		)}>
+		<div class={cn('pt-8 px-4 flex justify-center', $isMobileView ? 'mb-6' : '-mb-6')}>
 			<div class="u-brandgrid">
-				<a href={"https://www.zwemfed.be"}>
+				<a href={'https://www.zwemfed.be'}>
 					<img src={isDarkMode ? zfLogoDark : zfLogoLight} alt={m.zwemfed_alt()} />
 				</a>
-				<a href={"https://www.sportinnovatiecampus.be"}>
+				<a href={'https://www.sportinnovatiecampus.be'}>
 					<img src={sicLogoBlue} alt={m.sic_alt()} />
 				</a>
-				<a href={"https://www.howest.be/nl/opleidingen/bachelor/sport-en-bewegen"}>
+				<a href={'https://www.howest.be/nl/opleidingen/bachelor/sport-en-bewegen'}>
 					<img src={sbLogoBlue} alt={m.sb_alt()} />
 				</a>
-				<a href={"https://mct.be"}>
+				<a href={'https://mct.be'}>
 					<img src={mctLogoBlue} alt={m.mct_alt()} />
 				</a>
 			</div>

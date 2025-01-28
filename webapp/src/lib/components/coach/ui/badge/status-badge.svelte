@@ -3,6 +3,7 @@
 	import { cn } from '$lib/utils';
 	import { Badge } from '$lib/components/coach/ui/badge';
 	import { tv } from 'tailwind-variants';
+	import * as m from '$lib/paraglide/messages.js';
 
 	let { status = $bindable('PENDING') }: { status: string } = $props();
 
@@ -47,5 +48,11 @@
 		src={status === 'PENDING' ? Clock : CheckCircle}
 		class={cn('h-3.5 w-3.5', iconVariants({ status: status as 'PENDING' | 'REVIEWED' }))}
 	/>
-	{formattedStatus}
+	{#if status === 'PENDING'}
+		{m.pending()}
+	{:else if status === 'REVIEWED'}
+		{m.reviewed()}
+	{:else}
+		{formattedStatus}
+	{/if}
 </Badge>

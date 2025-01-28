@@ -9,9 +9,8 @@
 	import { isSidebarOpen } from '$lib/stores/sidebar';
 	import { selectedChildIdStore } from '$lib/stores/child.store';
 	import * as m from '$lib/paraglide/messages.js';
-	import type { ParentUser, Level, Pupil, Submission} from '../types';
+	import type { ParentUser, Level, Pupil, Submission } from '../types';
 	import { cn } from '$lib/components/coach/utils';
-
 
 	interface GameLevel {
 		id: number;
@@ -21,14 +20,15 @@
 
 	const { data } = $props<{
 		data: {
-			parentUser: ParentUser,
-			levels: Level[]
-		}
+			parentUser: ParentUser;
+			levels: Level[];
+		};
 	}>();
 
 	// map incoming data to existing model
 	const selectedChild = $derived(
-		data.parentUser.parent.pupils.find((pupil: Pupil) => pupil.id === $selectedChildIdStore) || data.parentUser.parent.pupils[0]
+		data.parentUser.parent.pupils.find((pupil: Pupil) => pupil.id === $selectedChildIdStore) ||
+			data.parentUser.parent.pupils[0]
 	);
 
 	const gameLevels = $derived(() => {
@@ -40,23 +40,25 @@
 			let currentMedal: 'gold' | 'silver' | 'bronze' | null = null;
 			if (currentLevel <= currentProgress) {
 				currentStatus = 'completed';
-				const submission = selectedChild.submissions.find((sub: Submission) => sub.levelNumber === currentLevel);
+				const submission = selectedChild.submissions.find(
+					(sub: Submission) => sub.levelNumber === currentLevel
+				);
 				if (submission) {
-					switch (submission.medal){
-						case "GOLD":
+					switch (submission.medal) {
+						case 'GOLD':
 							currentMedal = 'gold';
 							break;
-						case "SILVER":
+						case 'SILVER':
 							currentMedal = 'silver';
 							break;
-						case "BRONZE":
+						case 'BRONZE':
 							currentMedal = 'bronze';
 							break;
 						default:
 							break;
 					}
 				}
-			} else if (currentLevel === currentProgress+1) {
+			} else if (currentLevel === currentProgress + 1) {
 				currentStatus = 'current';
 			} else {
 				currentStatus = 'locked';
@@ -132,17 +134,19 @@
 			return;
 		}
 
-		goto(`/app/levels/${level.id}`);
+		goto(`levels/${level.id}`);
 	}
 
-	$isSidebarOpen = (false);
+	$isSidebarOpen = false;
 </script>
 
 <div class="mb-[-3.5rem]">
 	<div class="min-h-screen bg-background">
 		<!-- <h1 class="pt-4 pb-6 text-4xl font-bold text-center text-foreground">Swimming Levels</h1> -->
 
-		<div class="relative flex flex-col items-center justify-center w-full overflow-hidden mt-[-2.8vw]">
+		<div
+			class="relative flex flex-col items-center justify-center w-full overflow-hidden mt-[-2.8vw]"
+		>
 			<img src={g10} alt={m.level_background_alt()} class="object-contain w-full h-full" />
 			<div class="absolute inset-0 w-full h-full">
 				{#each pageLevels as level}
@@ -186,20 +190,32 @@
 						<div
 							class="absolute z-30 transition-opacity duration-300 animate-in fade-in-0 flex flex-grow-1"
 							style={$isMobileView
-								? cn("left: 50%; transform: translateX(-50%);", level.id === 7 ? `top: ${levelPositions[1].y + 3.5}%;` : `top: ${level.y + 3.5}%;`)
+								? cn(
+										'left: 50%; transform: translateX(-50%);',
+										level.id === 7
+											? `top: ${levelPositions[1].y + 3.5}%;`
+											: `top: ${level.y + 3.5}%;`
+									)
 								: `left: 50%; transform: translateX(-50%); top: ${level.y + 3.5}%;`}
 						>
-							<div class={cn("p-1 flex flex-col flex-grow-1 gap-1 border rounded-lg shadow-lg bg-background/80 text-foreground",
-								$isMobileView ? "" : "items-center gap-2"
-							)}>
+							<div
+								class={cn(
+									'p-1 flex flex-col flex-grow-1 gap-1 border rounded-lg shadow-lg bg-background/80 text-foreground',
+									$isMobileView ? '' : 'items-center gap-2'
+								)}
+							>
 								<div class="flex items-center gap-2 font-medium text-primary">
 									<CircleAlert class="w-4 h-4" />
 									<span class="fz-ms2">Level Locked</span>
 								</div>
-								<p class={cn("fz-ms1 w-[min(66vw,16rem)] flex-grow-1 flex-shrink-0 text-muted-foreground",
-									$isMobileView ? "" : "fz-ms2 w-[80vw] text-center"
-								)}>
-									{alertMessage}</p>
+								<p
+									class={cn(
+										'fz-ms1 w-[min(66vw,16rem)] flex-grow-1 flex-shrink-0 text-muted-foreground',
+										$isMobileView ? '' : 'fz-ms2 w-[80vw] text-center'
+									)}
+								>
+									{alertMessage}
+								</p>
 							</div>
 						</div>
 					{/if}

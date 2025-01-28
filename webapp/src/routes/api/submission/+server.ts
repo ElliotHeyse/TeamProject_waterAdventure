@@ -5,7 +5,8 @@ import { writeFile, mkdir } from 'fs/promises';
 import { join } from 'path';
 
 // Create uploads directory if it doesn't exist
-const UPLOAD_DIR = 'static/uploads/videos';
+// const UPLOAD_DIR = 'static/uploads/videos';
+const UPLOAD_DIR = 'build/client/uploads/videos';
 await mkdir(UPLOAD_DIR, { recursive: true });
 
 export const POST: RequestHandler = async ({ request, locals }) => {

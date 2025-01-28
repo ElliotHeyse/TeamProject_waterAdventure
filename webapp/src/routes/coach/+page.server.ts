@@ -133,12 +133,12 @@ export const load = (async ({ locals }) => {
 				return [
 					...submissions.map((s) => ({
 						type: 'submission' as const,
-						text: `New video submission from ${s.pupil.name} for Level ${s.level.levelNumber}${s.level.languageContents[0]?.title ? `: ${s.level.languageContents[0].title}` : ''}`,
+						text: `Nieuwe video inzending van ${s.pupil.name} voor Level ${s.level.levelNumber}${s.level.languageContents[0]?.title ? `: ${s.level.languageContents[0].title}` : ''}`,
 						time: s.createdAt
 					})),
 					...messages.map((m) => ({
 						type: 'message' as const,
-						text: `Message from ${m.parent.user.name}`,
+						text: `Bericht van ${m.parent.user.name}`,
 						time: m.createdAt
 					}))
 				]
