@@ -90,7 +90,7 @@
 							required
 							value={email}
 							oninput={(e) => (email = e.currentTarget.value)}
-							placeholder="demo@demo.com"
+							placeholder="E-mail"
 						/>
 					</div>
 
