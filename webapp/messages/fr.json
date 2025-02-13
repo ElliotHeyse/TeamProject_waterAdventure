@@ -244,5 +244,6 @@
     "notification_message": "Nouveau message reçu",
     "notification_review": "Nouvelle évaluation disponible",
     "submissions_overview": "Aperçu des Soumissions",
-    "child_profile": "Profil de l'Enfant"
+    "child_profile": "Profil de l'Enfant",
+    "uploading": "Téléchargement..."
 }

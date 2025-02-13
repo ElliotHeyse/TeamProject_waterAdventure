@@ -31,12 +31,15 @@
 	let success = $state(false);
 	let videoFile = $state<File | null>(null);
 	let fileName = writable('No file chosen');
+	let uploadProgress = $state(0);
+	let isUploading = $state(false);
 
 	function handleFileChange(event: Event) {
 		const input = event.target as HTMLInputElement;
 		if (input.files) {
 			videoFile = input.files[0];
 			$fileName = input.files[0].name;
+			uploadProgress = 0;
 		}
 	}
 
@@ -87,29 +90,53 @@
 			return;
 		}
 
+		isUploading = true;
+		uploadProgress = 0;
+
 		const formData = new FormData();
 		formData.append('pupilId', selectedChild.id);
 		formData.append('levelNumber', data.level.levelNumber);
 		formData.append('video', videoFile);
 
-		const response = await fetch('/api/submission', {
-			method: 'POST',
-			body: formData
-		});
+		try {
+			const xhr = new XMLHttpRequest();
+			xhr.open('POST', '/api/submission', true);
 
-		const result = await response.json();
+			xhr.upload.onprogress = (e) => {
+				if (e.lengthComputable) {
+					uploadProgress = Math.round((e.loaded * 100) / e.total);
+				}
+			};
 
-		if (result.success) {
-			console.info('submission success');
-			success = true;
-			message = m.video_submitted();
-			videoFile = null;
-			// After successful submission, redirect to levels page
-			setTimeout(() => {
-				goto('/app/levels');
-			}, 1500);
-		} else {
-			message = result.message || m.submission_failed();
+			const response = await new Promise<{ success: boolean; message?: string }>((resolve, reject) => {
+				xhr.onload = () => {
+					if (xhr.status >= 200 && xhr.status < 300) {
+						resolve(JSON.parse(xhr.responseText));
+					} else {
+						reject(new Error('Upload failed'));
+					}
+				};
+				xhr.onerror = () => reject(new Error('Upload failed'));
+				xhr.send(formData);
+			});
+
+			if (response.success) {
+				console.info('submission success');
+				success = true;
+				message = m.video_submitted();
+				videoFile = null;
+				// After successful submission, redirect to levels page
+				setTimeout(() => {
+					goto('/app/levels');
+				}, 1500);
+			} else {
+				message = response.message || m.submission_failed();
+			}
+		} catch (error) {
+			console.error('Upload error:', error);
+			message = m.submission_failed();
+		} finally {
+			isUploading = false;
 		}
 	}
 
@@ -489,23 +516,35 @@
 										</span>
 									</div>
 								</div>
-								<div class="flex gap-2 justify-between items-center">
-									<span
-										class="fz-ms2 tex-foreground truncate max-w-[50%] overflow-hidden whitespace-nowrap text-ellipsis"
-									>
-										{$fileName}
-									</span>
-									<button
-										type="submit"
-										class={cn(
-											'max-w-[50%] fz-ms2 min-[425px]:text-[1rem] rounded px-3 py-2 transition-colors text-white',
-											$userSettings.theme === 'DARK'
-												? 'bg-blue-700  hover:bg-blue-800'
-												: 'bg-blue-500  hover:bg-blue-600'
-										)}
-									>
-										{m.submit_video()}
-									</button>
+								<div class="flex flex-col gap-2">
+									<div class="flex gap-2 justify-between items-center">
+										<span
+											class="fz-ms2 tex-foreground truncate max-w-[50%] overflow-hidden whitespace-nowrap text-ellipsis"
+										>
+											{$fileName}
+										</span>
+										<button
+											type="submit"
+											disabled={isUploading}
+											class={cn(
+												'max-w-[50%] fz-ms2 min-[425px]:text-[1rem] rounded px-3 py-2 transition-colors text-white',
+												$userSettings.theme === 'DARK'
+													? isUploading ? 'bg-blue-900' : 'bg-blue-700 hover:bg-blue-800'
+													: isUploading ? 'bg-blue-700' : 'bg-blue-500 hover:bg-blue-600'
+											)}
+										>
+											{isUploading ? m.uploading() : m.submit_video()}
+										</button>
+									</div>
+									{#if isUploading}
+										<div class="w-full bg-gray-200 rounded-full h-2.5 dark:bg-gray-700">
+											<div
+												class="bg-blue-600 h-2.5 rounded-full transition-all duration-300"
+												style="width: {uploadProgress}%"
+											></div>
+										</div>
+										<p class="text-center text-sm text-muted-foreground">{uploadProgress}%</p>
+									{/if}
 								</div>
 							</form>
 							{#if message}

@@ -246,5 +246,6 @@
     "notification_review": "New review available",
     "submissions_overview": "Submissions Overview",
     "child_profile": "Child Profile",
-    "level_name": "Level {name}"
+    "level_name": "Level {name}",
+    "uploading": "Uploading..."
 }

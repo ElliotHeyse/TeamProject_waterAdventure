@@ -8,7 +8,7 @@
 	import { getGravatarUrl } from '$lib/utils/gravatar';
 
 	const { data } = $props<{ data: PageData }>();
-	let parents: (Parent & { user: User; pupils: Pupil[]; unreadCount: number })[] = $state(data.parents);
+	let parents: (Parent & { user: User; pupils: Pupil[]; unreadCount: number; lastMessageTime?: string })[] = $state([]);
 
 	let messages = $state<
 		{
@@ -47,6 +47,27 @@
 			.map((n) => n[0])
 			.join('')
 			.toUpperCase();
+	}
+
+	async function initializeParentsWithLastMessages() {
+		const parentsList = [...data.parents];
+		for (const parent of parentsList) {
+			const response = await fetch(`/api/messages?parentId=${parent.id}&coachId=${data.coach.id}`);
+			if (response.ok) {
+				const messages = await response.json();
+				const lastMessage = messages[messages.length - 1];
+				parent.lastMessageTime = lastMessage ? lastMessage.createdAt : parent.createdAt;
+			} else {
+				parent.lastMessageTime = parent.createdAt;
+			}
+		}
+		
+		// Sort parents by last message time, most recent first
+		parentsList.sort((a, b) => {
+			return new Date(b.lastMessageTime!).getTime() - new Date(a.lastMessageTime!).getTime();
+		});
+		
+		parents = parentsList;
 	}
 
 	async function selectParent(parent: Parent & { user: User; pupils: Pupil[] }) {
@@ -88,7 +109,11 @@
 	}
 
 	onMount(() => {
-		selectParent(parents[0]);
+		initializeParentsWithLastMessages().then(() => {
+			if (parents.length > 0) {
+				selectParent(parents[0]);
+			}
+		});
 	});
 
 	function initSocket() {
@@ -103,17 +128,18 @@
 					messages = [...messages, message];
 				}
 
-				// Only increment unread count for new messages from parent
-				if (message.sender === 'PARENT') {
-					const isCurrentChat = selectedParent?.id === message.parentId;
-					if (!isCurrentChat) {
-						parents = parents.map(p =>
-							p.id === message.parentId
-								? { ...p, unreadCount: (p.unreadCount || 0) + 1 }
-								: p
-						);
+				// Update parent's last message time and resort
+				parents = parents.map(p => {
+					if (p.id === message.parentId) {
+						const isCurrentChat = selectedParent?.id === message.parentId;
+						return { 
+							...p, 
+							lastMessageTime: new Date().toISOString(),
+							unreadCount: isCurrentChat ? 0 : (p.unreadCount || 0) + (message.sender === 'PARENT' ? 1 : 0)
+						};
 					}
-				}
+					return p;
+				}).sort((a, b) => new Date(b.lastMessageTime!).getTime() - new Date(a.lastMessageTime!).getTime());
 			}
 		});
 
@@ -161,6 +187,14 @@
 
 		socket.emit('message', message);
 		newMessage = '';
+
+		// Update the parent's last message time and resort the list
+		parents = parents.map(p => {
+			if (p.id === selectedParent.id) {
+				return { ...p, lastMessageTime: new Date().toISOString() };
+			}
+			return p;
+		}).sort((a, b) => new Date(b.lastMessageTime!).getTime() - new Date(a.lastMessageTime!).getTime());
 	}
 </script>
 
